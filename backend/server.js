@@ -1,16 +1,7 @@
-import express from "express";
-import medicosController from "./controllers/medicos.js";
+import app from "./app.js";
 
-const app = express();
-app.use(express.json());
+const puerto = process.env.PORT || 3000;
 
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-app.use("/api", medicosController);
-
-const puerto = 3000;
 app.listen(puerto, () => {
   console.log("Sweet Medical API corriendo en puerto " + puerto);
 });
