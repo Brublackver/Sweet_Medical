@@ -1,12 +1,24 @@
+/*
+    ROUTER PRINCIPAL — Punto central de configuracion de rutas
+    Registra todos los routers de cada recurso bajo su path base.
+    app.js importa este router y lo monta en la aplicacion Express.
+*/
+
 import { Router } from "express";
 
-import medicoRouter from "./medicoRoutes.js"
+import medicoRouter from "./medicoRoutes.js";
+import turnoRouter from "./turnoRoutes.js";
 import healthCheckRouter from "./healthCheck.js";
 
-const router = Router()
+const router = Router();
 
-// Configuración de paths bases para cada recurso
-router.use('/medico', medicoRouter)
-router.use('/healthCheck', healthCheckRouter)
+// /medico → todas las rutas de medicos y su disponibilidad
+router.use("/medico", medicoRouter);
 
-export default router
+// /turno → todas las rutas de turnos
+router.use("/turno", turnoRouter);
+
+// /healthCheck → endpoint de salud del servidor
+router.use("/healthCheck", healthCheckRouter);
+
+export default router;

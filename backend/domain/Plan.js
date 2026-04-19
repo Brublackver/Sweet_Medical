@@ -1,6 +1,8 @@
 export class Plan {
-    id;
-    nombre;
-    coberturasEspecialidad;
-    coberturasPractica;
+    constructor(id, nombre, coberturasEspecialidad, coberturasPractica) {
+        this.id = id;
+        this.nombre = nombre;
+        this.coberturasEspecialidad = coberturasEspecialidad;
+        this.coberturasPractica = coberturasPractica;
+    }
 }

@@ -8,15 +8,6 @@ const MedicoSchema = z.object({
 })
 
 export class Medico {
-    id;
-    usuario;
-    nombre;
-    matricula;
-    especialidades;
-    practicas;
-    sedes;
-    disponibilidades;
-
     constructor(id, usuario, matricula, nombre) {
         this.id = id;
         this.usuario = usuario.trim();

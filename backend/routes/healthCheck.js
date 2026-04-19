@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const healthCheckRouter = Router();
 
-// GET /api/medicos/:id/disponibilidad
+// GET /healthCheck → verifica que el servidor este corriendo
 healthCheckRouter.get("/", (req, res) => {
     res.json({ status: "ok" });
 });
