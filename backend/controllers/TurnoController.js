@@ -16,10 +16,12 @@ import { BadRequestError, NotFoundError, ConflictError } from "../errors/AppErro
 
 // Schema de validacion para crear un turno
 // medicoId y pacienteId deben ser enteros positivos
+// fecha en formato "2026-04-21", hora en formato "10:00:00"
 const crearTurnoSchema = z.object({
     medicoId: z.number().int().positive("El medicoId debe ser un entero positivo"),
     pacienteId: z.number().int().positive("El pacienteId debe ser un entero positivo"),
-    fechaHora: z.string().datetime({ message: "El formato de fecha y hora es invalido." }),
+    fecha: z.string().date("El formato de fecha es invalido. Usar YYYY-MM-DD"),
+    hora: z.string().time("El formato de hora es invalido. Usar HH:MM:SS"),
 });
 
 export class TurnoController {

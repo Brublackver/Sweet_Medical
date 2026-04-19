@@ -5,11 +5,12 @@
 */
 
 export class Turno {
-    constructor(id, medicoId, pacienteId, fechaHora) {
+    constructor(id, medicoId, pacienteId, fecha, hora) {
         this.id = id;
         this.medicoId = medicoId;
         this.pacienteId = pacienteId;
-        this.fechaHora = fechaHora;
+        this.fecha = fecha;
+        this.hora = hora;
         this.estado = "reservado";
         this.fechaCreacion = new Date().toISOString();
     }

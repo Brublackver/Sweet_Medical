@@ -27,21 +27,21 @@ export class TurnoRepository {
         return Promise.resolve(turno);
     }
 
-    // Busca si ya existe un turno para un medico en una fecha/hora especifica → Promise<Turno|null>
-    // Recibe: medicoId (number) y fechaHora (string ISO) desde TurnoService.crearTurno()
+    // Busca si ya existe un turno para un medico en una fecha y hora especifica → Promise<Turno|null>
+    // Recibe: medicoId (number), fecha (string) y hora (string) desde TurnoService.crearTurno()
     // Va hacia: TurnoService para verificar que no haya turno duplicado
-    buscarPorMedicoYFecha(medicoId, fechaHora) {
+    buscarPorMedicoFechaYHora(medicoId, fecha, hora) {
         const turno = this.turnos.find(
-            (t) => t.medicoId === medicoId && t.fechaHora === fechaHora
+            (t) => t.medicoId === medicoId && t.fecha === fecha && t.hora === hora
         ) || null;
         return Promise.resolve(turno);
     }
 
     // Crea un nuevo turno con id autoincrementado → Promise<Turno>
-    // Recibe: medicoId, pacienteId, fechaHora desde TurnoService.crearTurno()
+    // Recibe: medicoId, pacienteId, fecha, hora desde TurnoService.crearTurno()
     // Va hacia: TurnoService → TurnoController como respuesta 201
-    crear(medicoId, pacienteId, fechaHora) {
-        const nuevoTurno = new Turno(this.nextId++, medicoId, pacienteId, fechaHora);
+    crear(medicoId, pacienteId, fecha, hora) {
+        const nuevoTurno = new Turno(this.nextId++, medicoId, pacienteId, fecha, hora);
         this.turnos.push(nuevoTurno);
         return Promise.resolve(nuevoTurno);
     }
