@@ -1,4 +1,4 @@
-import * as z from "zod";
+import {z} from "zod";
 
 export const DisponibilidadHorariaSchema = z.object({
     diaSemana: z.literal(["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]),

@@ -15,12 +15,15 @@ import { MedicoRepository } from "../repositories/MedicoRepository.js";
 const medicoRouter = Router();
 
 // Instancia compartida — se exporta para que TurnoService use los mismos medicos
-export const medicoRepository = new MedicoRepository();
+export const medicoRepository = new MedicoRepository()
+
 const medicoService = new MedicoService({ medicoRepository });
+
 const medicoController = new MedicoController({ medicoService });
 
 // CRUD de medicos
 medicoRouter.get("/", medicoController.obtenerTodos);
+medicoRouter.get("/:id", medicoController.obtenerMedico);
 medicoRouter.post("/", medicoController.crearMedico);
 
 // CRUD de disponibilidad de un medico

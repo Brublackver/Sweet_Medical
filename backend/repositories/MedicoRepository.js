@@ -19,6 +19,11 @@ export class MedicoRepository {
         return Promise.resolve(this.medicos);
     }
 
+    obtenerMedico() {
+        return Promise.resolve(this.medicos);
+    }
+
+
     // Busca un medico por su id → Promise<Medico|null>
     // Recibe: id (number) desde MedicoService.validarMedico()
     // Va hacia: MedicoService para validar existencia

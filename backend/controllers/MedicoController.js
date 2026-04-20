@@ -11,7 +11,7 @@
 */
 
 import { MedicoService } from "../services/MedicoService.js";
-import * as z from "zod";
+import {z} from "zod";
 import { BadRequestError, NotFoundError, ConflictError } from "../errors/AppError.js";
 import { DisponibilidadHorariaSchema } from "../domain/DisponibilidadHoraria.js";
 
@@ -20,13 +20,11 @@ import { DisponibilidadHorariaSchema } from "../domain/DisponibilidadHoraria.js"
 const crearMedicoSchema = z.object({
     usuario: z.string().min(1, "El usuario es obligatorio").max(30),
     nombre: z.string().min(1, "El nombre es obligatorio").max(30),
-    matricula: z.string().min(1, "La matricula es obligatoria").max(30),
+    matricula: z.string().min(1, "La matricula es obligatoria").max(10),
 });
 
 export class MedicoController {
-    constructor({
-        medicoService = new MedicoService()
-    } = {}) {
+    constructor({ medicoService } = {}) {
         this.medicoService = medicoService;
     }
 
@@ -63,15 +61,28 @@ export class MedicoController {
             .catch((error) => this.manejarError(res, error));
     }
 
+    obtenerMedico = (req, res) => {
+        const id = req.params.id;
+        return this.medicoService.obtenerMedico()
+            .then((medicos) => {
+                res.status(200).json({ status: "success", data: medicos[id-1] });
+            })
+            .catch((error) => this.manejarError(res, error));
+    }
+
+
     // POST /medico — Crea un nuevo medico → res 201 con el medico creado
     // Viene de: medicoRoutes.js POST /
     // Valida body con crearMedicoSchema, luego va a MedicoService.crear()
     crearMedico = (req, res) => {
         const validacion = crearMedicoSchema.safeParse(req.body);
         if (!validacion.success) {
-            return Promise.resolve(
-                res.status(400).json({ status: "fail", errores: validacion.error.errors })
-            );
+            return res.status(400).json({
+            status: "fail",
+            message: "Datos de validación inválidos",
+            // .flatten() limpia el error de Zod para que sea más fácil de leer
+            errores: validacion.error.format()
+        });
         }
         return this.medicoService.crear(validacion.data)
             .then((medico) => {

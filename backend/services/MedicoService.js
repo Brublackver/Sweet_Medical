@@ -12,10 +12,16 @@ import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { NotFoundError } from "../errors/AppError.js";
 import { DisponibilidadHoraria } from "../domain/DisponibilidadHoraria.js";
 
+/*export class MedicoService {
+    constructor({ medicoRepository = new MedicoRepository()} = {}) {
+        this.medicoRepository = medicoRepository;
+    }
+
+ */
+
+
 export class MedicoService {
-    constructor({
-        medicoRepository = new MedicoRepository()
-    } = {}) {
+    constructor({ medicoRepository} = {}) {
         this.medicoRepository = medicoRepository;
     }
 
@@ -39,6 +45,10 @@ export class MedicoService {
         return this.medicoRepository.obtenerTodos();
     }
 
+    obtenerMedico() {
+        return this.medicoRepository.obtenerMedico();
+    }
+
     // Crea un nuevo medico con los datos recibidos → Promise<Medico>
     // Viene de: MedicoController.crearMedico() con datos ya validados por Zod
     // Va hacia: MedicoRepository.crear()
@@ -59,6 +69,7 @@ export class MedicoService {
     // Define la disponibilidad de un medico (reemplaza la existente) → Promise<void>
     // Viene de: MedicoController.definirDisponibilidad() con id y body validados
     // Va hacia: Medico.definirDisponibilidad() (metodo del dominio)
+    // Podríamos cambiar esta implementación en un futuro para que las disponibilidades sea un array de varios dias con sus respectivos horarios.
     definirDisponibilidad(id, body) {
         return this.validarMedico(id)
             .then((medico) => {
