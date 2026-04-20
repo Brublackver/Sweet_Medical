@@ -10,10 +10,10 @@
 import { Router } from "express";
 import { TurnoController } from "../controllers/TurnoController.js";
 import { TurnoService } from "../services/TurnoService.js";
-import { medicoRepository } from "./medicoRoutes.js";
+import { medicoRepository, turnoRepository } from "./medicoRoutes.js";
 
 const turnoRouter = Router();
-const turnoService = new TurnoService({ medicoRepository });
+const turnoService = new TurnoService({ turnoRepository, medicoRepository });
 const turnoController = new TurnoController({ turnoService });
 
 // CRUD de turnos

@@ -11,13 +11,15 @@ import { Router } from "express";
 import { MedicoController } from "../controllers/MedicoController.js";
 import { MedicoService } from "../services/MedicoService.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
+import { TurnoRepository } from "../repositories/TurnoRepository.js";
 
 const medicoRouter = Router();
 
-// Instancia compartida — se exporta para que TurnoService use los mismos medicos
+// Instancias compartidas — se exportan para que TurnoService use los mismos datos
 export const medicoRepository = new MedicoRepository()
+export const turnoRepository = new TurnoRepository()
 
-const medicoService = new MedicoService({ medicoRepository });
+const medicoService = new MedicoService({ medicoRepository, turnoRepository });
 
 const medicoController = new MedicoController({ medicoService });
 

@@ -21,8 +21,9 @@ import { DisponibilidadHoraria } from "../domain/DisponibilidadHoraria.js";
 
 
 export class MedicoService {
-    constructor({ medicoRepository} = {}) {
+    constructor({ medicoRepository, turnoRepository} = {}) {
         this.medicoRepository = medicoRepository;
+        this.turnoRepository = turnoRepository;
     }
 
     // Verifica que el medico exista en el repository → Promise<Medico>
@@ -60,9 +61,34 @@ export class MedicoService {
     // Viene de: MedicoController.obtenerDisponibilidad() con id validado
     // Va hacia: Medico.obtenerDisponibilidad() (metodo del dominio)
     obtenerDisponibilidad(id) {
+        let disponibilidadMedico;
+
         return this.validarMedico(id)
             .then((medico) => {
-                return medico.obtenerDisponibilidad();
+                disponibilidadMedico = medico.obtenerDisponibilidad();
+                return this.turnoRepository.buscarPorMedico(id);
+            })
+            .then((turnos) => {
+                const resultado = {};
+
+                for (const dia in disponibilidadMedico) {
+                    const disp = disponibilidadMedico[dia];
+                    const turnosDelDia = turnos
+                        .filter((t) => {
+                            const fechaTurno = new Date(t.fecha + "T" + t.hora + ":00");
+                            const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+                            return diasSemana[fechaTurno.getDay()] === dia;
+                        })
+                        .map((t) => ({ hora: t.hora, pacienteId: t.pacienteId }));
+
+                    resultado[dia] = {
+                        horaDesde: disp.horaDesde,
+                        horaHasta: disp.horaHasta,
+                        turnosReservados: turnosDelDia
+                    };
+                }
+
+                return resultado;
             });
     }
 

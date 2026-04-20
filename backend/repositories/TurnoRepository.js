@@ -27,6 +27,14 @@ export class TurnoRepository {
         return Promise.resolve(turno);
     }
 
+    // Devuelve todos los turnos de un medico → Promise<Turno[]>
+    // Viene de: MedicoService.obtenerDisponibilidad()
+    // Va hacia: MedicoService para armar la respuesta con turnos reservados
+    buscarPorMedico(medicoId) {
+        const turnos = this.turnos.filter((t) => t.medicoId === medicoId);
+        return Promise.resolve(turnos);
+    }
+
     // Busca si ya existe un turno para un medico en una fecha y hora especifica → Promise<Turno|null>
     // Recibe: medicoId (number), fecha (string) y hora (string) desde TurnoService.crearTurno()
     // Va hacia: TurnoService para verificar que no haya turno duplicado
