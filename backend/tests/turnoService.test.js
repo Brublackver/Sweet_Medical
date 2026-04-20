@@ -1,5 +1,4 @@
-import { describe, it } from "node:test";
-import assert from "node:assert";
+import { describe, it, expect } from "@jest/globals";
 import { TurnoService } from "../services/TurnoService.js";
 import { TurnoRepository } from "../repositories/TurnoRepository.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
@@ -25,11 +24,11 @@ describe("TurnoService - Alta de turno", () => {
                 });
             })
             .then((turno) => {
-                assert.strictEqual(turno.medicoId, 1);
-                assert.strictEqual(turno.pacienteId, 1);
-                assert.strictEqual(turno.estado, "reservado");
-                assert.strictEqual(turno.fecha, "2026-04-20");
-                assert.strictEqual(turno.hora, "10:00");
+                expect(turno.medicoId).toBe(1);
+                expect(turno.pacienteId).toBe(1);
+                expect(turno.estado).toBe("reservado");
+                expect(turno.fecha).toBe("2026-04-20");
+                expect(turno.hora).toBe("10:00");
             });
     });
 });

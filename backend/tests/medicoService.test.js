@@ -1,5 +1,4 @@
-import { describe, it } from "node:test";
-import assert from "node:assert";
+import { describe, it, expect } from "@jest/globals";
 import { MedicoService } from "../services/MedicoService.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { TurnoRepository } from "../repositories/TurnoRepository.js";
@@ -23,10 +22,10 @@ describe("MedicoService - Disponibilidad", () => {
                 return medicoService.obtenerDisponibilidad(1);
             })
             .then((disponibilidad) => {
-                assert.ok(disponibilidad.lunes, "Debe existir disponibilidad para el lunes");
-                assert.strictEqual(disponibilidad.lunes.horaDesde, 9);
-                assert.strictEqual(disponibilidad.lunes.horaHasta, 17);
-                assert.deepStrictEqual(disponibilidad.lunes.turnosReservados, []);
+                expect(disponibilidad.lunes).toBeDefined();
+                expect(disponibilidad.lunes.horaDesde).toBe(9);
+                expect(disponibilidad.lunes.horaHasta).toBe(17);
+                expect(disponibilidad.lunes.turnosReservados).toEqual([]);
             });
     });
 });
