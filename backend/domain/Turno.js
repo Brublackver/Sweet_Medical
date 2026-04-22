@@ -5,10 +5,9 @@
 */
 
 export class Turno {
-    constructor(id, medicoId, pacienteId, fecha, hora) {
+    constructor(id, medicoId, fecha, hora) {
         this.id = id;
         this.medicoId = medicoId;
-        this.pacienteId = pacienteId;
         this.fecha = fecha;
         this.hora = hora;
         this.estado = "reservado";

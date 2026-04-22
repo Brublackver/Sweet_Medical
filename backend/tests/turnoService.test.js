@@ -18,14 +18,12 @@ describe("TurnoService - Alta de turno", () => {
 
                 return turnoService.crearTurno({
                     medicoId: medico.id,
-                    pacienteId: 1,
                     fecha: "2026-04-20",
                     hora: "10:00"
                 });
             })
             .then((turno) => {
                 expect(turno.medicoId).toBe(1);
-                expect(turno.pacienteId).toBe(1);
                 expect(turno.estado).toBe("reservado");
                 expect(turno.fecha).toBe("2026-04-20");
                 expect(turno.hora).toBe("10:00");

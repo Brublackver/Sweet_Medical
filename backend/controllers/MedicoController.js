@@ -114,7 +114,7 @@ export class MedicoController {
         try {
             const id = this.validarId(req.params.id);
             const body = this.validarDisponibilidad(req.body);
-            return this.medicoService.definirDisponibilidad(id, body)
+            return this.medicoService.definirDisponibilidad(id, body) 
                 .then(() => {
                     res.status(201).json({ status: "success" });
                 })

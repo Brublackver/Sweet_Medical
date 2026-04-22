@@ -48,8 +48,8 @@ export class TurnoRepository {
     // Crea un nuevo turno con id autoincrementado → Promise<Turno>
     // Recibe: medicoId, pacienteId, fecha, hora desde TurnoService.crearTurno()
     // Va hacia: TurnoService → TurnoController como respuesta 201
-    crear(medicoId, pacienteId, fecha, hora) {
-        const nuevoTurno = new Turno(this.nextId++, medicoId, pacienteId, fecha, hora);
+    crear(medicoId, fecha, hora) {
+        const nuevoTurno = new Turno(this.nextId++, medicoId, fecha, hora);
         this.turnos.push(nuevoTurno);
         return Promise.resolve(nuevoTurno);
     }

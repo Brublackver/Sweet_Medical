@@ -75,7 +75,7 @@ export class TurnoService {
                     return Promise.reject(new ConflictError("Ya existe un turno para ese medico en ese horario"));
                 }
 
-                return this.turnoRepository.crear(datos.medicoId, datos.pacienteId, fecha, hora);
+                return this.turnoRepository.crear(datos.medicoId, fecha, hora);
             });
     }
 
