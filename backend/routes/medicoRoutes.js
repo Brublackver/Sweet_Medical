@@ -12,6 +12,7 @@ import { MedicoController } from "../controllers/MedicoController.js";
 import { MedicoService } from "../services/MedicoService.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { TurnoRepository } from "../repositories/TurnoRepository.js";
+import { DisponibilidadHoraria } from "../domain/DisponibilidadHorario.js";
 
 const medicoRouter = Router();
 
@@ -19,19 +20,24 @@ const medicoRouter = Router();
 export const medicoRepository = new MedicoRepository()
 export const turnoRepository = new TurnoRepository()
 
-const medicoService = new MedicoService({ medicoRepository, turnoRepository });
+const disponibilidadHoraria = new DisponibilidadHoraria()
+
+const medicoService = new MedicoService({ medicoRepository, turnoRepository, disponibilidadHoraria });
 
 const medicoController = new MedicoController({ medicoService });
 
 // CRUD de medicos
-medicoRouter.get("/", medicoController.obtenerTodos);
-medicoRouter.get("/:id", medicoController.obtenerMedico);
-medicoRouter.post("/", medicoController.crearMedico);
+medicoRouter.route ('/')
+.get(medicoController.obtenerTodos)
+.post(medicoController.crearMedico);
 
-// CRUD de disponibilidad de un medico
-medicoRouter.get("/:id/disponibilidad", medicoController.obtenerDisponibilidad);
-medicoRouter.post("/:id/disponibilidad", medicoController.definirDisponibilidad);
-medicoRouter.put("/:id/disponibilidad", medicoController.cambiarDisponibilidad);
-medicoRouter.delete("/:id/disponibilidad", medicoController.eliminarDisponibilidad);
+medicoRouter.route ('/:id')
+.get(medicoController.obtenerMedico);
+
+medicoRouter.route ('/:id/disponibilidad')
+    .get(medicoController.obtenerDisponibilidad)
+    .post( medicoController.definirDisponibilidad)
+    .put(medicoController.cambiarDisponibilidad)
+    .delete(medicoController.eliminarDisponibilidad); // modificar mas adelante para eliminar una disp en especifico, no todas
 
 export default medicoRouter;

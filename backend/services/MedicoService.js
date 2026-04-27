@@ -8,28 +8,19 @@
          REPOSITORY
 */
 
-import { MedicoRepository } from "../repositories/MedicoRepository.js";
-import { NotFoundError } from "../errors/AppError.js";
-import { DisponibilidadHoraria } from "../domain/DisponibilidadHoraria.js";
-
-/*export class MedicoService {
-    constructor({ medicoRepository = new MedicoRepository()} = {}) {
-        this.medicoRepository = medicoRepository;
-    }
-
- */
-
+import { NotFoundError, BadRequestError } from "../errors/AppError.js";
 
 export class MedicoService {
-    constructor({ medicoRepository, turnoRepository} = {}) {
+    constructor({ medicoRepository, turnoService} = {}) {
         this.medicoRepository = medicoRepository;
-        this.turnoRepository = turnoRepository;
+        this.turnoService = turnoService;
     }
 
     // Verifica que el medico exista en el repository → Promise<Medico>
     // Recibe: id (number) desde cualquier metodo de este service
     // Si no existe: rechaza la Promise con NotFoundError
-    validarMedico(id) {
+
+    obtenerPorId(id) {
         return this.medicoRepository.obtenerPorId(id)
             .then((medico) => {
                 if (!medico) {
@@ -46,10 +37,6 @@ export class MedicoService {
         return this.medicoRepository.obtenerTodos();
     }
 
-    obtenerMedico() {
-        return this.medicoRepository.obtenerMedico();
-    }
-
     // Crea un nuevo medico con los datos recibidos → Promise<Medico>
     // Viene de: MedicoController.crearMedico() con datos ya validados por Zod
     // Va hacia: MedicoRepository.crear()
@@ -57,39 +44,15 @@ export class MedicoService {
         return this.medicoRepository.crear(datos);
     }
 
-    // Obtiene la disponibilidad horaria de un medico → Promise<Object>
-    // Viene de: MedicoController.obtenerDisponibilidad() con id validado
-    // Va hacia: Medico.obtenerDisponibilidad() (metodo del dominio)
     obtenerDisponibilidad(id) {
-        let disponibilidadMedico;
+        let medico;
 
-        return this.validarMedico(id)
-            .then((medico) => {
-                disponibilidadMedico = medico.obtenerDisponibilidad();
-                return this.turnoRepository.buscarPorMedico(id);
-            })
-            .then((turnos) => {
-                const resultado = {};
-
-                for (const dia in disponibilidadMedico) {
-                    const disp = disponibilidadMedico[dia];
-                    const turnosDelDia = turnos
-                        .filter((t) => {
-                            const fechaTurno = new Date(t.fecha + "T" + t.hora + ":00");
-                            const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
-                            return diasSemana[fechaTurno.getDay()] === dia;
-                        })
-                        .map((t) => ({ hora: t.hora, pacienteId: t.pacienteId }));
-
-                    resultado[dia] = {
-                        horaDesde: disp.horaDesde,
-                        horaHasta: disp.horaHasta,
-                        turnosReservados: turnosDelDia
-                    };
-                }
-
-                return resultado;
-            });
+        return this.obtenerPorId(id)
+                    .then((m) => {
+                        medico = m;
+                        return this.turnoService.buscarPorMedico(id); // ✅ service → service
+                    })
+                    .then((turnos) => medico.obtenerDisponibilidadConTurnos(turnos));
     }
 
     // Define la disponibilidad de un medico (reemplaza la existente) → Promise<void>
@@ -97,29 +60,19 @@ export class MedicoService {
     // Va hacia: Medico.definirDisponibilidad() (metodo del dominio)
     // Podríamos cambiar esta implementación en un futuro para que las disponibilidades sea un array de varios dias con sus respectivos horarios.
     definirDisponibilidad(id, body) {
-        return this.validarMedico(id)
+        return this.obtenerPorId(id)
             .then((medico) => {
-                const disponibilidad = new DisponibilidadHoraria(
-                    body.diaSemana,
-                    body.horaDesde,
-                    body.horaHasta
-                );
-                medico.definirDisponibilidad(disponibilidad);
+                medico.definirDisponibilidad(body);
             });
     }
 
-    // Cambia la disponibilidad de un dia especifico sin borrar las demas → Promise<void>
-    // Viene de: MedicoController.cambiarDisponibilidad() con id y body validados
-    // Va hacia: Medico.cambiarDisponibilidad() (metodo del dominio)
     cambiarDisponibilidad(id, body) {
-        return this.validarMedico(id)
+        return this.obtenerPorId(id)
             .then((medico) => {
-                const disponibilidad = new DisponibilidadHoraria(
-                    body.diaSemana,
-                    body.horaDesde,
-                    body.horaHasta
-                );
-                medico.cambiarDisponibilidad(disponibilidad);
+                const cambiado = medico.cambiarDisponibilidad(body);
+                if (!cambiado) {
+                    return Promise.reject(new BadRequestError("No existe disponibilidad para el dia " + body.diaSemana));
+                }
             });
     }
 
@@ -127,7 +80,7 @@ export class MedicoService {
     // Viene de: MedicoController.eliminarDisponibilidad() con id validado
     // Va hacia: Medico.eliminarDisponibilidad() (metodo del dominio)
     eliminarDisponibilidad(id) {
-        return this.validarMedico(id)
+        return this.obtenerPorId(id)
             .then((medico) => {
                 medico.eliminarDisponibilidad();
             });

@@ -15,10 +15,12 @@ import { medicoRepository, turnoRepository } from "./medicoRoutes.js";
 const turnoRouter = Router();
 const turnoService = new TurnoService({ turnoRepository, medicoRepository });
 const turnoController = new TurnoController({ turnoService });
+//CRUD de turnos
+turnoRouter
+  .route("/")
+  .get(turnoController.obtenerTodos)
+  .post(turnoController.crearTurno);
 
-// CRUD de turnos
-turnoRouter.get("/", turnoController.obtenerTodos);
-turnoRouter.post("/", turnoController.crearTurno);
-turnoRouter.delete("/:id", turnoController.cancelarTurno);
+turnoRouter.route("/:id").delete(turnoController.cancelarTurno);
 
 export default turnoRouter;

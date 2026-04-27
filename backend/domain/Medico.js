@@ -1,11 +1,5 @@
-import * as z from "zod";
-
-const MedicoSchema = z.object({
-    id: z.int().gt(0),
-    usuario: z.string().max(30),
-    nombre: z.string().max(30),
-    matricula: z.number().max(10),
-})
+import { DisponibilidadHoraria } from "./DisponibilidadHoraria.js";
+import { GestorDisponibilidades } from "./GestorDisponibilidades.js";
 
 export class Medico {
     constructor(id, usuario, matricula, nombre) {
@@ -16,23 +10,46 @@ export class Medico {
         this.especialidades = [];
         this.practicas = [];
         this.sedes = [];
-        this.disponibilidades = {};
+        this.disponibilidades = [];
     }
 
-    definirDisponibilidad(disponibilidad) {
-        this.eliminarDisponibilidad();
-        this.disponibilidades[disponibilidad.diaSemana] = disponibilidad;
+    definirDisponibilidad({ diaSemana, horaDesde, horaHasta }) {
+        const nueva = new DisponibilidadHoraria(diaSemana, horaDesde, horaHasta);
+        this.disponibilidades = GestorDisponibilidades.definir(this.disponibilidades, nueva);
     }
 
-    cambiarDisponibilidad(disponibilidad) {
-        this.disponibilidades[disponibilidad.diaSemana] = disponibilidad;
+    cambiarDisponibilidad({ diaSemana, horaDesde, horaHasta }) {
+        const index = this.disponibilidades.findIndex(d => d.diaSemana === diaSemana);
+        if (index === -1) return false;
+        this.disponibilidades[index] = new DisponibilidadHoraria(diaSemana, horaDesde, horaHasta);
+        return true;
+    }
+
+    tieneDisponibilidad(diaSemana, hora) {
+        let i = this.disponibilidades.length - 1;
+        while (i >= 0) {
+            const slot = this.disponibilidades[i];
+            if (slot.diaSemana === diaSemana && hora >= slot.horaDesde && hora < slot.horaHasta) {
+                return true;
+            }
+            i--;
+        }
+        return false;
     }
 
     eliminarDisponibilidad() {
-        this.disponibilidades = {};
+        this.disponibilidades = [];
     }
 
-    obtenerDisponibilidad() {
-        return this.disponibilidades;
+    obtenerDisponibilidadConTurnos(turnos) {
+        const resultado = {};
+        for (const disp of this.disponibilidades) {
+            resultado[disp.diaSemana] = {
+                horaDesde: disp.horaDesde,
+                horaHasta: disp.horaHasta,
+                turnosReservados: disp.turnosDelDia(turnos)
+            };
+        }
+        return resultado;
     }
 }

@@ -8,7 +8,7 @@ import { Router } from "express";
 
 import medicoRouter from "./medicoRoutes.js";
 import turnoRouter from "./turnoRoutes.js";
-import healthCheckRouter from "./healthCheck.js";
+import healthcheckRouter from "./healthcheck.js";
 
 const router = Router();
 
@@ -18,7 +18,7 @@ router.use("/medico", medicoRouter);
 // /turno → todas las rutas de turnos
 router.use("/turno", turnoRouter);
 
-// /healthCheck → endpoint de salud del servidor
-router.use("/healthCheck", healthCheckRouter);
+// /healthcheck → endpoint de salud del servidor
+router.use("/healthcheck", healthcheckRouter);
 
 export default router;
