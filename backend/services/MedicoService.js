@@ -1,0 +1,135 @@
+/*
+    SERVICE — Capa de logica de negocio
+    Recibe datos validados externamente desde el Controller.
+    Aplica reglas de negocio y delega el acceso a datos al Repository.
+
+    SERVICE --- DOMAIN
+             |
+         REPOSITORY
+*/
+
+import { MedicoRepository } from "../repositories/MedicoRepository.js";
+import { NotFoundError } from "../errors/AppError.js";
+import { DisponibilidadHoraria } from "../domain/DisponibilidadHoraria.js";
+
+/*export class MedicoService {
+    constructor({ medicoRepository = new MedicoRepository()} = {}) {
+        this.medicoRepository = medicoRepository;
+    }
+
+ */
+
+
+export class MedicoService {
+    constructor({ medicoRepository, turnoRepository} = {}) {
+        this.medicoRepository = medicoRepository;
+        this.turnoRepository = turnoRepository;
+    }
+
+    // Verifica que el medico exista en el repository → Promise<Medico>
+    // Recibe: id (number) desde cualquier metodo de este service
+    // Si no existe: rechaza la Promise con NotFoundError
+    validarMedico(id) {
+        return this.medicoRepository.obtenerPorId(id)
+            .then((medico) => {
+                if (!medico) {
+                    return Promise.reject(new NotFoundError("Medico no encontrado"));
+                }
+                return medico;
+            });
+    }
+
+    // Devuelve todos los medicos → Promise<Medico[]>
+    // Viene de: MedicoController.obtenerTodos()
+    // Va hacia: MedicoRepository.obtenerTodos()
+    obtenerTodos() {
+        return this.medicoRepository.obtenerTodos();
+    }
+
+    obtenerMedico() {
+        return this.medicoRepository.obtenerMedico();
+    }
+
+    // Crea un nuevo medico con los datos recibidos → Promise<Medico>
+    // Viene de: MedicoController.crearMedico() con datos ya validados por Zod
+    // Va hacia: MedicoRepository.crear()
+    crear(datos) {
+        return this.medicoRepository.crear(datos);
+    }
+
+    // Obtiene la disponibilidad horaria de un medico → Promise<Object>
+    // Viene de: MedicoController.obtenerDisponibilidad() con id validado
+    // Va hacia: Medico.obtenerDisponibilidad() (metodo del dominio)
+    obtenerDisponibilidad(id) {
+        let disponibilidadMedico;
+
+        return this.validarMedico(id)
+            .then((medico) => {
+                disponibilidadMedico = medico.obtenerDisponibilidad();
+                return this.turnoRepository.buscarPorMedico(id);
+            })
+            .then((turnos) => {
+                const resultado = {};
+
+                for (const dia in disponibilidadMedico) {
+                    const disp = disponibilidadMedico[dia];
+                    const turnosDelDia = turnos
+                        .filter((t) => {
+                            const fechaTurno = new Date(t.fecha + "T" + t.hora + ":00");
+                            const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+                            return diasSemana[fechaTurno.getDay()] === dia;
+                        })
+                        .map((t) => ({ hora: t.hora, pacienteId: t.pacienteId }));
+
+                    resultado[dia] = {
+                        horaDesde: disp.horaDesde,
+                        horaHasta: disp.horaHasta,
+                        turnosReservados: turnosDelDia
+                    };
+                }
+
+                return resultado;
+            });
+    }
+
+    // Define la disponibilidad de un medico (reemplaza la existente) → Promise<void>
+    // Viene de: MedicoController.definirDisponibilidad() con id y body validados
+    // Va hacia: Medico.definirDisponibilidad() (metodo del dominio)
+    // Podríamos cambiar esta implementación en un futuro para que las disponibilidades sea un array de varios dias con sus respectivos horarios.
+    definirDisponibilidad(id, body) {
+        return this.validarMedico(id)
+            .then((medico) => {
+                const disponibilidad = new DisponibilidadHoraria(
+                    body.diaSemana,
+                    body.horaDesde,
+                    body.horaHasta
+                );
+                medico.definirDisponibilidad(disponibilidad);
+            });
+    }
+
+    // Cambia la disponibilidad de un dia especifico sin borrar las demas → Promise<void>
+    // Viene de: MedicoController.cambiarDisponibilidad() con id y body validados
+    // Va hacia: Medico.cambiarDisponibilidad() (metodo del dominio)
+    cambiarDisponibilidad(id, body) {
+        return this.validarMedico(id)
+            .then((medico) => {
+                const disponibilidad = new DisponibilidadHoraria(
+                    body.diaSemana,
+                    body.horaDesde,
+                    body.horaHasta
+                );
+                medico.cambiarDisponibilidad(disponibilidad);
+            });
+    }
+
+    // Elimina toda la disponibilidad de un medico → Promise<void>
+    // Viene de: MedicoController.eliminarDisponibilidad() con id validado
+    // Va hacia: Medico.eliminarDisponibilidad() (metodo del dominio)
+    eliminarDisponibilidad(id) {
+        return this.validarMedico(id)
+            .then((medico) => {
+                medico.eliminarDisponibilidad();
+            });
+    }
+}

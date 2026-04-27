@@ -1,0 +1,66 @@
+/*
+    REPOSITORY — Capa de acceso a datos para Turnos
+    Almacena los turnos en memoria.
+    Recibe pedidos del TurnoService y devuelve Promises.
+*/
+
+import { Turno } from "../domain/Turno.js";
+
+export class TurnoRepository {
+    constructor() {
+        this.turnos = [];
+        this.nextId = 1;
+    }
+
+    // Devuelve todos los turnos almacenados → Promise<Turno[]>
+    // Viene de: TurnoService.obtenerTodos()
+    // Va hacia: TurnoController como respuesta JSON
+    obtenerTodos() {
+        return Promise.resolve(this.turnos);
+    }
+
+    // Busca un turno por su id → Promise<Turno|null>
+    // Recibe: id (number) desde TurnoService.cancelarTurno()
+    // Va hacia: TurnoService para validar existencia antes de cancelar
+    obtenerPorId(id) {
+        const turno = this.turnos.find((t) => t.id === id) || null;
+        return Promise.resolve(turno);
+    }
+
+    // Devuelve todos los turnos de un medico → Promise<Turno[]>
+    // Viene de: MedicoService.obtenerDisponibilidad()
+    // Va hacia: MedicoService para armar la respuesta con turnos reservados
+    buscarPorMedico(medicoId) {
+        const turnos = this.turnos.filter((t) => t.medicoId === medicoId);
+        return Promise.resolve(turnos);
+    }
+
+    // Busca si ya existe un turno para un medico en una fecha y hora especifica → Promise<Turno|null>
+    // Recibe: medicoId (number), fecha (string) y hora (string) desde TurnoService.crearTurno()
+    // Va hacia: TurnoService para verificar que no haya turno duplicado
+    buscarPorMedicoFechaYHora(medicoId, fecha, hora) {
+        const turno = this.turnos.find(
+            (t) => t.medicoId === medicoId && t.fecha === fecha && t.hora === hora
+        ) || null;
+        return Promise.resolve(turno);
+    }
+
+    // Crea un nuevo turno con id autoincrementado → Promise<Turno>
+    // Recibe: medicoId, pacienteId, fecha, hora desde TurnoService.crearTurno()
+    // Va hacia: TurnoService → TurnoController como respuesta 201
+    crear(medicoId, fecha, hora) {
+        const nuevoTurno = new Turno(this.nextId++, medicoId, fecha, hora);
+        this.turnos.push(nuevoTurno);
+        return Promise.resolve(nuevoTurno);
+    }
+
+    // Elimina un turno por su id → Promise<boolean>
+    // Recibe: id (number) desde TurnoService.cancelarTurno()
+    // Va hacia: TurnoService → TurnoController como respuesta 204
+    eliminar(id) {
+        const index = this.turnos.findIndex((t) => t.id === id);
+        if (index === -1) return Promise.resolve(false);
+        this.turnos.splice(index, 1);
+        return Promise.resolve(true);
+    }
+}

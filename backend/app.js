@@ -1,13 +1,14 @@
 import express from "express";
-import medicosRoutes from "./routes/medicos.routes.js";
+import cors from "cors"
+import dotenv from "dotenv"
+import router from "./routes/router.js"
+
+dotenv.config()
 
 const app = express();
+
 app.use(express.json());
-
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-app.use("/api", medicosRoutes);
+app.use(cors());
+app.use(router);
 
 export default app;
