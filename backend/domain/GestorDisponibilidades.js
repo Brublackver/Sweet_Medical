@@ -1,16 +1,16 @@
 export class GestorDisponibilidades {
 
-    static separarPorDia(disponibilidades, dia) {
+    static separarPorFecha(disponibilidades, fecha) {
         return {
-            mismosDia: disponibilidades.filter(d => d.diaSemana === dia),
-            otrosDias: disponibilidades.filter(d => d.diaSemana !== dia),
+            mismaFecha: disponibilidades.filter(d => d.fecha === fecha),
+            otrasFechas: disponibilidades.filter(d => d.fecha !== fecha),
         };
     }
 
-    static integrarEnDia(nueva, mismosDia) {
+    static integrarEnFecha(nueva, mismaFecha) {
         let bloque = nueva;
 
-        const sinSolapamiento = mismosDia.filter(disp => {
+        const sinSolapamiento = mismaFecha.filter(disp => {
             if (bloque.seSolapaCon(disp)) {
                 bloque = bloque.fusionarCon(disp);
                 return false;
@@ -22,9 +22,9 @@ export class GestorDisponibilidades {
     }
 
     static definir(disponibilidades, nueva) {
-        const { mismosDia, otrosDias } = this.separarPorDia(disponibilidades, nueva.diaSemana);
-        const diaActualizado = this.integrarEnDia(nueva, mismosDia);
+        const { mismaFecha, otrasFechas } = this.separarPorFecha(disponibilidades, nueva.fecha);
+        const fechaActualizada = this.integrarEnFecha(nueva, mismaFecha);
 
-        return [...otrosDias, ...diaActualizado];
+        return [...otrasFechas, ...fechaActualizada];
     }
 }

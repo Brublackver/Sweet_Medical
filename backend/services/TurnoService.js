@@ -41,17 +41,11 @@ export class TurnoService {
   // Paso 3: Verifica que no exista un turno en el mismo horario para ese medico
   // Paso 4: Crea el turno en TurnoRepository
   crearTurno(datos) {
-    const fechaTurno = new Date(datos.fecha + "T" + datos.hora + ":00");
-    const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
-    const diaSemana = diasSemana[fechaTurno.getDay()];
-    const horaNum = fechaTurno.getHours();
-
     return this.medicoService
       .obtenerPorId(datos.medicoId)
       .then((medico) => {
-        if (!medico) return Promise.reject(new NotFoundError("Medico no encontrado"));
-        if (!medico.tieneDisponibilidad(diaSemana, horaNum)) {
-          return Promise.reject(new BadRequestError("El medico no tiene disponibilidad el dia " + diaSemana + " a las " + horaNum + ":00"));
+        if (!medico.tieneDisponibilidad(datos.fecha, datos.hora)) {
+          return Promise.reject(new BadRequestError("El medico no tiene disponibilidad el " + datos.fecha + " a las " + datos.hora));
         }
         return this.turnoRepository.buscarPorMedicoFechaYHora(datos.medicoId, datos.fecha, datos.hora);
       })

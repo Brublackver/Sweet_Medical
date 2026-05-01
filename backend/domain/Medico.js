@@ -13,23 +13,23 @@ export class Medico {
         this.disponibilidades = [];
     }
 
-    definirDisponibilidad({ diaSemana, horaDesde, horaHasta }) {
-        const nueva = new DisponibilidadHoraria(diaSemana, horaDesde, horaHasta);
+    definirDisponibilidad({ fecha, horaDesde, horaHasta }) {
+        const nueva = new DisponibilidadHoraria(fecha, horaDesde, horaHasta);
         this.disponibilidades = GestorDisponibilidades.definir(this.disponibilidades, nueva);
     }
 
-    cambiarDisponibilidad({ diaSemana, horaDesde, horaHasta }) {
-        const index = this.disponibilidades.findIndex(d => d.diaSemana === diaSemana);
+    cambiarDisponibilidad({ fecha, horaDesde, horaHasta }) {
+        const index = this.disponibilidades.findIndex(d => d.fecha === fecha);
         if (index === -1) return false;
-        this.disponibilidades[index] = new DisponibilidadHoraria(diaSemana, horaDesde, horaHasta);
+        this.disponibilidades[index] = new DisponibilidadHoraria(fecha, horaDesde, horaHasta);
         return true;
     }
 
-    tieneDisponibilidad(diaSemana, hora) {
+    tieneDisponibilidad(fecha, hora) {
         let i = this.disponibilidades.length - 1;
         while (i >= 0) {
             const slot = this.disponibilidades[i];
-            if (slot.diaSemana === diaSemana && hora >= slot.horaDesde && hora < slot.horaHasta) {
+            if (slot.fecha === fecha && hora >= slot.horaDesde && hora < slot.horaHasta) {
                 return true;
             }
             i--;
@@ -41,13 +41,35 @@ export class Medico {
         this.disponibilidades = [];
     }
 
+    obtenerDisponibilidadPorId(disponibilidadId) {
+        return this.disponibilidades.find(d => d.id === disponibilidadId) || null;
+    }
+
+    eliminarDisponibilidadPorId(disponibilidadId) {
+        const index = this.disponibilidades.findIndex(d => d.id === disponibilidadId);
+        if (index === -1) return false;
+        this.disponibilidades.splice(index, 1);
+        return true;
+    }
+
+    obtenerDisponibilidadPorFecha(fecha, turnos) {
+        return this.disponibilidades
+            .filter(d => d.fecha === fecha)
+            .map(d => ({
+                id: d.id,
+                horaDesde: d.horaDesde,
+                horaHasta: d.horaHasta,
+                turnosReservados: d.turnosDeFecha(turnos)
+            }));
+    }
+
     obtenerDisponibilidadConTurnos(turnos) {
         const resultado = {};
         for (const disp of this.disponibilidades) {
-            resultado[disp.diaSemana] = {
+            resultado[disp.fecha] = {
                 horaDesde: disp.horaDesde,
                 horaHasta: disp.horaHasta,
-                turnosReservados: disp.turnosDelDia(turnos)
+                turnosReservados: disp.turnosDeFecha(turnos)
             };
         }
         return resultado;

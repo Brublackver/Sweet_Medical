@@ -4,8 +4,10 @@
   "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Hp1cF9Q4)\r # 2026 1C - TP BACKEND",
   "main": "server.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch server.js"
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -15,5 +17,10 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.3.0",
+    "jest": "^30.3.0",
+    "prettier": "^3.0.0"
   }
 }

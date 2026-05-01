@@ -1,31 +1,48 @@
 export class DisponibilidadHoraria {
-    constructor(diaSemana, horaDesde, horaHasta) {
-        this.diaSemana = diaSemana;
+    static nextId = 1;
+
+    constructor(fecha, horaDesde, horaHasta) {
+        this.id = DisponibilidadHoraria.nextId++;
+        this.fecha = fecha;
         this.horaDesde = horaDesde;
         this.horaHasta = horaHasta;
     }
 
-    static diaDeFecha(fecha, hora) {
-        const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
-        const dt = new Date(`${fecha}T${hora}:00`);
-        return diasSemana[dt.getDay()];
+    static #toMinutos(hora) {
+        const [h, m] = hora.split(":").map(Number);
+        return h * 60 + m;
     }
 
-    turnosDelDia(turnos) {
+    static #fromMinutos(minutos) {
+        const h = Math.floor(minutos / 60).toString().padStart(2, "0");
+        const m = (minutos % 60).toString().padStart(2, "0");
+        return `${h}:${m}`;
+    }
+
+    turnosDeFecha(turnos) {
         return turnos
-            .filter(t => DisponibilidadHoraria.diaDeFecha(t.fecha, t.hora) === this.diaSemana)
+            .filter(t => t.fecha === this.fecha)
             .map(t => ({ hora: t.hora }));
     }
 
     seSolapaCon(otra) {
-        return this.horaDesde < otra.horaHasta && this.horaHasta > otra.horaDesde;
+        return DisponibilidadHoraria.#toMinutos(this.horaDesde) < DisponibilidadHoraria.#toMinutos(otra.horaHasta)
+            && DisponibilidadHoraria.#toMinutos(this.horaHasta) > DisponibilidadHoraria.#toMinutos(otra.horaDesde);
     }
 
     fusionarCon(otra) {
+        const desdeMin = Math.min(
+            DisponibilidadHoraria.#toMinutos(this.horaDesde),
+            DisponibilidadHoraria.#toMinutos(otra.horaDesde)
+        );
+        const hastaMin = Math.max(
+            DisponibilidadHoraria.#toMinutos(this.horaHasta),
+            DisponibilidadHoraria.#toMinutos(otra.horaHasta)
+        );
         return new DisponibilidadHoraria(
-            this.diaSemana,
-            Math.min(this.horaDesde, otra.horaDesde),
-            Math.max(this.horaHasta, otra.horaHasta)
+            this.fecha,
+            DisponibilidadHoraria.#fromMinutos(desdeMin),
+            DisponibilidadHoraria.#fromMinutos(hastaMin)
         );
     }
 }

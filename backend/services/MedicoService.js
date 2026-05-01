@@ -46,13 +46,22 @@ export class MedicoService {
 
     obtenerDisponibilidad(id) {
         let medico;
-
         return this.obtenerPorId(id)
-                    .then((m) => {
-                        medico = m;
-                        return this.turnoService.buscarPorMedico(id); // ✅ service → service
-                    })
-                    .then((turnos) => medico.obtenerDisponibilidadConTurnos(turnos));
+            .then((m) => {
+                medico = m;
+                return this.turnoService.buscarPorMedico(id);
+            })
+            .then((turnos) => medico.obtenerDisponibilidadConTurnos(turnos));
+    }
+
+    obtenerDisponibilidadPorFecha(id, fecha) {
+        let medico;
+        return this.obtenerPorId(id)
+            .then((m) => {
+                medico = m;
+                return this.turnoService.buscarPorMedico(id);
+            })
+            .then((turnos) => medico.obtenerDisponibilidadPorFecha(fecha, turnos));
     }
 
     // Define la disponibilidad de un medico (reemplaza la existente) → Promise<void>
@@ -71,18 +80,29 @@ export class MedicoService {
             .then((medico) => {
                 const cambiado = medico.cambiarDisponibilidad(body);
                 if (!cambiado) {
-                    return Promise.reject(new BadRequestError("No existe disponibilidad para el dia " + body.diaSemana));
+                    return Promise.reject(new BadRequestError("No existe disponibilidad para la fecha " + body.fecha));
                 }
             });
     }
 
-    // Elimina toda la disponibilidad de un medico → Promise<void>
-    // Viene de: MedicoController.eliminarDisponibilidad() con id validado
-    // Va hacia: Medico.eliminarDisponibilidad() (metodo del dominio)
-    eliminarDisponibilidad(id) {
-        return this.obtenerPorId(id)
+    obtenerDisponibilidadPorId(medicoId, disponibilidadId) {
+        return this.obtenerPorId(medicoId)
             .then((medico) => {
-                medico.eliminarDisponibilidad();
+                const disp = medico.obtenerDisponibilidadPorId(disponibilidadId);
+                if (!disp) {
+                    return Promise.reject(new NotFoundError("Disponibilidad no encontrada"));
+                }
+                return disp;
+            });
+    }
+
+    eliminarDisponibilidadPorId(medicoId, disponibilidadId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const eliminado = medico.eliminarDisponibilidadPorId(disponibilidadId);
+                if (!eliminado) {
+                    return Promise.reject(new NotFoundError("Disponibilidad no encontrada"));
+                }
             });
     }
 }

@@ -3,17 +3,13 @@ import { crearTurnoSchema } from "../schemas/crearTurnoSchema.js";
 import { BadRequestError } from "../errors/AppError.js";
 
 export function validarId(id) {
-  const result = z.int().gt(0).safeParse(Number(id));
-  if (!result.success)
-    throw new BadRequestError("El parametro id debe ser un entero positivo");
-  return result.data;
+  return z.int().gt(0).parseAsync(Number(id))
+    .catch(() => Promise.reject(new BadRequestError("El parametro id debe ser un entero positivo")));
 }
 
 export function validarCrearTurno(data) {
-  const result = crearTurnoSchema.safeParse(data);
-  if (!result.success)
-    throw new BadRequestError(formatearErrores(result.error));
-  return result.data;
+  return crearTurnoSchema.parseAsync(data)
+    .catch(error => Promise.reject(new BadRequestError(formatearErrores(error))));
 }
 
 function formatearErrores(error) {

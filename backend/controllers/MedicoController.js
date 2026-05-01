@@ -23,98 +23,67 @@ export class MedicoController {
   }
 
   obtenerMedico = (req, res, next) => {
-    return this.medicoService
-      .obtenerPorId(Number(req.params.id))
-      .then((medico) => {
-        res.status(200).json({ status: "success", data: medico });
-      })
+    return validarId(req.params.id)
+      .then(id => this.medicoService.obtenerPorId(id))
+      .then(medico => res.status(200).json({ status: "success", data: medico }))
       .catch(next);
   };
 
   obtenerTodos = (req, res, next) => {
     return this.medicoService
       .obtenerTodos()
-      .then((medicos) => {
-        res.status(200).json({ status: "success", data: medicos });
-      })
+      .then(medicos => res.status(200).json({ status: "success", data: medicos }))
       .catch(next);
   };
 
   crearMedico = (req, res, next) => {
-    try {
-      const body = validarCrearMedico(req.body);
-      return this.medicoService
-        .crear(body)
-        .then((medico) => {
-          res
-            .status(201)
-            .json({
-              status: "success",
-              message: "Medico creado exitosamente",
-              data: medico,
-            });
-        })
-        .catch(next);
-    } catch (error) {
-      next(error);
-    }
+    return validarCrearMedico(req.body)
+      .then(body => this.medicoService.crear(body))
+      .then(medico => res.status(201).json({ status: "success", message: "Medico creado exitosamente", data: medico }))
+      .catch(next);
   };
 
   obtenerDisponibilidad = (req, res, next) => {
-    try {
-      const id = validarId(req.params.id);
-      return this.medicoService
-        .obtenerDisponibilidad(id)
-        .then((disponibilidad) => {
-          res.status(200).json({ status: "success", data: disponibilidad });
-        })
-        .catch(next);
-    } catch (error) {
-      next(error);
-    }
+    const { fecha } = req.query;
+    return validarId(req.params.id)
+      .then(id => fecha
+        ? this.medicoService.obtenerDisponibilidadPorFecha(id, fecha)
+        : this.medicoService.obtenerDisponibilidad(id))
+      .then(disponibilidad => res.status(200).json({ status: "success", data: disponibilidad }))
+      .catch(next);
   };
 
   definirDisponibilidad = (req, res, next) => {
-    try {
-      const id = validarId(req.params.id);
-      const body = validarDisponibilidad(req.body);
-      return this.medicoService
-        .definirDisponibilidad(id, body)
-        .then(() => {
-          res.status(201).json({ status: "success" });
-        })
-        .catch(next);
-    } catch (error) {
-      next(error);
-    }
+    return Promise.all([validarId(req.params.id), validarDisponibilidad(req.body)])
+      .then(([id, body]) => this.medicoService.definirDisponibilidad(id, body))
+      .then(() => res.status(201).json({ status: "success" }))
+      .catch(next);
   };
 
   cambiarDisponibilidad = (req, res, next) => {
-    try {
-      const id = validarId(req.params.id);
-      const body = validarDisponibilidad(req.body);
-      return this.medicoService
-        .cambiarDisponibilidad(id, body)
-        .then(() => {
-          res.status(204).send();
-        })
-        .catch(next);
-    } catch (error) {
-      next(error);
-    }
+    return Promise.all([validarId(req.params.id), validarDisponibilidad(req.body)])
+      .then(([id, body]) => this.medicoService.cambiarDisponibilidad(id, body))
+      .then(() => res.status(204).send())
+      .catch(next);
   };
 
-  eliminarDisponibilidad = (req, res, next) => {
-    try {
-      const id = validarId(req.params.id);
-      return this.medicoService
-        .eliminarDisponibilidad(id)
-        .then(() => {
-          res.status(204).send();
-        })
-        .catch(next);
-    } catch (error) {
-      next(error);
-    }
+  obtenerDisponibilidadPorId = (req, res, next) => {
+    return Promise.all([
+      validarId(req.params.id),
+      validarId(req.params.disponibilidadId),
+    ])
+      .then(([medicoId, disponibilidadId]) => this.medicoService.obtenerDisponibilidadPorId(medicoId, disponibilidadId))
+      .then(disp => res.status(200).json({ status: "success", data: disp }))
+      .catch(next);
+  };
+
+  eliminarDisponibilidadPorId = (req, res, next) => {
+    return Promise.all([
+      validarId(req.params.id),
+      validarId(req.params.disponibilidadId),
+    ])
+      .then(([medicoId, disponibilidadId]) => this.medicoService.eliminarDisponibilidadPorId(medicoId, disponibilidadId))
+      .then(() => res.status(204).send())
+      .catch(next);
   };
 }
