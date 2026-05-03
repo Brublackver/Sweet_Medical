@@ -11,7 +11,6 @@
 */
 
 import { TurnoRepository } from "../repositories/TurnoRepository.js";
-import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import {
   NotFoundError,
   ConflictError,
@@ -21,7 +20,7 @@ import {
 export class TurnoService {
   constructor({
     turnoRepository = new TurnoRepository(),
-    medicoService = new MedicoService(),
+    medicoService,
   } = {}) {
     this.turnoRepository = turnoRepository;
     this.medicoService = medicoService;
