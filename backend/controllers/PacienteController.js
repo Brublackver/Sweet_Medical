@@ -8,10 +8,7 @@
     no el verbo HTTP. obtenerHistorial es más expresivo que getAll.
 */
 
-import {
-    validarId,
-    validarCrearPaciente,
-    validarCancelarTurno,
+import {validarId,validarCrearPaciente,validarCancelarTurno,
     validarSolicitarCambioFecha,
 } from "../validators/pacienteValidator.js";
 

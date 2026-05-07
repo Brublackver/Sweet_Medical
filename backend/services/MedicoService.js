@@ -11,12 +11,13 @@
     de identidad — si el médico no existe, la cadena se corta con NotFoundError.
 */
 
-import { NotFoundError, BadRequestError } from "../errors/AppError.js";
+import { NotFoundError, BadRequestError, ConflictError } from "../errors/AppError.js";
 
 export class MedicoService {
-    constructor({ medicoRepository, turnoService } = {}) {
+    constructor({ medicoRepository, turnoService, sedeRepository } = {}) {
         this.medicoRepository = medicoRepository;
         this.turnoService     = turnoService;
+        this.sedeRepository   = sedeRepository;
     }
 
     // Guarda de identidad: reutilizada internamente por todos los métodos.
@@ -161,5 +162,93 @@ export class MedicoService {
     marcarTurnoRealizado(medicoId, turnoId) {
         return this.obtenerPorId(medicoId)
             .then(() => this.turnoService.marcarRealizado(turnoId, medicoId));
+    }
+
+    // --- Gestión de sedes ------------------------------------------------------
+
+    asignarSede(medicoId, sedeId) {
+        return Promise.all([
+            this.obtenerPorId(medicoId),
+            this.sedeRepository.obtenerPorId(sedeId),
+        ])
+        .then(([medico, sede]) => {
+            if (!sede)
+                return Promise.reject(new NotFoundError("Sede no encontrada"));
+            if (!medico.agregarSede(sede))
+                return Promise.reject(new ConflictError("El médico ya tiene asignada esa sede"));
+            return sede;
+        });
+    }
+
+    quitarSede(medicoId, sedeId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                if (!medico.eliminarSede(sedeId))
+                    return Promise.reject(new NotFoundError("El médico no tiene asignada esa sede"));
+            });
+    }
+
+    // --- Gestión de servicios: Especialidades ----------------------------------
+
+    agregarEspecialidad(medicoId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const especialidad = medico.agregarEspecialidad(datos);
+                if (!especialidad)
+                    return Promise.reject(new ConflictError(
+                        `Ya existe una especialidad con código "${datos.codigo.trim().toUpperCase()}"`
+                    ));
+                return especialidad;
+            });
+    }
+
+    modificarEspecialidad(medicoId, especialidadId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const especialidad = medico.modificarEspecialidad(especialidadId, datos);
+                if (!especialidad)
+                    return Promise.reject(new NotFoundError("Especialidad no encontrada"));
+                return especialidad;
+            });
+    }
+
+    eliminarEspecialidad(medicoId, especialidadId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                if (!medico.eliminarEspecialidad(especialidadId))
+                    return Promise.reject(new NotFoundError("Especialidad no encontrada"));
+            });
+    }
+
+    // --- Gestión de servicios: Prácticas ---------------------------------------
+
+    agregarPractica(medicoId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const practica = medico.agregarPractica(datos);
+                if (!practica)
+                    return Promise.reject(new ConflictError(
+                        `Ya existe una práctica con código "${datos.codigo.trim().toUpperCase()}"`
+                    ));
+                return practica;
+            });
+    }
+
+    modificarPractica(medicoId, practicaId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const practica = medico.modificarPractica(practicaId, datos);
+                if (!practica)
+                    return Promise.reject(new NotFoundError("Práctica no encontrada"));
+                return practica;
+            });
+    }
+
+    eliminarPractica(medicoId, practicaId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                if (!medico.eliminarPractica(practicaId))
+                    return Promise.reject(new NotFoundError("Práctica no encontrada"));
+            });
     }
 }

@@ -11,6 +11,8 @@ import {
     validarDisponibilidad,
     validarCancelarTurno,
     validarCambioFecha,
+    validarCrearServicio,
+    validarModificarServicio,
 } from "../validators/medicoValidator.js";
 import { BadRequestError } from "../errors/AppError.js";
 
@@ -151,5 +153,59 @@ export class MedicoController {
                 this.medicoService.marcarTurnoRealizado(medicoId, turnoId)
             )
             .then((turno) => res.status(200).json({ status: "success", data: turno }))
+            .catch(next);
+
+    // --- Gestión de sedes ------------------------------------------------------
+
+    asignarSede = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarId(req.params.sedeId)])
+            .then(([medicoId, sedeId]) => this.medicoService.asignarSede(medicoId, sedeId))
+            .then((sede) => res.status(200).json({ status: "success", data: sede }))
+            .catch(next);
+
+    quitarSede = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarId(req.params.sedeId)])
+            .then(([medicoId, sedeId]) => this.medicoService.quitarSede(medicoId, sedeId))
+            .then(() => res.status(204).send())
+            .catch(next);
+
+    // --- Gestión de servicios: Especialidades ----------------------------------
+
+    agregarEspecialidad = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarCrearServicio(req.body)])
+            .then(([medicoId, body]) => this.medicoService.agregarEspecialidad(medicoId, body))
+            .then((esp) => res.status(201).json({ status: "success", data: esp }))
+            .catch(next);
+
+    modificarEspecialidad = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarId(req.params.espId), validarModificarServicio(req.body)])
+            .then(([medicoId, espId, body]) => this.medicoService.modificarEspecialidad(medicoId, espId, body))
+            .then((esp) => res.status(200).json({ status: "success", data: esp }))
+            .catch(next);
+
+    eliminarEspecialidad = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarId(req.params.espId)])
+            .then(([medicoId, espId]) => this.medicoService.eliminarEspecialidad(medicoId, espId))
+            .then(() => res.status(204).send())
+            .catch(next);
+
+    // --- Gestión de servicios: Prácticas ---------------------------------------
+
+    agregarPractica = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarCrearServicio(req.body)])
+            .then(([medicoId, body]) => this.medicoService.agregarPractica(medicoId, body))
+            .then((prac) => res.status(201).json({ status: "success", data: prac }))
+            .catch(next);
+
+    modificarPractica = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarId(req.params.practicaId), validarModificarServicio(req.body)])
+            .then(([medicoId, practicaId, body]) => this.medicoService.modificarPractica(medicoId, practicaId, body))
+            .then((prac) => res.status(200).json({ status: "success", data: prac }))
+            .catch(next);
+
+    eliminarPractica = (req, res, next) =>
+        Promise.all([validarId(req.params.id), validarId(req.params.practicaId)])
+            .then(([medicoId, practicaId]) => this.medicoService.eliminarPractica(medicoId, practicaId))
+            .then(() => res.status(204).send())
             .catch(next);
 }

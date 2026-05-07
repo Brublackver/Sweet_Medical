@@ -17,8 +17,8 @@ import { PacienteService }    from "../services/PacienteService.js";
 import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { turnoService }       from "./turnoRoutes.js";
 
-const pacienteRouter     = new Router();
-const pacienteRepository = new PacienteRepository();
+const pacienteRouter          = new Router();
+export const pacienteRepository = new PacienteRepository();
 const pacienteService    = new PacienteService({ pacienteRepository, turnoService });
 const pacienteController = new PacienteController({ pacienteService });
 

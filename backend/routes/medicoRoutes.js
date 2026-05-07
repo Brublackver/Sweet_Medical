@@ -23,6 +23,7 @@ import { MedicoController } from "../controllers/MedicoController.js";
 import { MedicoService }    from "../services/MedicoService.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { TurnoRepository }  from "../repositories/TurnoRepository.js";
+import { sedeRepository }   from "./sedeRoutes.js";
 
 const medicoRouter = Router();
 
@@ -30,7 +31,7 @@ export const medicoRepository = new MedicoRepository();
 export const turnoRepository  = new TurnoRepository();
 
 // turnoService se inyecta desde turnoRoutes para resolver la dependencia circular
-export const medicoService = new MedicoService({ medicoRepository });
+export const medicoService = new MedicoService({ medicoRepository, sedeRepository });
 
 const medicoController = new MedicoController({ medicoService });
 
@@ -76,5 +77,26 @@ medicoRouter.route("/:id/turnos/:turnoId/rechazar-cambio")
 // Historial de paciente visto por el médico
 medicoRouter.route("/:id/pacientes/:pacienteId/turnos")
     .get(medicoController.historialTurnosDePaciente);
+
+// Gestión de sedes del médico
+medicoRouter.route("/:id/sedes/:sedeId")
+    .post(medicoController.asignarSede)
+    .delete(medicoController.quitarSede);
+
+// Gestión de especialidades
+medicoRouter.route("/:id/especialidades")
+    .post(medicoController.agregarEspecialidad);
+
+medicoRouter.route("/:id/especialidades/:espId")
+    .put(medicoController.modificarEspecialidad)
+    .delete(medicoController.eliminarEspecialidad);
+
+// Gestión de prácticas
+medicoRouter.route("/:id/practicas")
+    .post(medicoController.agregarPractica);
+
+medicoRouter.route("/:id/practicas/:practicaId")
+    .put(medicoController.modificarPractica)
+    .delete(medicoController.eliminarPractica);
 
 export default medicoRouter;

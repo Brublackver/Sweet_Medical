@@ -1,5 +1,7 @@
 import { DisponibilidadHoraria } from "./DisponibilidadHoraria.js";
 import { GestorDisponibilidades } from "./GestorDisponibilidades.js";
+import { Especialidad } from "./Especialidad.js";
+import { Practica }    from "./Practica.js";
 
 // Convierte "HH:MM" a minutos desde medianoche.
 // TRANSPARENCIA REFERENCIAL: función pura — sin efectos secundarios.
@@ -97,6 +99,81 @@ export class Medico {
             .filter(d => d.fecha === fecha)
             .flatMap(d => generarSlots(d.horaDesde, d.horaHasta))
             .filter(slot => !turnosOcupados.some(t => t.seSuperponeConSlot(slot, duracion)));
+    }
+
+    // --- Gestión de sedes ------------------------------------------------------
+
+    // Retorna false si la sede ya estaba asignada.
+    agregarSede(sede) {
+        if (this.sedes.some((s) => s.id === sede.id)) return false;
+        this.sedes.push(sede);
+        return true;
+    }
+
+    // Retorna false si la sede no estaba asignada.
+    eliminarSede(sedeId) {
+        const index = this.sedes.findIndex((s) => s.id === sedeId);
+        if (index === -1) return false;
+        this.sedes.splice(index, 1);
+        return true;
+    }
+
+    // --- Gestión de servicios: Especialidades ----------------------------------
+
+    // Retorna null si ya existe una especialidad con el mismo código.
+    agregarEspecialidad({ codigo, nombre, duracionTurnoEnMins, costo }) {
+        if (this.especialidades.some(e => e.codigo === codigo.trim().toUpperCase()))
+            return null;
+        const nueva = new Especialidad(codigo, nombre, duracionTurnoEnMins, costo);
+        this.especialidades.push(nueva);
+        return nueva;
+    }
+
+    // Retorna la especialidad modificada, o null si no existe.
+    modificarEspecialidad(id, { nombre, duracionTurnoEnMins, costo }) {
+        const esp = this.especialidades.find(e => e.id === id);
+        if (!esp) return null;
+        esp.nombre = nombre.trim();
+        esp.duracionTurnoEnMins = duracionTurnoEnMins;
+        esp.costo = costo;
+        return esp;
+    }
+
+    // Retorna true si se eliminó, false si no existía.
+    eliminarEspecialidad(id) {
+        const index = this.especialidades.findIndex(e => e.id === id);
+        if (index === -1) return false;
+        this.especialidades.splice(index, 1);
+        return true;
+    }
+
+    // --- Gestión de servicios: Prácticas ---------------------------------------
+
+    // Retorna null si ya existe una práctica con el mismo código.
+    agregarPractica({ codigo, nombre, duracionTurnoEnMins, costo }) {
+        if (this.practicas.some(p => p.codigo === codigo.trim().toUpperCase()))
+            return null;
+        const nueva = new Practica(codigo, nombre, duracionTurnoEnMins, costo);
+        this.practicas.push(nueva);
+        return nueva;
+    }
+
+    // Retorna la práctica modificada, o null si no existe.
+    modificarPractica(id, { nombre, duracionTurnoEnMins, costo }) {
+        const prac = this.practicas.find(p => p.id === id);
+        if (!prac) return null;
+        prac.nombre = nombre.trim();
+        prac.duracionTurnoEnMins = duracionTurnoEnMins;
+        prac.costo = costo;
+        return prac;
+    }
+
+    // Retorna true si se eliminó, false si no existía.
+    eliminarPractica(id) {
+        const index = this.practicas.findIndex(p => p.id === id);
+        if (index === -1) return false;
+        this.practicas.splice(index, 1);
+        return true;
     }
 
     eliminarDisponibilidad() {
