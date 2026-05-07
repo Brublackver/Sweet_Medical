@@ -1,8 +1,4 @@
-import {
-  BadRequestError,
-  NotFoundError,
-  ConflictError,
-} from "../errors/AppError.js";
+import { BadRequestError, NotFoundError, ConflictError } from "../errors/AppError.js";
 
 export function errorHandler(err, req, res, next) {
   const message = err?.message || "Error interno";

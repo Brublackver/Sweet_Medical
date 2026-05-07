@@ -6,19 +6,16 @@
 
 import { Router } from "express";
 
-import medicoRouter from "./medicoRoutes.js";
-import turnoRouter from "./turnoRoutes.js";
+import medicoRouter   from "./medicoRoutes.js";
+import turnoRouter    from "./turnoRoutes.js";
+import pacienteRouter from "./pacienteRoutes.js";
 import healthcheckRouter from "./healthcheck.js";
 
 const router = Router();
 
-// /medico → todas las rutas de medicos y su disponibilidad
-router.use("/medico", medicoRouter);
-
-// /turno → todas las rutas de turnos
-router.use("/turno", turnoRouter);
-
-// /healthcheck → endpoint de salud del servidor
+router.use("/medico",      medicoRouter);
+router.use("/turno",       turnoRouter);
+router.use("/paciente",    pacienteRouter);
 router.use("/healthcheck", healthcheckRouter);
 
 export default router;

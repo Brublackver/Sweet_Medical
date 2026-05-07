@@ -1,67 +1,84 @@
 /*
     REPOSITORY — Capa de acceso a datos para Turnos
-    Almacena los turnos en memoria.
-    Recibe pedidos del TurnoService y devuelve Promises.
+
+    ABSTRACCIÓN: el Service no sabe si los datos viven en memoria,
+    MongoDB o cualquier otra fuente. Solo llama métodos del Repository.
+    Cuando migremos a MongoDB, solo cambia esta clase.
+
+    Los turnos NUNCA se eliminan físicamente — se marcan como cancelados.
+    Esto preserva el historial y permite consultar el estado de cualquier turno.
 */
 
 import { Turno } from "../domain/Turno.js";
+import { ESTADOS } from "../domain/Turno.js";
 
 export class TurnoRepository {
-  constructor() {
-    this.turnos = [];
-    this.nextId = 1;
-  }
+    constructor() {
+        this.turnos = [];
+        this.nextId = 1;
+    }
 
-  // Devuelve todos los turnos almacenados → Promise<Turno[]>
-  // Viene de: TurnoService.obtenerTodos()
-  // Va hacia: TurnoController como respuesta JSON
-  obtenerTodos() {
-    return Promise.resolve(this.turnos);
-  }
+    obtenerTodos() {
+        return Promise.resolve(this.turnos);
+    }
 
-  // Busca un turno por su id → Promise<Turno|null>
-  // Recibe: id (number) desde TurnoService.cancelarTurno()
-  // Va hacia: TurnoService para validar existencia antes de cancelar
-  obtenerPorId(id) {
-    const turno = this.turnos.find((t) => t.id === id) || null;
-    return Promise.resolve(turno);
-  }
+    obtenerPorId(id) {
+        const turno = this.turnos.find((t) => t.id === id) || null;
+        return Promise.resolve(turno);
+    }
 
-  // Devuelve todos los turnos de un medico → Promise<Turno[]>
-  // Viene de: MedicoService.obtenerDisponibilidad()
-  // Va hacia: MedicoService para armar la respuesta con turnos reservados
-  buscarPorMedico(medicoId) {
-    const turnos = this.turnos.filter((t) => t.medicoId === medicoId);
-    return Promise.resolve(turnos);
-  }
+    buscarPorMedico(medicoId) {
+        return Promise.resolve(
+            this.turnos.filter((t) => t.medicoId === medicoId)
+        );
+    }
 
-  // Busca si ya existe un turno para un medico en una fecha y hora especifica → Promise<Turno|null>
-  // Recibe: medicoId (number), fecha (string) y hora (string) desde TurnoService.crearTurno()
-  // Va hacia: TurnoService para verificar que no haya turno duplicado
-  buscarPorMedicoFechaYHora(medicoId, fecha, hora) {
-    const turno =
-      this.turnos.find(
-        (t) => t.medicoId === medicoId && t.fecha === fecha && t.hora === hora,
-      ) || null;
-    return Promise.resolve(turno);
-  }
+    // Retorna los turnos activos de un médico para una fecha.
+    // IMPORTANTE: excluye cancelados — un slot cancelado queda libre
+    // para que otro paciente pueda reservarlo.
+    //
+    // DECLARATIVIDAD: filter() encadena dos condiciones como dato,
+    // no como dos if anidados.
+    buscarPorMedicoYFecha(medicoId, fecha) {
+        return Promise.resolve(
+            this.turnos.filter(
+                (t) => t.medicoId === medicoId
+                    && t.fecha   === fecha
+                    && t.estado  !== ESTADOS.CANCELADO
+            )
+        );
+    }
 
-  // Crea un nuevo turno con id autoincrementado → Promise<Turno>
-  // Recibe: medicoId, pacienteId, fecha, hora desde TurnoService.crearTurno()
-  // Va hacia: TurnoService → TurnoController como respuesta 201
-  crear(medicoId, fecha, hora) {
-    const nuevoTurno = new Turno(this.nextId++, medicoId, fecha, hora);
-    this.turnos.push(nuevoTurno);
-    return Promise.resolve(nuevoTurno);
-  }
+    // Retorna todos los turnos de un paciente (todos los estados).
+    // Usado para el historial personal — incluye cancelados y realizados.
+    buscarPorPaciente(pacienteId) {
+        return Promise.resolve(
+            this.turnos.filter((t) => t.pacienteId === pacienteId)
+        );
+    }
 
-  // Elimina un turno por su id → Promise<boolean>
-  // Recibe: id (number) desde TurnoService.cancelarTurno()
-  // Va hacia: TurnoService → TurnoController como respuesta 204
-  eliminar(id) {
-    const index = this.turnos.findIndex((t) => t.id === id);
-    if (index === -1) return Promise.resolve(false);
-    this.turnos.splice(index, 1);
-    return Promise.resolve(true);
-  }
+    // Retorna los turnos de un paciente específico con un médico específico.
+    // Usado por el médico para consultar el historial de un paciente suyo.
+    buscarPorMedicoYPaciente(medicoId, pacienteId) {
+        return Promise.resolve(
+            this.turnos.filter(
+                (t) => t.medicoId === medicoId && t.pacienteId === pacienteId
+            )
+        );
+    }
+
+    crear(medicoId, pacienteId, fecha, hora, duracion) {
+        const nuevoTurno = new Turno(this.nextId++, medicoId, pacienteId, fecha, hora, duracion);
+        this.turnos.push(nuevoTurno);
+        return Promise.resolve(nuevoTurno);
+    }
+
+    // Persiste el estado actualizado de un turno existente.
+    // En memoria, el objeto ya está mutado por referencia — esta función
+    // es un contrato explícito para cuando migremos a MongoDB (update query).
+    actualizar(turno) {
+        const index = this.turnos.findIndex((t) => t.id === turno.id);
+        if (index !== -1) this.turnos[index] = turno;
+        return Promise.resolve(turno);
+    }
 }

@@ -1,25 +1,29 @@
 import { z } from "zod";
-import { crearMedicoSchema } from "../schemas/CrearMedicoSchema.js";
+import { crearMedicoSchema }         from "../schemas/CrearMedicoSchema.js";
 import { DisponibilidadHorariaSchema } from "../schemas/DisponibilidadHorariaSchema.js";
-import { BadRequestError } from "../errors/AppError.js";
+import { cancelarTurnoSchema }        from "../schemas/cancelarTurnoSchema.js";
+import { solicitarCambioFechaSchema } from "../schemas/solicitarCambioFechaSchema.js";
+import { BadRequestError }            from "../errors/AppError.js";
 
-export function validarId(id) {
-  return z.int().gt(0).parseAsync(Number(id))
-    .catch(() => Promise.reject(new BadRequestError("El parametro id debe ser un entero positivo")));
-}
+const formatearErrores = (error) =>
+    error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
 
-export function validarCrearMedico(data) {
-  return crearMedicoSchema.parseAsync(data)
-    .catch(error => Promise.reject(new BadRequestError(formatearErrores(error))));
-}
+export const validarId = (id) =>
+    z.int().gt(0).parseAsync(Number(id))
+        .catch(() => Promise.reject(new BadRequestError("El parámetro id debe ser un entero positivo")));
 
-export function validarDisponibilidad(data) {
-  return DisponibilidadHorariaSchema.parseAsync(data)
-    .catch(error => Promise.reject(new BadRequestError(formatearErrores(error))));
-}
+export const validarCrearMedico = (data) =>
+    crearMedicoSchema.parseAsync(data)
+        .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
 
-function formatearErrores(error) {
-  return error.errors
-    .map((e) => `${e.path.join(".")}: ${e.message}`)
-    .join(", ");
-}
+export const validarDisponibilidad = (data) =>
+    DisponibilidadHorariaSchema.parseAsync(data)
+        .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
+
+export const validarCancelarTurno = (data) =>
+    cancelarTurnoSchema.parseAsync(data)
+        .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
+
+export const validarCambioFecha = (data) =>
+    solicitarCambioFechaSchema.parseAsync(data)
+        .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
