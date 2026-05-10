@@ -11,4 +11,3 @@ export class NotFoundError extends AppError {}
 
 export class ConflictError extends AppError {}
 
-export class UnprocessableEntityError extends AppError {}

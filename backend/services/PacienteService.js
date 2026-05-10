@@ -14,11 +14,10 @@
     la cadena se corta con NotFoundError antes de llegar al turno.
 */
 
-import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { NotFoundError, ConflictError } from "../errors/AppError.js";
 
 export class PacienteService {
-    constructor({ pacienteRepository = new PacienteRepository(), turnoService } = {}) {
+    constructor({ pacienteRepository, turnoService } = {}) {
         this.pacienteRepository = pacienteRepository;
         this.turnoService       = turnoService;
     }

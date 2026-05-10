@@ -97,7 +97,10 @@ export class MedicoService {
 
     definirDisponibilidad(id, body) {
         return this.obtenerPorId(id)
-            .then((medico) => medico.definirDisponibilidad(body));
+            .then((medico) => {
+                medico.definirDisponibilidad(body);
+                return this.medicoRepository.actualizar(medico);
+            });
     }
 
     cambiarDisponibilidad(id, body) {
@@ -106,6 +109,7 @@ export class MedicoService {
                 const cambiado = medico.cambiarDisponibilidad(body);
                 if (!cambiado)
                     return Promise.reject(new BadRequestError(`No existe disponibilidad para la fecha ${body.fecha}`));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 
@@ -123,6 +127,7 @@ export class MedicoService {
             .then((medico) => {
                 const eliminado = medico.eliminarDisponibilidadPorId(disponibilidadId);
                 if (!eliminado) return Promise.reject(new NotFoundError("Disponibilidad no encontrada"));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 
@@ -176,7 +181,7 @@ export class MedicoService {
                 return Promise.reject(new NotFoundError("Sede no encontrada"));
             if (!medico.agregarSede(sede))
                 return Promise.reject(new ConflictError("El médico ya tiene asignada esa sede"));
-            return sede;
+            return this.medicoRepository.actualizar(medico).then(() => sede);
         });
     }
 
@@ -185,6 +190,7 @@ export class MedicoService {
             .then((medico) => {
                 if (!medico.eliminarSede(sedeId))
                     return Promise.reject(new NotFoundError("El médico no tiene asignada esa sede"));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 
@@ -198,7 +204,9 @@ export class MedicoService {
                     return Promise.reject(new ConflictError(
                         `Ya existe una especialidad con código "${datos.codigo.trim().toUpperCase()}"`
                     ));
-                return especialidad;
+                // Persiste y retorna la especialidad con el _id asignado por MongoDB.
+                return this.medicoRepository.actualizar(medico)
+                    .then((m) => m.especialidades.find(e => e.codigo === especialidad.codigo));
             });
     }
 
@@ -208,7 +216,7 @@ export class MedicoService {
                 const especialidad = medico.modificarEspecialidad(especialidadId, datos);
                 if (!especialidad)
                     return Promise.reject(new NotFoundError("Especialidad no encontrada"));
-                return especialidad;
+                return this.medicoRepository.actualizar(medico).then(() => especialidad);
             });
     }
 
@@ -217,6 +225,7 @@ export class MedicoService {
             .then((medico) => {
                 if (!medico.eliminarEspecialidad(especialidadId))
                     return Promise.reject(new NotFoundError("Especialidad no encontrada"));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 
@@ -230,7 +239,9 @@ export class MedicoService {
                     return Promise.reject(new ConflictError(
                         `Ya existe una práctica con código "${datos.codigo.trim().toUpperCase()}"`
                     ));
-                return practica;
+                // Persiste y retorna la práctica con el _id asignado por MongoDB.
+                return this.medicoRepository.actualizar(medico)
+                    .then((m) => m.practicas.find(p => p.codigo === practica.codigo));
             });
     }
 
@@ -240,7 +251,7 @@ export class MedicoService {
                 const practica = medico.modificarPractica(practicaId, datos);
                 if (!practica)
                     return Promise.reject(new NotFoundError("Práctica no encontrada"));
-                return practica;
+                return this.medicoRepository.actualizar(medico).then(() => practica);
             });
     }
 
@@ -249,6 +260,7 @@ export class MedicoService {
             .then((medico) => {
                 if (!medico.eliminarPractica(practicaId))
                     return Promise.reject(new NotFoundError("Práctica no encontrada"));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 }

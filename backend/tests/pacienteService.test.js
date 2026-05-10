@@ -1,18 +1,18 @@
-import { describe, it, expect } from "@jest/globals";
-import { PacienteService }   from "../services/PacienteService.js";
-import { TurnoService }      from "../services/TurnoService.js";
-import { MedicoService }     from "../services/MedicoService.js";
-import { PacienteRepository } from "../repositories/PacienteRepository.js";
-import { TurnoRepository }   from "../repositories/TurnoRepository.js";
-import { MedicoRepository }  from "../repositories/MedicoRepository.js";
-import { ESTADOS }           from "../domain/Turno.js";
+import { describe, it, expect }      from "@jest/globals";
+import { PacienteService }           from "../services/PacienteService.js";
+import { TurnoService }              from "../services/TurnoService.js";
+import { MedicoService }             from "../services/MedicoService.js";
+import { FakePacienteRepository }    from "./fakes/FakePacienteRepository.js";
+import { FakeTurnoRepository }       from "./fakes/FakeTurnoRepository.js";
+import { FakeMedicoRepository }      from "./fakes/FakeMedicoRepository.js";
+import { ESTADOS }                   from "../domain/Turno.js";
 
 // INVERSIÓN DE DEPENDENCIAS: construimos el grafo completo de dependencias
 // inyectándolas desde afuera. Cada test parte de un estado limpio.
 const crearContexto = () => {
-    const medicoRepository   = new MedicoRepository();
-    const turnoRepository    = new TurnoRepository();
-    const pacienteRepository = new PacienteRepository();
+    const medicoRepository   = new FakeMedicoRepository();
+    const turnoRepository    = new FakeTurnoRepository();
+    const pacienteRepository = new FakePacienteRepository();
 
     const medicoService  = new MedicoService({ medicoRepository });
     const turnoService   = new TurnoService({ turnoRepository, medicoService });

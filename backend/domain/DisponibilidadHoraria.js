@@ -1,8 +1,6 @@
 export class DisponibilidadHoraria {
-    static nextId = 1;
-
     constructor(fecha, horaDesde, horaHasta) {
-        this.id = DisponibilidadHoraria.nextId++;
+        this.id = null; // asignado por MongoDB al persistir
         this.fecha = fecha;
         this.horaDesde = horaDesde;
         this.horaHasta = horaHasta;

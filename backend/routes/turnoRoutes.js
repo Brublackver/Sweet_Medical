@@ -10,13 +10,14 @@
 */
 
 import { Router } from "express";
-import { TurnoController } from "../controllers/TurnoController.js";
-import { TurnoService }    from "../services/TurnoService.js";
+import { TurnoController }   from "../controllers/TurnoController.js";
+import { TurnoService }      from "../services/TurnoService.js";
 import { medicoRepository, turnoRepository, medicoService } from "./medicoRoutes.js";
+import { notificacionService } from "./notificacionRoutes.js";
 
 const turnoRouter = Router();
 
-export const turnoService = new TurnoService({ turnoRepository, medicoService });
+export const turnoService = new TurnoService({ turnoRepository, medicoService, notificacionService });
 medicoService.turnoService = turnoService;
 
 const turnoController = new TurnoController({ turnoService });

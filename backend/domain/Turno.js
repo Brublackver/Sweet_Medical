@@ -21,11 +21,7 @@ export const ESTADOS = Object.freeze({
     REALIZADO:        "realizado",
 });
 
-// TRANSPARENCIA REFERENCIAL: función pura, sin efectos secundarios.
-const horaAMinutos = (hora) => {
-    const [h, m] = hora.split(":").map(Number);
-    return h * 60 + m;
-};
+import { horaAMinutos } from "./tiempo.js";
 
 export class Turno {
     constructor(id, medicoId, pacienteId, fecha, hora, duracion) {
@@ -140,7 +136,7 @@ export class Turno {
 
     // --- Propuesta de cambio de fecha (iniciada por el MÉDICO) -------------
 
-    puedeProponecrCambioFecha() {
+    puedeProponerCambioFecha() {
         return [ESTADOS.RESERVADO, ESTADOS.PENDIENTE_CAMBIO].includes(this.estado)
             && this.puedeCancelarse();
     }

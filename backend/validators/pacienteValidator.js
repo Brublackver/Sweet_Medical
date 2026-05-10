@@ -1,15 +1,10 @@
-import { z } from "zod";
-import { crearPacienteSchema }        from "../schemas/crearPacienteSchema.js";
-import { cancelarTurnoSchema }         from "../schemas/cancelarTurnoSchema.js";
-import { solicitarCambioFechaSchema }  from "../schemas/solicitarCambioFechaSchema.js";
-import { BadRequestError }             from "../errors/AppError.js";
+import { crearPacienteSchema }       from "../schemas/crearPacienteSchema.js";
+import { cancelarTurnoSchema }        from "../schemas/cancelarTurnoSchema.js";
+import { solicitarCambioFechaSchema } from "../schemas/solicitarCambioFechaSchema.js";
+import { BadRequestError }            from "../errors/AppError.js";
+import { validarId, formatearErrores } from "./sharedValidator.js";
 
-const formatearErrores = (error) =>
-    error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
-
-export const validarId = (id) =>
-    z.int().gt(0).parseAsync(Number(id))
-        .catch(() => Promise.reject(new BadRequestError("El parámetro id debe ser un entero positivo")));
+export { validarId };
 
 export const validarCrearPaciente = (data) =>
     crearPacienteSchema.parseAsync(data)

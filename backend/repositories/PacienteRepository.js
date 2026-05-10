@@ -1,45 +1,51 @@
 /*
-    REPOSITORY — Capa de acceso a datos para Pacientes
+    REPOSITORY — Acceso a datos para Pacientes (MongoDB)
 
-    ABSTRACCIÓN: el Service desconoce el mecanismo de persistencia.
-    Cuando migremos a MongoDB, solo cambia esta clase.
+    El plan y la obra social viajan embebidos en el documento del paciente.
+    El DNI tiene índice unique en MongoDB — la validación de duplicados
+    se hace en el service pero MongoDB también lo garantiza a nivel de base de datos.
 */
 
-import { Paciente } from "../domain/Paciente.js";
+import { Paciente }    from "../domain/Paciente.js";
+import PacienteModel   from "../models/PacienteModel.js";
 
 export class PacienteRepository {
-    constructor() {
-        this.pacientes = [];
-        this.nextId    = 1;
-    }
 
     obtenerTodos() {
-        return Promise.resolve(this.pacientes);
+        return PacienteModel.find().lean()
+            .then((docs) => docs.map(this._toPaciente));
     }
 
     obtenerPorId(id) {
-        const paciente = this.pacientes.find((p) => p.id === id) || null;
-        return Promise.resolve(paciente);
+        return PacienteModel.findById(id).lean()
+            .then((doc) => doc ? this._toPaciente(doc) : null);
     }
 
-    // DECLARATIVIDAD: la condición de unicidad de DNI se expresa como dato
-    // en some(), no como un loop con break.
+    // Verifica si ya existe un paciente con ese DNI.
     existeDni(dni) {
-        return Promise.resolve(
-            this.pacientes.some((p) => p.dni === dni)
-        );
+        return PacienteModel.findOne({ dni }).lean()
+            .then((doc) => !!doc);
     }
 
     crear(datos) {
-        const nuevoPaciente = new Paciente(
-            this.nextId++,
-            datos.usuario,
-            datos.dni,
-            datos.nombre,
-            datos.obraSocial,
-            datos.plan,
+        return new PacienteModel({
+            usuario:    datos.usuario,
+            dni:        datos.dni,
+            nombre:     datos.nombre,
+            obraSocial: datos.obraSocial,
+            plan:       datos.plan,
+        }).save()
+            .then((doc) => this._toPaciente(doc.toObject()));
+    }
+
+    _toPaciente(doc) {
+        return new Paciente(
+            doc._id.toString(),
+            doc.usuario,
+            doc.dni,
+            doc.nombre,
+            doc.obraSocial,
+            doc.plan,
         );
-        this.pacientes.push(nuevoPaciente);
-        return Promise.resolve(nuevoPaciente);
     }
 }

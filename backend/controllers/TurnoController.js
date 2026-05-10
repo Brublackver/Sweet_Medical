@@ -10,11 +10,10 @@
     SERVICE --- DOMAIN
 */
 
-import { TurnoService } from "../services/TurnoService.js";
-import { validarId, validarCrearTurno } from "../validators/turnoValidator.js";
+import { validarCrearTurno } from "../validators/turnoValidator.js";
 
 export class TurnoController {
-  constructor({ turnoService = new TurnoService() } = {}) {
+  constructor({ turnoService } = {}) {
     this.turnoService = turnoService;
   }
 
@@ -32,10 +31,4 @@ export class TurnoController {
       .catch(next);
   };
 
-  cancelarTurno = (req, res, next) => {
-    return validarId(req.params.id)
-      .then(id => this.turnoService.cancelarTurno(id))
-      .then(() => res.status(204).send())
-      .catch(next);
-  };
 }

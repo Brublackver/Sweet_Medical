@@ -1,14 +1,8 @@
 import { DisponibilidadHoraria } from "./DisponibilidadHoraria.js";
 import { GestorDisponibilidades } from "./GestorDisponibilidades.js";
-import { Especialidad } from "./Especialidad.js";
-import { Practica }    from "./Practica.js";
-
-// Convierte "HH:MM" a minutos desde medianoche.
-// TRANSPARENCIA REFERENCIAL: función pura — sin efectos secundarios.
-const horaAMinutos = (hora) => {
-    const [h, m] = hora.split(":").map(Number);
-    return h * 60 + m;
-};
+import { Especialidad }           from "./Especialidad.js";
+import { Practica }               from "./Practica.js";
+import { horaAMinutos }           from "./tiempo.js";
 
 export class Medico {
     constructor(id, usuario, matricula, nombre) {

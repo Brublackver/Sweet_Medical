@@ -1,14 +1,14 @@
-import { describe, it, expect } from "@jest/globals";
-import { MedicoService }     from "../services/MedicoService.js";
-import { TurnoService }      from "../services/TurnoService.js";
-import { MedicoRepository }  from "../repositories/MedicoRepository.js";
-import { TurnoRepository }   from "../repositories/TurnoRepository.js";
-import { ESTADOS }           from "../domain/Turno.js";
+import { describe, it, expect }     from "@jest/globals";
+import { MedicoService }            from "../services/MedicoService.js";
+import { TurnoService }             from "../services/TurnoService.js";
+import { FakeMedicoRepository }     from "./fakes/FakeMedicoRepository.js";
+import { FakeTurnoRepository }      from "./fakes/FakeTurnoRepository.js";
+import { ESTADOS }                  from "../domain/Turno.js";
 
 // INVERSIÓN DE DEPENDENCIAS: construimos el grafo completo inyectando dependencias.
 const crearContexto = () => {
-    const medicoRepository = new MedicoRepository();
-    const turnoRepository  = new TurnoRepository();
+    const medicoRepository = new FakeMedicoRepository();
+    const turnoRepository  = new FakeTurnoRepository();
     const medicoService    = new MedicoService({ medicoRepository });
     const turnoService     = new TurnoService({ turnoRepository, medicoService });
     medicoService.turnoService = turnoService;

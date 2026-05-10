@@ -13,14 +13,14 @@
     con una sola responsabilidad por eslabón.
 */
 
-import { TurnoRepository } from "../repositories/TurnoRepository.js";
 import { NotFoundError, ConflictError, BadRequestError } from "../errors/AppError.js";
 import { ESTADOS } from "../domain/Turno.js";
 
 export class TurnoService {
-    constructor({ turnoRepository = new TurnoRepository(), medicoService } = {}) {
-        this.turnoRepository = turnoRepository;
-        this.medicoService   = medicoService;
+    constructor({ turnoRepository, medicoService, notificacionService } = {}) {
+        this.turnoRepository     = turnoRepository;
+        this.medicoService       = medicoService;
+        this.notificacionService = notificacionService;
     }
 
     obtenerTodos() {
@@ -191,13 +191,23 @@ export class TurnoService {
                     return Promise.reject(new NotFoundError("Turno no encontrado"));
                 if (turno.medicoId !== medicoId)
                     return Promise.reject(new BadRequestError("El turno no pertenece al médico"));
-                if (!turno.puedeProponecrCambioFecha())
+                if (!turno.puedeProponerCambioFecha())
                     return Promise.reject(new BadRequestError(
                         "No se puede proponer cambio: estado inválido o falta menos de 1 hora"
                     ));
 
                 turno.proponerCambioFecha(nuevaFecha, nuevaHora);
-                return this.turnoRepository.actualizar(turno);
+
+                return this.turnoRepository.actualizar(turno)
+                    .then((turnoActualizado) => {
+                        if (this.notificacionService)
+                            return this.notificacionService.crear(
+                                turno.pacienteId,
+                                "PROPUESTA_CAMBIO_FECHA",
+                                `El médico propuso cambiar tu turno del ${turno.fecha} ${turno.hora} al ${nuevaFecha} ${nuevaHora}`
+                            ).then(() => turnoActualizado);
+                        return turnoActualizado;
+                    });
             });
     }
 

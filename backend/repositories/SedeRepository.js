@@ -1,31 +1,49 @@
-import { Sede } from "../domain/Sede.js";
+/*
+    REPOSITORY — Acceso a datos para Sedes (MongoDB)
+
+    Las sedes son entidades independientes referenciadas por los médicos.
+    Se inicializan con dos sedes de ejemplo al arrancar si la colección está vacía.
+*/
+
+import { Sede }      from "../domain/Sede.js";
+import SedeModel     from "../models/SedeModel.js";
 
 export class SedeRepository {
-    constructor() {
-        this.sedes  = [
-            new Sede(1, "Medrano", "Av. Medrano 123"),
-            new Sede(2, "Campus",  "Campus Universitario s/n"),
-        ];
-        this.nextId = 3;
+
+    // Siembra las sedes iniciales si la colección está vacía.
+    inicializar() {
+        return SedeModel.countDocuments()
+            .then((count) => {
+                if (count > 0) return;
+                return SedeModel.insertMany([
+                    { nombre: "Medrano",  direccion: "Av. Medrano 950" },
+                    { nombre: "Campus",   direccion: "Mozart 2300" },
+                ]);
+            });
     }
 
     obtenerTodos() {
-        return Promise.resolve(this.sedes);
+        return SedeModel.find().lean()
+            .then((docs) => docs.map(this._toSede));
     }
 
     obtenerPorId(id) {
-        return Promise.resolve(this.sedes.find((s) => s.id === id) || null);
+        return SedeModel.findById(id).lean()
+            .then((doc) => doc ? this._toSede(doc) : null);
     }
 
     existeNombre(nombre) {
-        return Promise.resolve(
-            this.sedes.some((s) => s.nombre.toLowerCase() === nombre.trim().toLowerCase())
-        );
+        return SedeModel.findOne({ nombre: new RegExp(`^${nombre.trim()}$`, "i") }).lean()
+            .then((doc) => !!doc);
     }
 
     crear(datos) {
-        const nueva = new Sede(this.nextId++, datos.nombre.trim(), datos.direccion.trim());
-        this.sedes.push(nueva);
-        return Promise.resolve(nueva);
+        return new SedeModel({ nombre: datos.nombre.trim(), direccion: datos.direccion.trim() })
+            .save()
+            .then((doc) => this._toSede(doc.toObject()));
+    }
+
+    _toSede(doc) {
+        return new Sede(doc._id.toString(), doc.nombre, doc.direccion);
     }
 }

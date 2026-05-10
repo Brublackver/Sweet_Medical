@@ -1,18 +1,13 @@
-import { z } from "zod";
-import { crearMedicoSchema }         from "../schemas/CrearMedicoSchema.js";
+import { crearMedicoSchema }           from "../schemas/CrearMedicoSchema.js";
 import { DisponibilidadHorariaSchema } from "../schemas/DisponibilidadHorariaSchema.js";
-import { cancelarTurnoSchema }        from "../schemas/cancelarTurnoSchema.js";
-import { solicitarCambioFechaSchema } from "../schemas/solicitarCambioFechaSchema.js";
-import { crearServicioSchema }        from "../schemas/crearServicioSchema.js";
-import { modificarServicioSchema }    from "../schemas/modificarServicioSchema.js";
-import { BadRequestError }            from "../errors/AppError.js";
+import { cancelarTurnoSchema }         from "../schemas/cancelarTurnoSchema.js";
+import { solicitarCambioFechaSchema }  from "../schemas/solicitarCambioFechaSchema.js";
+import { crearServicioSchema }         from "../schemas/crearServicioSchema.js";
+import { modificarServicioSchema }     from "../schemas/modificarServicioSchema.js";
+import { BadRequestError }             from "../errors/AppError.js";
+import { validarId, formatearErrores } from "./sharedValidator.js";
 
-const formatearErrores = (error) =>
-    error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
-
-export const validarId = (id) =>
-    z.int().gt(0).parseAsync(Number(id))
-        .catch(() => Promise.reject(new BadRequestError("El parámetro id debe ser un entero positivo")));
+export { validarId };
 
 export const validarCrearMedico = (data) =>
     crearMedicoSchema.parseAsync(data)
