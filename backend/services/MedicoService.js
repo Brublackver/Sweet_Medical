@@ -115,6 +115,12 @@ export class MedicoService {
             .then(() => this.turnoService.cancelarTurnoPorMedico(turnoId, medicoId, motivo));
     }
 
+    obtenerTurnosConfirmados(medicoId) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.buscarPorMedico(medicoId))
+            .then((turnos) => turnos.filter((t) => t.estado === "reservado"));
+    }
+
     // Consulta el historial de turnos de un paciente específico con este médico.
     historialTurnosDePaciente(medicoId, pacienteId) {
         return this.obtenerPorId(medicoId)

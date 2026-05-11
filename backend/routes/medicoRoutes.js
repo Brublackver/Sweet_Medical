@@ -39,6 +39,10 @@ medicoRouter.route("/:id/disponibilidad/:disponibilidadId")
     .get(medicoController.obtenerDisponibilidadPorId)
     .delete(medicoController.eliminarDisponibilidadPorId);
 
+// Turnos confirmados del médico
+medicoRouter.route("/:id/turnos")
+    .get(medicoController.obtenerTurnosConfirmados);
+
 // Operaciones sobre turnos del médico
 medicoRouter.route("/:id/turnos/:turnoId/cancelar")
     .patch(medicoController.cancelarTurno);

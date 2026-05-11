@@ -110,6 +110,12 @@ export class MedicoController {
             .then((turno) => res.status(200).json({ status: "success", data: turno }))
             .catch(next);
 
+    obtenerTurnosConfirmados = (req, res, next) =>
+        validarIdNumerico(req.params.id)
+            .then((medicoId) => this.medicoService.obtenerTurnosConfirmados(medicoId))
+            .then((turnos) => res.status(200).json({ status: "success", data: turnos }))
+            .catch(next);
+
     historialTurnosDePaciente = (req, res, next) =>
         Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.pacienteId)])
             .then(([medicoId, pacienteId]) =>
