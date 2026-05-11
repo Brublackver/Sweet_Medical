@@ -327,6 +327,14 @@ export const swaggerSpec = {
         },
 
         // ── Turnos del médico ──────────────────────────────────────────────────
+        "/medico/{id}/turnos": {
+            get: {
+                tags:    ["Turnos"],
+                summary: "Obtener turnos confirmados del médico",
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { 200: { description: "Turnos con estado reservado" } },
+            },
+        },
         "/medico/{id}/turnos/{turnoId}/cancelar": {
             patch: {
                 tags:    ["Turnos"],
