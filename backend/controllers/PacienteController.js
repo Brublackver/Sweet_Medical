@@ -6,11 +6,11 @@
 */
 
 import {
-    validarId,
     validarIdNumerico,
     validarCrearPaciente,
     validarCancelarTurno,
     validarSolicitarCambioFecha,
+    validarReservarTurno,
 } from "../validators/pacienteValidator.js";
 
 export class PacienteController {
@@ -38,8 +38,8 @@ export class PacienteController {
     // El pacienteId viene del route param para garantizar que el paciente
     // solo pueda reservar turnos bajo su propio id.
     reservarTurno = (req, res, next) =>
-        validarIdNumerico(req.params.id)
-            .then((pacienteId) => this.pacienteService.reservarTurno(pacienteId, req.body))
+        Promise.all([validarIdNumerico(req.params.id), validarReservarTurno(req.body)])
+            .then(([pacienteId, body]) => this.pacienteService.reservarTurno(pacienteId, body))
             .then((turno) => res.status(201).json({ status: "success", data: turno }))
             .catch(next);
 

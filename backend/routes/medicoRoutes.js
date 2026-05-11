@@ -1,23 +1,3 @@
-/*
-    ROUTES — Define las rutas HTTP para el recurso Médico
-
-    Endpoints de disponibilidad:
-      GET    /medico/:id/disponibilidad                     → general o por fecha (?fecha=)
-      POST   /medico/:id/disponibilidad                     → definir
-      PUT    /medico/:id/disponibilidad                     → cambiar
-      GET    /medico/:id/disponibilidad/slots               → slots libres (?fecha=&duracion=&especialidad=&practica=)
-      GET    /medico/:id/disponibilidad/:disponibilidadId   → por id
-      DELETE /medico/:id/disponibilidad/:disponibilidadId   → eliminar
-
-    Endpoints de turnos:
-      PATCH  /medico/:id/turnos/:turnoId/cancelar           → cancelar con motivo
-      PATCH  /medico/:id/turnos/:turnoId/realizado          → marcar como realizado
-      POST   /medico/:id/turnos/:turnoId/proponer-cambio    → proponer nueva fecha
-      PATCH  /medico/:id/turnos/:turnoId/confirmar-cambio   → confirmar solicitud del paciente
-      PATCH  /medico/:id/turnos/:turnoId/rechazar-cambio    → rechazar solicitud del paciente
-      GET    /medico/:id/pacientes/:pacienteId/turnos       → historial de un paciente
-*/
-
 import { Router } from "express";
 import { MedicoController } from "../controllers/MedicoController.js";
 import { MedicoService }    from "../services/MedicoService.js";

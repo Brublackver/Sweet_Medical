@@ -1,21 +1,3 @@
-/*
-    SERVICE — Búsqueda de turnos disponibles
-
-    Orquesta la búsqueda de slots libres cruzando disponibilidad del médico,
-    turnos ya ocupados y cobertura del paciente.
-
-    SEPARACIÓN DE RESPONSABILIDADES:
-    - El cálculo de slots libres vive en Medico.calcularSlotsDisponibles (dominio)
-    - El cálculo de cobertura es responsabilidad de este service (regla de negocio de búsqueda)
-    - Paginación y ordenamiento son responsabilidades de presentación, delegadas aquí
-
-    COBERTURA — nivel es un porcentaje (0–100):
-      100 → COMPLETA  → montoAbonar = 0
-      1–99 → PARCIAL  → montoAbonar = costo * (1 - nivel/100)
-      0    → NO_CUBIERTA → montoAbonar = costo (precio completo)
-    Si el plan no cubre el servicio → NO_CUBIERTA
-*/
-
 export class BusquedaService {
     constructor({ medicoService, turnoService, pacienteService } = {}) {
         this.medicoService   = medicoService;

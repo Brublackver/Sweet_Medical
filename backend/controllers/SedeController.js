@@ -1,8 +1,6 @@
-import { crearSedeSchema }  from "../schemas/crearSedeSchema.js";
-import { BadRequestError }  from "../errors/AppError.js";
-
-const formatearErrores = (error) =>
-    error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
+import { crearSedeSchema }   from "../schemas/crearSedeSchema.js";
+import { BadRequestError }   from "../errors/AppError.js";
+import { formatearErrores }  from "../validators/sharedValidator.js";
 
 export class SedeController {
     constructor({ sedeService } = {}) {

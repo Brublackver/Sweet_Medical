@@ -1,22 +1,18 @@
-/*
-    CONTROLLER — Capa de entrada HTTP para Búsqueda de Turnos
-
-    Parsea y valida los query params antes de pasarlos al BusquedaService.
-    Si no se especifica rango de fechas, usa hoy como inicio y 30 días como límite.
-    Si no se especifica paginación, usa page=1 y limit=10.
-*/
-
-import mongoose            from "mongoose";
 import { BadRequestError } from "../errors/AppError.js";
 
-// Retorna la fecha de hoy en formato YYYY-MM-DD.
 const hoy = () => new Date().toISOString().split("T")[0];
 
-// Retorna la fecha de hoy + 30 días en formato YYYY-MM-DD.
 const enTreintaDias = () => {
     const d = new Date();
     d.setDate(d.getDate() + 30);
     return d.toISOString().split("T")[0];
+};
+
+const parseIdParam = (valor, nombre) => {
+    const num = Number(valor);
+    if (!Number.isInteger(num) || num <= 0)
+        return new BadRequestError(`${nombre} debe ser un entero positivo`);
+    return num;
 };
 
 export class BusquedaController {
@@ -24,11 +20,6 @@ export class BusquedaController {
         this.busquedaService = busquedaService;
     }
 
-    // GET /turno/buscar
-    // Busca turnos disponibles aplicando los filtros y la paginación recibidos por query.
-    // pacienteId es obligatorio — se usa para calcular la cobertura de su plan.
-    // Filtros opcionales: medicoId, especialidad, practica, sede, fechaDesde, fechaHasta.
-    // Paginación: page, limit (máx 100). Ordenamiento: ordenarPor=fecha|costo, orden=asc|desc.
     buscar = (req, res, next) => {
         const {
             pacienteId,
@@ -47,11 +38,16 @@ export class BusquedaController {
         if (!pacienteId)
             return next(new BadRequestError("El parámetro pacienteId es requerido"));
 
-        if (!mongoose.isValidObjectId(pacienteId))
-            return next(new BadRequestError("pacienteId debe ser un ObjectId válido"));
+        const parsedPacienteId = parseIdParam(pacienteId, "pacienteId");
+        if (parsedPacienteId instanceof BadRequestError)
+            return next(parsedPacienteId);
 
-        if (medicoId && !mongoose.isValidObjectId(medicoId))
-            return next(new BadRequestError("medicoId debe ser un ObjectId válido"));
+        let parsedMedicoId = null;
+        if (medicoId) {
+            parsedMedicoId = parseIdParam(medicoId, "medicoId");
+            if (parsedMedicoId instanceof BadRequestError)
+                return next(parsedMedicoId);
+        }
 
         if (!["fecha", "costo"].includes(ordenarPor))
             return next(new BadRequestError("ordenarPor debe ser 'fecha' o 'costo'"));
@@ -60,8 +56,8 @@ export class BusquedaController {
             return next(new BadRequestError("orden debe ser 'asc' o 'desc'"));
 
         const filtros = {
-            pacienteId:   pacienteId,
-            medicoId:     medicoId || null,
+            pacienteId:   parsedPacienteId,
+            medicoId:     parsedMedicoId,
             especialidad: especialidad || null,
             practica:     practica     || null,
             sede:         sede         || null,

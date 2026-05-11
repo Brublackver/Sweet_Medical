@@ -1,9 +1,3 @@
-/*
-    ROUTER PRINCIPAL — Punto central de configuracion de rutas
-    Registra todos los routers de cada recurso bajo su path base.
-    app.js importa este router y lo monta en la aplicacion Express.
-*/
-
 import { Router } from "express";
 
 import medicoRouter        from "./medicoRoutes.js";

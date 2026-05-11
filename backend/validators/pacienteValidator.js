@@ -1,6 +1,7 @@
 import { crearPacienteSchema }       from "../schemas/crearPacienteSchema.js";
 import { cancelarTurnoSchema }        from "../schemas/cancelarTurnoSchema.js";
 import { solicitarCambioFechaSchema } from "../schemas/solicitarCambioFechaSchema.js";
+import { reservarTurnoSchema }        from "../schemas/crearTurnoSchema.js";
 import { BadRequestError }            from "../errors/AppError.js";
 import { validarId, validarIdNumerico, formatearErrores } from "./sharedValidator.js";
 
@@ -16,4 +17,8 @@ export const validarCancelarTurno = (data) =>
 
 export const validarSolicitarCambioFecha = (data) =>
     solicitarCambioFechaSchema.parseAsync(data)
+        .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
+
+export const validarReservarTurno = (data) =>
+    reservarTurnoSchema.parseAsync(data)
         .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));

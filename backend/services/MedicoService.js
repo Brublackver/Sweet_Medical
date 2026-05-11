@@ -180,7 +180,6 @@ export class MedicoService {
                     return Promise.reject(new ConflictError(
                         `Ya existe una especialidad con código "${datos.codigo.trim().toUpperCase()}"`
                     ));
-                // Persiste y retorna la especialidad con el _id asignado por MongoDB.
                 return this.medicoRepository.actualizar(medico)
                     .then((m) => m.especialidades.find(e => e.codigo === especialidad.codigo));
             });
@@ -215,7 +214,6 @@ export class MedicoService {
                     return Promise.reject(new ConflictError(
                         `Ya existe una práctica con código "${datos.codigo.trim().toUpperCase()}"`
                     ));
-                // Persiste y retorna la práctica con el _id asignado por MongoDB.
                 return this.medicoRepository.actualizar(medico)
                     .then((m) => m.practicas.find(p => p.codigo === practica.codigo));
             });

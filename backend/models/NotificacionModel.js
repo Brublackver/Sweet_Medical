@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 const notificacionSchema = new Schema({
-    usuarioId:     { type: String, required: true }, // ObjectId del paciente o médico destinatario
+    usuarioId:     { type: Number, required: true },
     tipo:          { type: String, required: true },
     mensaje:       { type: String, required: true },
     leida:         { type: Boolean, default: false },

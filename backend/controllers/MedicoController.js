@@ -6,7 +6,6 @@
 */
 
 import {
-    validarId,
     validarIdNumerico,
     validarCrearMedico,
     validarDisponibilidad,
@@ -72,7 +71,7 @@ export class MedicoController {
     definirDisponibilidad = (req, res, next) =>
         Promise.all([validarIdNumerico(req.params.id), validarDisponibilidad(req.body)])
             .then(([id, body]) => this.medicoService.definirDisponibilidad(id, body))
-            .then(() => res.status(201).json({ status: "success" }))
+            .then((medico) => res.status(201).json({ status: "success", data: medico.disponibilidades }))
             .catch(next);
 
     cambiarDisponibilidad = (req, res, next) =>
