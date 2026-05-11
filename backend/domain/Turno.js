@@ -1,18 +1,3 @@
-/*
-    DOMAIN — Entidad Turno
-
-    Encapsula el ciclo de vida completo de un turno médico.
-
-    ENCAPSULAMIENTO (POO): ningún actor externo muta el estado directamente.
-    Toda transición pasa por un método que valida la precondición y registra el evento.
-
-    PATRÓN ESTADO: los métodos puedeXxx() actúan como guardas de transición —
-    expresan QUÉ está permitido sin que el llamador conozca la lógica interna.
-
-    INMUTABILIDAD PARCIAL: ESTADOS es un objeto congelado para evitar
-    strings mágicos dispersos en el código.
-*/
-
 export const ESTADOS = Object.freeze({
     RESERVADO:        "reservado",
     CANCELADO:        "cancelado",
@@ -53,7 +38,6 @@ export class Turno {
         return (fechaTurno - new Date()) / (1000 * 60 * 60) >= 1;
     }
 
-    // DECLARATIVIDAD: includes() expresa el conjunto de estados cancelables como dato.
     puedeSerCancelado() {
         return [ESTADOS.RESERVADO, ESTADOS.PENDIENTE_CAMBIO, ESTADOS.PROPUESTA_MEDICO]
             .includes(this.estado) && this.puedeCancelarse();
@@ -179,6 +163,22 @@ export class Turno {
             estado:    ESTADOS.RESERVADO,
             motivo:    "Propuesta del médico rechazada por el paciente",
         });
+    }
+
+    toJSON() {
+        return {
+            turno_id:             this.id,
+            medico_id:            this.medicoId,
+            paciente_id:          this.pacienteId,
+            fecha:                this.fecha,
+            hora:                 this.hora,
+            duracion:             this.duracion,
+            estado:               this.estado,
+            fechaCreacion:        this.fechaCreacion,
+            historialEstados:     this.historialEstados,
+            solicitudCambioFecha: this.solicitudCambioFecha,
+            propuestaMedicoFecha: this.propuestaMedicoFecha,
+        };
     }
 
     // --- Solapamiento de slots ----------------------------------------------

@@ -16,39 +16,34 @@
     Si el plan no cubre el servicio → NO_CUBIERTA
 */
 
-import { NotFoundError } from "../errors/AppError.js";
-
 export class BusquedaService {
-    constructor({ medicoRepository, turnoRepository, pacienteRepository } = {}) {
-        this.medicoRepository   = medicoRepository;
-        this.turnoRepository    = turnoRepository;
-        this.pacienteRepository = pacienteRepository;
+    constructor({ medicoService, turnoService, pacienteService } = {}) {
+        this.medicoService   = medicoService;
+        this.turnoService    = turnoService;
+        this.pacienteService = pacienteService;
     }
 
     buscar(filtros, paginacion) {
         return Promise.all([
-            this.pacienteRepository.obtenerPorId(filtros.pacienteId),
-            this.medicoRepository.obtenerTodos(),
+            this.pacienteService.obtenerPorId(filtros.pacienteId),
+            this.medicoService.obtenerTodos(),
         ])
         .then(([paciente, medicos]) => {
-            if (!paciente)
-                return Promise.reject(new NotFoundError("Paciente no encontrado"));
-
-            const medicosFiltrados = medicos.filter((m) => this._coincideFiltros(m, filtros));
+            const medicosFiltrados   = medicos.filter((m) => this._coincideFiltros(m, filtros));
             const medicosConServicio = medicosFiltrados.filter(
                 (m) => this._serviciosDeMedico(m, filtros).length > 0
             );
 
             const promesas = medicosConServicio.flatMap((medico) => {
                 const servicios = this._serviciosDeMedico(medico, filtros);
-                const duracion  = this._duracionSlot(medico, filtros);
+                const duracion  = medico.calcularDuracionSlot(filtros);
                 const fechas    = this._rangoFechas(filtros.fechaDesde, filtros.fechaHasta);
 
                 return fechas.map((fecha) =>
-                    this.turnoRepository.buscarPorMedicoYFecha(medico.id, fecha)
+                    this.turnoService.buscarPorMedicoYFecha(medico.id, fecha)
                         .then((turnosDelDia) => {
                             const slots = medico.calcularSlotsDisponibles(fecha, duracion, turnosDelDia);
-                            const sedes = this._sedesDelMedico(medico, filtros.sede);
+                            const sedes = medico.obtenerSedesConFiltro(filtros.sede);
 
                             return slots.flatMap((hora) =>
                                 servicios.map((servicio) => ({
@@ -74,32 +69,14 @@ export class BusquedaService {
 
     // --- Helpers privados -------------------------------------------------------
 
-    // Filtra médicos que cumplan TODOS los criterios de búsqueda.
     _coincideFiltros(medico, filtros) {
-        if (filtros.medicoId && medico.id !== filtros.medicoId)    return false;
-        if (filtros.sede      && !this._tieneSede(medico, filtros.sede))        return false;
-        if (filtros.especialidad && !this._tieneEspecialidad(medico, filtros.especialidad)) return false;
-        if (filtros.practica     && !this._tienePractica(medico, filtros.practica))         return false;
+        if (filtros.medicoId    && medico.id !== filtros.medicoId)         return false;
+        if (filtros.sede        && !medico.tieneSede(filtros.sede))        return false;
+        if (filtros.especialidad && !medico.tieneEspecialidad(filtros.especialidad)) return false;
+        if (filtros.practica    && !medico.tienePractica(filtros.practica)) return false;
         return true;
     }
 
-    _tieneSede(medico, nombre) {
-        return medico.sedes.some((s) => s.nombre.toLowerCase() === nombre.toLowerCase());
-    }
-
-    _tieneEspecialidad(medico, valor) {
-        return medico.especialidades.some(
-            (e) => e.nombre.toLowerCase() === valor.toLowerCase() || e.codigo === valor.toUpperCase()
-        );
-    }
-
-    _tienePractica(medico, valor) {
-        return medico.practicas.some(
-            (p) => p.nombre.toLowerCase() === valor.toLowerCase() || p.codigo === valor.toUpperCase()
-        );
-    }
-
-    // Devuelve los servicios del médico que aplican al filtro, con `tipo` adjunto.
     _serviciosDeMedico(medico, filtros) {
         const toDTO = (s, tipo) => ({
             id: s.id, codigo: s.codigo, nombre: s.nombre,
@@ -107,18 +84,12 @@ export class BusquedaService {
         });
 
         if (filtros.especialidad) {
-            const esp = medico.especialidades.find(
-                (e) => e.nombre.toLowerCase() === filtros.especialidad.toLowerCase()
-                    || e.codigo === filtros.especialidad.toUpperCase()
-            );
+            const esp = medico.obtenerEspecialidad(filtros.especialidad);
             return esp ? [toDTO(esp, "especialidad")] : [];
         }
 
         if (filtros.practica) {
-            const prac = medico.practicas.find(
-                (p) => p.nombre.toLowerCase() === filtros.practica.toLowerCase()
-                    || p.codigo === filtros.practica.toUpperCase()
-            );
+            const prac = medico.obtenerPractica(filtros.practica);
             return prac ? [toDTO(prac, "practica")] : [];
         }
 
@@ -126,38 +97,6 @@ export class BusquedaService {
             ...medico.especialidades.map((e) => toDTO(e, "especialidad")),
             ...medico.practicas.map((p) => toDTO(p, "practica")),
         ];
-    }
-
-    // Duración del slot: la del servicio filtrado, o la máxima del médico si no hay filtro.
-    _duracionSlot(medico, filtros) {
-        if (filtros.especialidad) {
-            const esp = medico.especialidades.find(
-                (e) => e.nombre.toLowerCase() === filtros.especialidad.toLowerCase()
-                    || e.codigo === filtros.especialidad.toUpperCase()
-            );
-            return esp?.duracionTurnoEnMins ?? 30;
-        }
-
-        if (filtros.practica) {
-            const prac = medico.practicas.find(
-                (p) => p.nombre.toLowerCase() === filtros.practica.toLowerCase()
-                    || p.codigo === filtros.practica.toUpperCase()
-            );
-            return prac?.duracionTurnoEnMins ?? 30;
-        }
-
-        const todas = [
-            ...medico.especialidades.map((e) => e.duracionTurnoEnMins),
-            ...medico.practicas.map((p) => p.duracionTurnoEnMins),
-        ].filter(Boolean);
-
-        return todas.length ? Math.max(...todas) : 30;
-    }
-
-    // Sedes a mostrar: si hay filtro, solo esa sede; si no, todas las del médico.
-    _sedesDelMedico(medico, filtroSede) {
-        if (!filtroSede) return medico.sedes;
-        return medico.sedes.filter((s) => s.nombre.toLowerCase() === filtroSede.toLowerCase());
     }
 
     // Calcula cobertura según el plan del paciente.

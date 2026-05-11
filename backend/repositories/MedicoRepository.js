@@ -1,106 +1,99 @@
-/*
-    REPOSITORY — Acceso a datos para Médicos (MongoDB)
-
-    Medico es un agregado con subdocumentos embebidos (especialidades, practicas,
-    disponibilidades) y sedes referenciadas por ObjectId.
-
-    _toMedico: convierte un documento MongoDB en una instancia del dominio Medico,
-    mapeando _id → id en el agregado y en cada subdocumento.
-
-    actualizar: persiste el estado completo del dominio en MongoDB. Para subdocumentos
-    nuevos (sin ObjectId válido), Mongoose asigna un _id automáticamente.
-*/
-
-import mongoose                from "mongoose";
 import { Medico }              from "../domain/Medico.js";
 import { Especialidad }        from "../domain/Especialidad.js";
 import { Practica }            from "../domain/Practica.js";
 import { DisponibilidadHoraria } from "../domain/DisponibilidadHoraria.js";
+import { Sede }                from "../domain/Sede.js";
 import MedicoModel             from "../models/MedicoModel.js";
+import ContadorModel           from "../models/ContadorModel.js";
 
 export class MedicoRepository {
 
+    _siguienteId() {
+        return ContadorModel.findOneAndUpdate(
+            { nombre: "medico" },
+            { $inc: { valor: 1 } },
+            { new: true, upsert: true }
+        ).then((doc) => doc.valor);
+    }
+
     obtenerTodos() {
-        return MedicoModel.find().populate("sedes").lean()
+        return MedicoModel.find().lean()
             .then((docs) => docs.map((d) => this._toMedico(d)));
     }
 
     obtenerPorId(id) {
-        return MedicoModel.findById(id).populate("sedes").lean()
+        return MedicoModel.findOne({ medicoId: id }).lean()
             .then((doc) => doc ? this._toMedico(doc) : null);
     }
 
     crear(datos) {
-        return new MedicoModel({
-            usuario:   datos.usuario,
-            matricula: datos.matricula,
-            nombre:    datos.nombre,
-        }).save()
+        return this._siguienteId()
+            .then((medicoId) => new MedicoModel({
+                medicoId,
+                usuario:   datos.usuario,
+                matricula: datos.matricula,
+                nombre:    datos.nombre,
+            }).save())
             .then((doc) => this._toMedico(doc.toObject()));
     }
 
-    // Persiste el estado completo del dominio Medico en MongoDB.
-    // Subdocumentos con id válido preservan su _id; los nuevos reciben uno de Mongoose.
+    // Subdocumentos con id numérico propio; sedes embebidas con su info completa.
     actualizar(medico) {
-        const mapSubdoc = (item, campos) => {
-            const doc = { ...campos };
-            if (mongoose.isValidObjectId(item.id)) doc._id = item.id;
-            return doc;
-        };
-
         const update = {
-            especialidades: medico.especialidades.map((e) => mapSubdoc(e, {
+            especialidades: medico.especialidades.map((e) => ({
+                especId:             e.id,
                 codigo:              e.codigo,
                 nombre:              e.nombre,
                 duracionTurnoEnMins: e.duracionTurnoEnMins,
                 costo:               e.costo,
             })),
-            practicas: medico.practicas.map((p) => mapSubdoc(p, {
+            practicas: medico.practicas.map((p) => ({
+                practicaId:          p.id,
                 codigo:              p.codigo,
                 nombre:              p.nombre,
                 duracionTurnoEnMins: p.duracionTurnoEnMins,
                 costo:               p.costo,
             })),
-            disponibilidades: medico.disponibilidades.map((d) => mapSubdoc(d, {
-                fecha:     d.fecha,
-                horaDesde: d.horaDesde,
-                horaHasta: d.horaHasta,
+            disponibilidades: medico.disponibilidades.map((d) => ({
+                disponibilidadId: d.id,
+                fecha:            d.fecha,
+                horaDesde:        d.horaDesde,
+                horaHasta:        d.horaHasta,
             })),
-            sedes: medico.sedes.map((s) => s.id),
+            sedes: medico.sedes.map((s) => ({
+                sedeId:    s.id,
+                nombre:    s.nombre,
+                direccion: s.direccion,
+            })),
         };
 
-        return MedicoModel.findByIdAndUpdate(medico.id, update, { new: true })
-            .populate("sedes").lean()
+        return MedicoModel.findOneAndUpdate({ medicoId: medico.id }, update, { new: true })
+            .lean()
             .then((doc) => this._toMedico(doc));
     }
 
-    // Convierte documento MongoDB → instancia de dominio Medico con todos sus subdocumentos.
     _toMedico(doc) {
-        const medico = new Medico(doc._id.toString(), doc.usuario, doc.matricula, doc.nombre);
+        const medico = new Medico(doc.medicoId, doc.usuario, doc.matricula, doc.nombre);
 
         medico.especialidades = (doc.especialidades || []).map((e) => {
             const esp = new Especialidad(e.codigo, e.nombre, e.duracionTurnoEnMins, e.costo);
-            esp.id = e._id.toString();
+            esp.id = e.especId;
             return esp;
         });
 
         medico.practicas = (doc.practicas || []).map((p) => {
             const prac = new Practica(p.codigo, p.nombre, p.duracionTurnoEnMins, p.costo);
-            prac.id = p._id.toString();
+            prac.id = p.practicaId;
             return prac;
         });
 
         medico.disponibilidades = (doc.disponibilidades || []).map((d) => {
             const disp = new DisponibilidadHoraria(d.fecha, d.horaDesde, d.horaHasta);
-            disp.id = d._id.toString();
+            disp.id = d.disponibilidadId;
             return disp;
         });
 
-        medico.sedes = (doc.sedes || []).map((s) => ({
-            id:       s._id.toString(),
-            nombre:   s.nombre,
-            direccion: s.direccion,
-        }));
+        medico.sedes = (doc.sedes || []).map((s) => new Sede(s.sedeId, s.nombre, s.direccion));
 
         return medico;
     }

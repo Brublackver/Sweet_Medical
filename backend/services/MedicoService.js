@@ -1,26 +1,16 @@
-/*
-    SERVICE — Capa de lógica de negocio para Médicos
-
-    SEPARACIÓN DE RESPONSABILIDADES:
-    - MedicoService valida la identidad del médico (¿existe?)
-    - TurnoService gestiona la lógica de los turnos
-    - Los métodos de este service actúan como fachada: verifican primero
-      que el médico exista, luego delegan la operación al service correcto.
-
-    COMPOSICIÓN DE PROMESAS: el .then() inicial (obtenerPorId) es la guarda
-    de identidad — si el médico no existe, la cadena se corta con NotFoundError.
-*/
-
 import { NotFoundError, BadRequestError, ConflictError } from "../errors/AppError.js";
 
 export class MedicoService {
-    constructor({ medicoRepository, turnoService, sedeRepository } = {}) {
+    constructor({ medicoRepository, sedeService } = {}) {
         this.medicoRepository = medicoRepository;
-        this.turnoService     = turnoService;
-        this.sedeRepository   = sedeRepository;
+        this.sedeService      = sedeService;
+        this.turnoService     = null;
     }
 
-    // Guarda de identidad: reutilizada internamente por todos los métodos.
+    setTurnoService(turnoService) {
+        this.turnoService = turnoService;
+    }
+
     obtenerPorId(id) {
         return this.medicoRepository.obtenerPorId(id)
             .then((medico) => {
@@ -55,32 +45,18 @@ export class MedicoService {
             );
     }
 
-    // Devuelve slots libres de `duracion` minutos para una fecha dada.
-    // Si se pasa `especialidad` o `practica`, valida que el médico la ofrezca
-    // (se conectará completamente cuando se implemente Gestión de Servicios).
-    //
-    // COMPOSICIÓN: busca los turnos activos del médico en esa fecha y
-    // delega el cálculo al dominio — Medico.calcularSlotsDisponibles.
     consultarSlotsDisponibles(medicoId, fecha, duracion, filtro = {}) {
         return this.obtenerPorId(medicoId)
             .then((medico) => {
-                if (filtro.especialidad) {
-                    const tieneEspecialidad = medico.especialidades
-                        .some(e => e.nombre?.toLowerCase() === filtro.especialidad.toLowerCase());
-                    if (!tieneEspecialidad)
-                        return Promise.reject(new BadRequestError(
-                            `El médico no ofrece la especialidad "${filtro.especialidad}"`
-                        ));
-                }
+                if (filtro.especialidad && !medico.tieneEspecialidad(filtro.especialidad))
+                    return Promise.reject(new BadRequestError(
+                        `El médico no ofrece la especialidad "${filtro.especialidad}"`
+                    ));
 
-                if (filtro.practica) {
-                    const tienePractica = medico.practicas
-                        .some(p => p.nombre?.toLowerCase() === filtro.practica.toLowerCase());
-                    if (!tienePractica)
-                        return Promise.reject(new BadRequestError(
-                            `El médico no ofrece la práctica "${filtro.practica}"`
-                        ));
-                }
+                if (filtro.practica && !medico.tienePractica(filtro.practica))
+                    return Promise.reject(new BadRequestError(
+                        `El médico no ofrece la práctica "${filtro.practica}"`
+                    ));
 
                 return this.turnoService
                     .buscarPorMedico(medicoId)
@@ -174,7 +150,7 @@ export class MedicoService {
     asignarSede(medicoId, sedeId) {
         return Promise.all([
             this.obtenerPorId(medicoId),
-            this.sedeRepository.obtenerPorId(sedeId),
+            this.sedeService.obtenerPorId(sedeId),
         ])
         .then(([medico, sede]) => {
             if (!sede)

@@ -1,18 +1,3 @@
-/*
-    SERVICE — Capa de lógica de negocio para Turnos
-
-    Orquesta los flujos de negocio que involucran turnos.
-    Las validaciones de dominio viven en Turno y Medico.
-    El acceso a datos vive en los Repositories.
-
-    SEPARACIÓN DE RESPONSABILIDADES: este Service no decide si un turno
-    "puede" hacer algo — le pregunta al turno mismo (domain logic).
-    El Service solo coordina el flujo.
-
-    COMPOSICIÓN DE PROMESAS: cada flujo es una cadena de .then()
-    con una sola responsabilidad por eslabón.
-*/
-
 import { NotFoundError, ConflictError, BadRequestError } from "../errors/AppError.js";
 import { ESTADOS } from "../domain/Turno.js";
 
@@ -276,5 +261,9 @@ export class TurnoService {
 
     buscarPorMedico(medicoId) {
         return this.turnoRepository.buscarPorMedico(medicoId);
+    }
+
+    buscarPorMedicoYFecha(medicoId, fecha) {
+        return this.turnoRepository.buscarPorMedicoYFecha(medicoId, fecha);
     }
 }

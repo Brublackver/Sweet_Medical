@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 
 // Subdocumentos embebidos — no tienen existencia fuera del médico
 const especialidadSchema = new Schema({
+    especId:             { type: Number, required: true },
     codigo:              { type: String, required: true },
     nombre:              { type: String, required: true },
     duracionTurnoEnMins: { type: Number, required: true },
@@ -9,6 +10,7 @@ const especialidadSchema = new Schema({
 });
 
 const practicaSchema = new Schema({
+    practicaId:          { type: Number, required: true },
     codigo:              { type: String, required: true },
     nombre:              { type: String, required: true },
     duracionTurnoEnMins: { type: Number, required: true },
@@ -16,20 +18,27 @@ const practicaSchema = new Schema({
 });
 
 const disponibilidadSchema = new Schema({
-    fecha:     { type: String, required: true },
-    horaDesde: { type: String, required: true },
-    horaHasta: { type: String, required: true },
+    disponibilidadId: { type: Number, required: true },
+    fecha:            { type: String, required: true },
+    horaDesde:        { type: String, required: true },
+    horaHasta:        { type: String, required: true },
 });
 
+const sedeEmbebidaSchema = new Schema({
+    sedeId:    { type: Number, required: true },
+    nombre:    { type: String, required: true },
+    direccion: { type: String, required: true },
+}, { _id: false });
+
 const medicoSchema = new Schema({
-    usuario:          { type: String, required: true, trim: true },
-    matricula:        { type: String, required: true, trim: true },
-    nombre:           { type: String, required: true, trim: true },
+    medicoId:         { type: Number, required: true, unique: true },
+    usuario:          { type: String, required: true, trim: true, maxlength: 30 },
+    matricula:        { type: String, required: true, trim: true, maxlength: 10 },
+    nombre:           { type: String, required: true, trim: true, maxlength: 30 },
     especialidades:   [especialidadSchema],
     practicas:        [practicaSchema],
     disponibilidades: [disponibilidadSchema],
-    // Sedes referenciadas — una sede puede pertenecer a varios médicos
-    sedes:            [{ type: Schema.Types.ObjectId, ref: "Sede" }],
+    sedes:            [sedeEmbebidaSchema],
 });
 
 export default model("Medico", medicoSchema);

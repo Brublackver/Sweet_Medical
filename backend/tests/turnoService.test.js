@@ -5,8 +5,6 @@ import { FakeTurnoRepository }          from "./fakes/FakeTurnoRepository.js";
 import { FakeMedicoRepository }         from "./fakes/FakeMedicoRepository.js";
 import { ESTADOS }                      from "../domain/Turno.js";
 
-// INVERSIÓN DE DEPENDENCIAS: el Service recibe sus dependencias desde afuera.
-// El test controla el estado inicial sin tocar la implementación.
 const crearContexto = () => {
     const medicoRepository = new FakeMedicoRepository();
     const turnoRepository  = new FakeTurnoRepository();

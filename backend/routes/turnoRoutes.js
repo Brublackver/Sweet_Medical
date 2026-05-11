@@ -18,7 +18,7 @@ import { notificacionService } from "./notificacionRoutes.js";
 const turnoRouter = Router();
 
 export const turnoService = new TurnoService({ turnoRepository, medicoService, notificacionService });
-medicoService.turnoService = turnoService;
+medicoService.setTurnoService(turnoService);
 
 const turnoController = new TurnoController({ turnoService });
 

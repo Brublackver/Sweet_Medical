@@ -2,9 +2,9 @@ import { crearPacienteSchema }       from "../schemas/crearPacienteSchema.js";
 import { cancelarTurnoSchema }        from "../schemas/cancelarTurnoSchema.js";
 import { solicitarCambioFechaSchema } from "../schemas/solicitarCambioFechaSchema.js";
 import { BadRequestError }            from "../errors/AppError.js";
-import { validarId, formatearErrores } from "./sharedValidator.js";
+import { validarId, validarIdNumerico, formatearErrores } from "./sharedValidator.js";
 
-export { validarId };
+export { validarId, validarIdNumerico };
 
 export const validarCrearPaciente = (data) =>
     crearPacienteSchema.parseAsync(data)

@@ -20,7 +20,7 @@ export class TurnoController {
   obtenerTodos = (req, res, next) => {
     return this.turnoService
       .obtenerTodos()
-      .then(turnos => res.status(200).json({ status: "success", message: "Lista de todos los turnos", data: turnos }))
+      .then(turnos => res.status(200).json({ status: "success", data: turnos }))
       .catch(next);
   };
 

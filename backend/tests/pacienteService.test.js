@@ -7,8 +7,6 @@ import { FakeTurnoRepository }       from "./fakes/FakeTurnoRepository.js";
 import { FakeMedicoRepository }      from "./fakes/FakeMedicoRepository.js";
 import { ESTADOS }                   from "../domain/Turno.js";
 
-// INVERSIÓN DE DEPENDENCIAS: construimos el grafo completo de dependencias
-// inyectándolas desde afuera. Cada test parte de un estado limpio.
 const crearContexto = () => {
     const medicoRepository   = new FakeMedicoRepository();
     const turnoRepository    = new FakeTurnoRepository();
@@ -16,7 +14,7 @@ const crearContexto = () => {
 
     const medicoService  = new MedicoService({ medicoRepository });
     const turnoService   = new TurnoService({ turnoRepository, medicoService });
-    medicoService.turnoService = turnoService;
+    medicoService.setTurnoService(turnoService);
 
     const pacienteService = new PacienteService({ pacienteRepository, turnoService });
 

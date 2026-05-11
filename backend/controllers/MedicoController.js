@@ -7,6 +7,7 @@
 
 import {
     validarId,
+    validarIdNumerico,
     validarCrearMedico,
     validarDisponibilidad,
     validarCancelarTurno,
@@ -21,10 +22,10 @@ export class MedicoController {
         this.medicoService = medicoService;
     }
 
-    // --- CRUD médico y disponibilidad (existentes) --------------------------
+    // --- CRUD médico y disponibilidad ------------------------------------------
 
     obtenerMedico = (req, res, next) =>
-        validarId(req.params.id)
+        validarIdNumerico(req.params.id)
             .then((id) => this.medicoService.obtenerPorId(id))
             .then((medico) => res.status(200).json({ status: "success", data: medico }))
             .catch(next);
@@ -42,7 +43,7 @@ export class MedicoController {
 
     obtenerDisponibilidad = (req, res, next) => {
         const { fecha } = req.query;
-        return validarId(req.params.id)
+        return validarIdNumerico(req.params.id)
             .then((id) => fecha
                 ? this.medicoService.obtenerDisponibilidadPorFecha(id, fecha)
                 : this.medicoService.obtenerDisponibilidad(id)
@@ -51,7 +52,6 @@ export class MedicoController {
             .catch(next);
     };
 
-    // Consulta slots libres para una fecha y duración dada.
     // Acepta query params opcionales: ?fecha=&duracion=&especialidad=&practica=
     consultarSlotsDisponibles = (req, res, next) => {
         const { fecha, duracion, especialidad, practica } = req.query;
@@ -59,7 +59,7 @@ export class MedicoController {
         if (!fecha || !duracion)
             return next(new BadRequestError("Los parámetros fecha y duracion son requeridos"));
 
-        return validarId(req.params.id)
+        return validarIdNumerico(req.params.id)
             .then((medicoId) =>
                 this.medicoService.consultarSlotsDisponibles(
                     medicoId, fecha, Number(duracion), { especialidad, practica }
@@ -70,19 +70,19 @@ export class MedicoController {
     };
 
     definirDisponibilidad = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarDisponibilidad(req.body)])
+        Promise.all([validarIdNumerico(req.params.id), validarDisponibilidad(req.body)])
             .then(([id, body]) => this.medicoService.definirDisponibilidad(id, body))
             .then(() => res.status(201).json({ status: "success" }))
             .catch(next);
 
     cambiarDisponibilidad = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarDisponibilidad(req.body)])
+        Promise.all([validarIdNumerico(req.params.id), validarDisponibilidad(req.body)])
             .then(([id, body]) => this.medicoService.cambiarDisponibilidad(id, body))
             .then(() => res.status(204).send())
             .catch(next);
 
     obtenerDisponibilidadPorId = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.disponibilidadId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.disponibilidadId)])
             .then(([medicoId, disponibilidadId]) =>
                 this.medicoService.obtenerDisponibilidadPorId(medicoId, disponibilidadId)
             )
@@ -90,19 +90,19 @@ export class MedicoController {
             .catch(next);
 
     eliminarDisponibilidadPorId = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.disponibilidadId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.disponibilidadId)])
             .then(([medicoId, disponibilidadId]) =>
                 this.medicoService.eliminarDisponibilidadPorId(medicoId, disponibilidadId)
             )
             .then(() => res.status(204).send())
             .catch(next);
 
-    // --- Operaciones sobre turnos -------------------------------------------
+    // --- Operaciones sobre turnos ----------------------------------------------
 
     cancelarTurno = (req, res, next) =>
         Promise.all([
-            validarId(req.params.id),
-            validarId(req.params.turnoId),
+            validarIdNumerico(req.params.id),
+            validarIdNumerico(req.params.turnoId),
             validarCancelarTurno(req.body),
         ])
             .then(([medicoId, turnoId, body]) =>
@@ -112,7 +112,7 @@ export class MedicoController {
             .catch(next);
 
     historialTurnosDePaciente = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.pacienteId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.pacienteId)])
             .then(([medicoId, pacienteId]) =>
                 this.medicoService.historialTurnosDePaciente(medicoId, pacienteId)
             )
@@ -121,8 +121,8 @@ export class MedicoController {
 
     proponerCambioFecha = (req, res, next) =>
         Promise.all([
-            validarId(req.params.id),
-            validarId(req.params.turnoId),
+            validarIdNumerico(req.params.id),
+            validarIdNumerico(req.params.turnoId),
             validarCambioFecha(req.body),
         ])
             .then(([medicoId, turnoId, body]) =>
@@ -132,7 +132,7 @@ export class MedicoController {
             .catch(next);
 
     confirmarCambioPaciente = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.turnoId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.turnoId)])
             .then(([medicoId, turnoId]) =>
                 this.medicoService.confirmarCambioPaciente(medicoId, turnoId)
             )
@@ -140,7 +140,7 @@ export class MedicoController {
             .catch(next);
 
     rechazarCambioPaciente = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.turnoId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.turnoId)])
             .then(([medicoId, turnoId]) =>
                 this.medicoService.rechazarCambioPaciente(medicoId, turnoId)
             )
@@ -148,7 +148,7 @@ export class MedicoController {
             .catch(next);
 
     marcarTurnoRealizado = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.turnoId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.turnoId)])
             .then(([medicoId, turnoId]) =>
                 this.medicoService.marcarTurnoRealizado(medicoId, turnoId)
             )
@@ -158,13 +158,13 @@ export class MedicoController {
     // --- Gestión de sedes ------------------------------------------------------
 
     asignarSede = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.sedeId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.sedeId)])
             .then(([medicoId, sedeId]) => this.medicoService.asignarSede(medicoId, sedeId))
             .then((sede) => res.status(200).json({ status: "success", data: sede }))
             .catch(next);
 
     quitarSede = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.sedeId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.sedeId)])
             .then(([medicoId, sedeId]) => this.medicoService.quitarSede(medicoId, sedeId))
             .then(() => res.status(204).send())
             .catch(next);
@@ -172,19 +172,19 @@ export class MedicoController {
     // --- Gestión de servicios: Especialidades ----------------------------------
 
     agregarEspecialidad = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarCrearServicio(req.body)])
+        Promise.all([validarIdNumerico(req.params.id), validarCrearServicio(req.body)])
             .then(([medicoId, body]) => this.medicoService.agregarEspecialidad(medicoId, body))
             .then((esp) => res.status(201).json({ status: "success", data: esp }))
             .catch(next);
 
     modificarEspecialidad = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.espId), validarModificarServicio(req.body)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.espId), validarModificarServicio(req.body)])
             .then(([medicoId, espId, body]) => this.medicoService.modificarEspecialidad(medicoId, espId, body))
             .then((esp) => res.status(200).json({ status: "success", data: esp }))
             .catch(next);
 
     eliminarEspecialidad = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.espId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.espId)])
             .then(([medicoId, espId]) => this.medicoService.eliminarEspecialidad(medicoId, espId))
             .then(() => res.status(204).send())
             .catch(next);
@@ -192,19 +192,19 @@ export class MedicoController {
     // --- Gestión de servicios: Prácticas ---------------------------------------
 
     agregarPractica = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarCrearServicio(req.body)])
+        Promise.all([validarIdNumerico(req.params.id), validarCrearServicio(req.body)])
             .then(([medicoId, body]) => this.medicoService.agregarPractica(medicoId, body))
             .then((prac) => res.status(201).json({ status: "success", data: prac }))
             .catch(next);
 
     modificarPractica = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.practicaId), validarModificarServicio(req.body)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.practicaId), validarModificarServicio(req.body)])
             .then(([medicoId, practicaId, body]) => this.medicoService.modificarPractica(medicoId, practicaId, body))
             .then((prac) => res.status(200).json({ status: "success", data: prac }))
             .catch(next);
 
     eliminarPractica = (req, res, next) =>
-        Promise.all([validarId(req.params.id), validarId(req.params.practicaId)])
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.practicaId)])
             .then(([medicoId, practicaId]) => this.medicoService.eliminarPractica(medicoId, practicaId))
             .then(() => res.status(204).send())
             .catch(next);

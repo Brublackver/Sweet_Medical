@@ -1,9 +1,18 @@
 export class DisponibilidadHoraria {
     constructor(fecha, horaDesde, horaHasta) {
-        this.id = null; // asignado por MongoDB al persistir
+        this.id = null;
         this.fecha = fecha;
         this.horaDesde = horaDesde;
         this.horaHasta = horaHasta;
+    }
+
+    toJSON() {
+        return {
+            disponibilidad_id: this.id,
+            fecha:             this.fecha,
+            horaDesde:         this.horaDesde,
+            horaHasta:         this.horaHasta,
+        };
     }
 
     static #toMinutos(hora) {

@@ -1,19 +1,3 @@
-/*
-    SERVICE — Capa de lógica de negocio para Pacientes
-
-    Cada operación del paciente sobre turnos pasa por este Service:
-    primero valida que el paciente exista, luego delega en TurnoService.
-
-    SEPARACIÓN DE RESPONSABILIDADES:
-    - PacienteService valida identidad del paciente y unicidad de DNI
-    - TurnoService valida disponibilidad, solapamientos y estados del turno
-    - Ninguno de los dos sabe cómo el otro almacena sus datos
-
-    COMPOSICIÓN DE PROMESAS: cada flujo es una cadena lineal. El .then()
-    inicial (obtenerPorId) actúa como guarda — si el paciente no existe,
-    la cadena se corta con NotFoundError antes de llegar al turno.
-*/
-
 import { NotFoundError, ConflictError } from "../errors/AppError.js";
 
 export class PacienteService {

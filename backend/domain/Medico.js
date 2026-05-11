@@ -19,6 +19,11 @@ export class Medico {
     definirDisponibilidad({ fecha, horaDesde, horaHasta }) {
         const nueva = new DisponibilidadHoraria(fecha, horaDesde, horaHasta);
         this.disponibilidades = GestorDisponibilidades.definir(this.disponibilidades, nueva);
+        const maxId = this.disponibilidades.reduce((max, d) => Math.max(max, d.id || 0), 0);
+        let nextId = maxId + 1;
+        for (const d of this.disponibilidades) {
+            if (!d.id) d.id = nextId++;
+        }
     }
 
     // REGLA DE NEGOCIO — Modificación de disponibilidad:
@@ -29,20 +34,14 @@ export class Medico {
     cambiarDisponibilidad({ fecha, horaDesde, horaHasta }) {
         const index = this.disponibilidades.findIndex(d => d.fecha === fecha);
         if (index === -1) return false;
+        const oldId = this.disponibilidades[index].id;
         this.disponibilidades[index] = new DisponibilidadHoraria(fecha, horaDesde, horaHasta);
+        this.disponibilidades[index].id = oldId;
         return true;
     }
 
-    // Verifica que el slot completo [hora, hora + duracion] quede
-    // dentro de algún bloque de disponibilidad del médico para esa fecha.
-    //
-    // Antes solo se chequeaba si la hora de inicio caía dentro del bloque.
-    // Ahora también se verifica que la hora de FIN entre — un turno de 60 min
-    // no puede empezar a las 11:30 si la disponibilidad termina a las 12:00
-    // pero el turno terminaría a las 12:30.
-    //
-    // DECLARATIVIDAD: some() expresa la intención — "¿existe algún bloque
-    // que contenga completamente el turno solicitado?" — sin detallar el loop.
+    // El turno debe caber entero: un turno de 60 min que empieza a las 11:30
+    // no es válido si la disponibilidad termina a las 12:00.
     tieneDisponibilidad(fecha, hora, duracion) {
         const inicioEnMins = horaAMinutos(hora);
         const finEnMins    = inicioEnMins + duracion;
@@ -54,28 +53,10 @@ export class Medico {
         );
     }
 
-    // Verifica si alguno de los turnos de la fecha se superpone con
-    // el slot solicitado [hora, hora + duracion).
-    //
-    // DELEGACIÓN + ENCAPSULAMIENTO: cada Turno sabe si se superpone
-    // con un slot dado (seSuperponeConSlot). Medico solo orquesta —
-    // no duplica la lógica de comparación de intervalos.
-    //
-    // DECLARATIVIDAD: some() reemplaza un loop imperativo con break.
     tieneConflictoConTurnos(hora, duracion, turnosDeLaFecha) {
         return turnosDeLaFecha.some(turno => turno.seSuperponeConSlot(hora, duracion));
     }
 
-    // Genera todos los slots disponibles de `duracion` minutos para una fecha,
-    // descartando los que se superponen con turnos ya ocupados.
-    //
-    // ALGORITMO: para cada bloque de disponibilidad de la fecha, se generan
-    // slots consecutivos de `duracion` minutos desde horaDesde hasta horaHasta.
-    // Luego se filtra cualquier slot que colisione con un turno activo.
-    //
-    // DECLARATIVIDAD + COMPOSICIÓN:
-    //   flatMap → aplana disponibilidades a slots crudos
-    //   filter  → descarta los ocupados delegando en Turno.seSuperponeConSlot
     calcularSlotsDisponibles(fecha, duracion, turnosOcupados) {
         const generarSlots = (horaDesde, horaHasta) => {
             const inicio = horaAMinutos(horaDesde);
@@ -119,6 +100,7 @@ export class Medico {
         if (this.especialidades.some(e => e.codigo === codigo.trim().toUpperCase()))
             return null;
         const nueva = new Especialidad(codigo, nombre, duracionTurnoEnMins, costo);
+        nueva.id = this.especialidades.reduce((max, e) => Math.max(max, e.id || 0), 0) + 1;
         this.especialidades.push(nueva);
         return nueva;
     }
@@ -148,6 +130,7 @@ export class Medico {
         if (this.practicas.some(p => p.codigo === codigo.trim().toUpperCase()))
             return null;
         const nueva = new Practica(codigo, nombre, duracionTurnoEnMins, costo);
+        nueva.id = this.practicas.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
         this.practicas.push(nueva);
         return nueva;
     }
@@ -170,8 +153,61 @@ export class Medico {
         return true;
     }
 
-    eliminarDisponibilidad() {
-        this.disponibilidades = [];
+    obtenerEspecialidad(valor) {
+        return this.especialidades.find(
+            e => e.nombre.toLowerCase() === valor.toLowerCase() || e.codigo === valor.toUpperCase()
+        ) ?? null;
+    }
+
+    obtenerPractica(valor) {
+        return this.practicas.find(
+            p => p.nombre.toLowerCase() === valor.toLowerCase() || p.codigo === valor.toUpperCase()
+        ) ?? null;
+    }
+
+    obtenerSedesConFiltro(nombre) {
+        if (!nombre) return this.sedes;
+        return this.sedes.filter(s => s.nombre.toLowerCase() === nombre.toLowerCase());
+    }
+
+    tieneEspecialidad(valor) {
+        return this.obtenerEspecialidad(valor) !== null;
+    }
+
+    tienePractica(valor) {
+        return this.obtenerPractica(valor) !== null;
+    }
+
+    tieneSede(nombre) {
+        return this.obtenerSedesConFiltro(nombre).length > 0;
+    }
+
+    calcularDuracionSlot(filtros) {
+        if (filtros.especialidad)
+            return this.obtenerEspecialidad(filtros.especialidad)?.duracionTurnoEnMins ?? 30;
+
+        if (filtros.practica)
+            return this.obtenerPractica(filtros.practica)?.duracionTurnoEnMins ?? 30;
+
+        const todas = [
+            ...this.especialidades.map(e => e.duracionTurnoEnMins),
+            ...this.practicas.map(p => p.duracionTurnoEnMins),
+        ].filter(Boolean);
+
+        return todas.length ? Math.max(...todas) : 30;
+    }
+
+    toJSON() {
+        return {
+            medico_id:        this.id,
+            usuario:          this.usuario,
+            matricula:        this.matricula,
+            nombre:           this.nombre,
+            especialidades:   this.especialidades,
+            practicas:        this.practicas,
+            sedes:            this.sedes,
+            disponibilidades: this.disponibilidades,
+        };
     }
 
     obtenerDisponibilidadPorId(disponibilidadId) {
@@ -189,10 +225,10 @@ export class Medico {
         return this.disponibilidades
             .filter(d => d.fecha === fecha)
             .map(d => ({
-                id: d.id,
-                horaDesde: d.horaDesde,
-                horaHasta: d.horaHasta,
-                turnosReservados: d.turnosDeFecha(turnos)
+                disponibilidad_id: d.id,
+                horaDesde:         d.horaDesde,
+                horaHasta:         d.horaHasta,
+                turnosReservados:  d.turnosDeFecha(turnos),
             }));
     }
 

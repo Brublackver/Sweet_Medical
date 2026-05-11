@@ -1,15 +1,16 @@
-/*
-    REPOSITORY — Acceso a datos para Pacientes (MongoDB)
-
-    El plan y la obra social viajan embebidos en el documento del paciente.
-    El DNI tiene índice unique en MongoDB — la validación de duplicados
-    se hace en el service pero MongoDB también lo garantiza a nivel de base de datos.
-*/
-
 import { Paciente }    from "../domain/Paciente.js";
 import PacienteModel   from "../models/PacienteModel.js";
+import ContadorModel   from "../models/ContadorModel.js";
 
 export class PacienteRepository {
+
+    _siguienteId() {
+        return ContadorModel.findOneAndUpdate(
+            { nombre: "paciente" },
+            { $inc: { valor: 1 } },
+            { new: true, upsert: true }
+        ).then((doc) => doc.valor);
+    }
 
     obtenerTodos() {
         return PacienteModel.find().lean()
@@ -17,7 +18,7 @@ export class PacienteRepository {
     }
 
     obtenerPorId(id) {
-        return PacienteModel.findById(id).lean()
+        return PacienteModel.findOne({ pacienteId: id }).lean()
             .then((doc) => doc ? this._toPaciente(doc) : null);
     }
 
@@ -28,19 +29,21 @@ export class PacienteRepository {
     }
 
     crear(datos) {
-        return new PacienteModel({
-            usuario:    datos.usuario,
-            dni:        datos.dni,
-            nombre:     datos.nombre,
-            obraSocial: datos.obraSocial,
-            plan:       datos.plan,
-        }).save()
+        return this._siguienteId()
+            .then((pacienteId) => new PacienteModel({
+                pacienteId,
+                usuario:    datos.usuario,
+                dni:        datos.dni,
+                nombre:     datos.nombre,
+                obraSocial: datos.obraSocial,
+                plan:       datos.plan,
+            }).save())
             .then((doc) => this._toPaciente(doc.toObject()));
     }
 
     _toPaciente(doc) {
         return new Paciente(
-            doc._id.toString(),
+            doc.pacienteId,
             doc.usuario,
             doc.dni,
             doc.nombre,

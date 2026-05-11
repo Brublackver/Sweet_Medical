@@ -23,7 +23,7 @@ import { MedicoController } from "../controllers/MedicoController.js";
 import { MedicoService }    from "../services/MedicoService.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { TurnoRepository }  from "../repositories/TurnoRepository.js";
-import { sedeRepository }   from "./sedeRoutes.js";
+import { sedeService }      from "./sedeRoutes.js";
 
 const medicoRouter = Router();
 
@@ -31,7 +31,8 @@ export const medicoRepository = new MedicoRepository();
 export const turnoRepository  = new TurnoRepository();
 
 // turnoService se inyecta desde turnoRoutes para resolver la dependencia circular
-export const medicoService = new MedicoService({ medicoRepository, sedeRepository });
+export const medicoService = new MedicoService({ medicoRepository, sedeService });
+// turnoService se inyecta después desde turnoRoutes para romper la dependencia circular.
 
 const medicoController = new MedicoController({ medicoService });
 

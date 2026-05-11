@@ -4,16 +4,21 @@
     Los turnos nunca se eliminan físicamente — solo cambian de estado.
     El historial de estados, las solicitudes de cambio y las propuestas
     del médico viajan embebidos en el documento del turno.
-
-    _toTurno: reconstruye la instancia de dominio Turno desde MongoDB,
-    sobreescribiendo el estado inicial del constructor con los datos reales.
 */
 
-import mongoose       from "mongoose";
 import { Turno, ESTADOS } from "../domain/Turno.js";
-import TurnoModel     from "../models/TurnoModel.js";
+import TurnoModel         from "../models/TurnoModel.js";
+import ContadorModel      from "../models/ContadorModel.js";
 
 export class TurnoRepository {
+
+    _siguienteId() {
+        return ContadorModel.findOneAndUpdate(
+            { nombre: "turno" },
+            { $inc: { valor: 1 } },
+            { new: true, upsert: true }
+        ).then((doc) => doc.valor);
+    }
 
     obtenerTodos() {
         return TurnoModel.find().lean()
@@ -21,19 +26,19 @@ export class TurnoRepository {
     }
 
     obtenerPorId(id) {
-        return TurnoModel.findById(id).lean()
+        return TurnoModel.findOne({ turnoId: id }).lean()
             .then((doc) => doc ? this._toTurno(doc) : null);
     }
 
     buscarPorMedico(medicoId) {
-        return TurnoModel.find({ medicoId: new mongoose.Types.ObjectId(medicoId) }).lean()
+        return TurnoModel.find({ medicoId }).lean()
             .then((docs) => docs.map(this._toTurno));
     }
 
     // Retorna los turnos activos de un médico para una fecha (excluye cancelados).
     buscarPorMedicoYFecha(medicoId, fecha) {
         return TurnoModel.find({
-            medicoId: new mongoose.Types.ObjectId(medicoId),
+            medicoId,
             fecha,
             estado: { $ne: ESTADOS.CANCELADO },
         }).lean()
@@ -42,41 +47,40 @@ export class TurnoRepository {
 
     // Retorna todos los turnos del paciente (todos los estados, incluye historial completo).
     buscarPorPaciente(pacienteId) {
-        return TurnoModel.find({ pacienteId: new mongoose.Types.ObjectId(pacienteId) }).lean()
+        return TurnoModel.find({ pacienteId }).lean()
             .then((docs) => docs.map(this._toTurno));
     }
 
     buscarPorMedicoYPaciente(medicoId, pacienteId) {
-        return TurnoModel.find({
-            medicoId:   new mongoose.Types.ObjectId(medicoId),
-            pacienteId: new mongoose.Types.ObjectId(pacienteId),
-        }).lean()
+        return TurnoModel.find({ medicoId, pacienteId }).lean()
             .then((docs) => docs.map(this._toTurno));
     }
 
     crear(medicoId, pacienteId, fecha, hora, duracion) {
         const ahora = new Date().toISOString();
-        return new TurnoModel({
-            medicoId:   new mongoose.Types.ObjectId(medicoId),
-            pacienteId: new mongoose.Types.ObjectId(pacienteId),
-            fecha,
-            hora,
-            duracion,
-            estado:        ESTADOS.RESERVADO,
-            fechaCreacion: ahora,
-            historialEstados: [{
-                fechaHora: ahora,
-                estado:    ESTADOS.RESERVADO,
-                motivo:    null,
-            }],
-        }).save()
+        return this._siguienteId()
+            .then((turnoId) => new TurnoModel({
+                turnoId,
+                medicoId,
+                pacienteId,
+                fecha,
+                hora,
+                duracion,
+                estado:        ESTADOS.RESERVADO,
+                fechaCreacion: ahora,
+                historialEstados: [{
+                    fechaHora: ahora,
+                    estado:    ESTADOS.RESERVADO,
+                    motivo:    null,
+                }],
+            }).save())
             .then((doc) => this._toTurno(doc.toObject()));
     }
 
     // Persiste el estado actualizado del turno en MongoDB.
     actualizar(turno) {
-        return TurnoModel.findByIdAndUpdate(
-            turno.id,
+        return TurnoModel.findOneAndUpdate(
+            { turnoId: turno.id },
             {
                 estado:               turno.estado,
                 fecha:                turno.fecha,
@@ -90,13 +94,11 @@ export class TurnoRepository {
             .then((doc) => this._toTurno(doc));
     }
 
-    // Reconstruye la instancia de dominio Turno desde el documento MongoDB.
-    // Sobreescribe el estado inicial del constructor con los datos reales de la BD.
     _toTurno(doc) {
         const turno = new Turno(
-            doc._id.toString(),
-            doc.medicoId.toString(),
-            doc.pacienteId.toString(),
+            doc.turnoId,
+            doc.medicoId,
+            doc.pacienteId,
             doc.fecha,
             doc.hora,
             doc.duracion,

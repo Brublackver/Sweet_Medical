@@ -16,6 +16,10 @@ export class SedeService {
         return this.sedeRepository.obtenerTodos();
     }
 
+    obtenerPorId(id) {
+        return this.sedeRepository.obtenerPorId(id);
+    }
+
     crear(datos) {
         return this.sedeRepository.existeNombre(datos.nombre)
             .then((existe) => {

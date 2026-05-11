@@ -1,20 +1,20 @@
-import { crearMedicoSchema }           from "../schemas/CrearMedicoSchema.js";
-import { DisponibilidadHorariaSchema } from "../schemas/DisponibilidadHorariaSchema.js";
+import { crearMedicoSchema }           from "../schemas/crearMedicoSchema.js";
+import { disponibilidadHorariaSchema } from "../schemas/disponibilidadHorariaSchema.js";
 import { cancelarTurnoSchema }         from "../schemas/cancelarTurnoSchema.js";
 import { solicitarCambioFechaSchema }  from "../schemas/solicitarCambioFechaSchema.js";
 import { crearServicioSchema }         from "../schemas/crearServicioSchema.js";
 import { modificarServicioSchema }     from "../schemas/modificarServicioSchema.js";
 import { BadRequestError }             from "../errors/AppError.js";
-import { validarId, formatearErrores } from "./sharedValidator.js";
+import { validarId, validarIdNumerico, formatearErrores } from "./sharedValidator.js";
 
-export { validarId };
+export { validarId, validarIdNumerico };
 
 export const validarCrearMedico = (data) =>
     crearMedicoSchema.parseAsync(data)
         .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
 
 export const validarDisponibilidad = (data) =>
-    DisponibilidadHorariaSchema.parseAsync(data)
+    disponibilidadHorariaSchema.parseAsync(data)
         .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));
 
 export const validarCancelarTurno = (data) =>

@@ -6,8 +6,8 @@ import { SedeRepository }  from "../repositories/SedeRepository.js";
 const sedeRouter = Router();
 
 export const sedeRepository = new SedeRepository();
+export const sedeService    = new SedeService({ sedeRepository });
 
-const sedeService    = new SedeService({ sedeRepository });
 const sedeController = new SedeController({ sedeService });
 
 sedeRouter.route("/")

@@ -18,9 +18,9 @@ const propuestaCambioSchema = new Schema({
 }, { _id: false });
 
 const turnoSchema = new Schema({
-    // Referencias a otras colecciones
-    medicoId:   { type: Schema.Types.ObjectId, ref: "Medico",   required: true },
-    pacienteId: { type: Schema.Types.ObjectId, ref: "Paciente", required: true },
+    turnoId:    { type: Number, required: true, unique: true },
+    medicoId:   { type: Number, required: true },
+    pacienteId: { type: Number, required: true },
 
     fecha:    { type: String, required: true },
     hora:     { type: String, required: true },

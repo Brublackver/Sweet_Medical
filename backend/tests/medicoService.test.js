@@ -5,13 +5,14 @@ import { FakeMedicoRepository }     from "./fakes/FakeMedicoRepository.js";
 import { FakeTurnoRepository }      from "./fakes/FakeTurnoRepository.js";
 import { ESTADOS }                  from "../domain/Turno.js";
 
-// INVERSIÓN DE DEPENDENCIAS: construimos el grafo completo inyectando dependencias.
+const PACIENTE_ID = 1;
+
 const crearContexto = () => {
     const medicoRepository = new FakeMedicoRepository();
     const turnoRepository  = new FakeTurnoRepository();
     const medicoService    = new MedicoService({ medicoRepository });
     const turnoService     = new TurnoService({ turnoRepository, medicoService });
-    medicoService.turnoService = turnoService;
+    medicoService.setTurnoService(turnoService);
     return { medicoRepository, turnoRepository, medicoService, turnoService };
 };
 
@@ -26,9 +27,8 @@ const crearMedicoConDisponibilidad = (medicoRepository, config = {}) => {
         });
 };
 
-// Helper: reserva un turno futuro para usar en tests de médico
 const reservarTurno = (turnoService, medicoId, config = {}) => {
-    const { fecha = "2030-07-10", hora = "10:00", duracion = 30, pacienteId = 1 } = config;
+    const { fecha = "2030-07-10", hora = "10:00", duracion = 30, pacienteId = PACIENTE_ID } = config;
     return turnoService.crearTurno({ medicoId, pacienteId, fecha, hora, duracion });
 };
 
@@ -42,9 +42,8 @@ describe("MedicoService - Disponibilidad", () => {
             .then((medico) =>
                 medicoService.definirDisponibilidad(medico.id, {
                     fecha: "2030-07-10", horaDesde: "09:00", horaHasta: "17:00",
-                })
+                }).then(() => medicoService.obtenerDisponibilidad(medico.id))
             )
-            .then(() => medicoService.obtenerDisponibilidad(1))
             .then((disp) => {
                 expect(disp["2030-07-10"]).toBeDefined();
                 expect(disp["2030-07-10"].horaDesde).toBe("09:00");
@@ -157,7 +156,7 @@ describe("MedicoService - Confirmar/rechazar solicitud del paciente", () => {
             });
             return reservarTurno(turnoService, medico.id)
                 .then((turno) =>
-                    turnoService.solicitarCambioFecha(turno.id, 1, "2030-07-20", "11:00")
+                    turnoService.solicitarCambioFecha(turno.id, PACIENTE_ID, "2030-07-20", "11:00")
                 )
                 .then((turno) =>
                     medicoService.confirmarCambioPaciente(medico.id, turno.id)
