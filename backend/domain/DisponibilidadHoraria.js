@@ -28,7 +28,7 @@ export class DisponibilidadHoraria {
 
     turnosDeFecha(turnos) {
         return turnos
-            .filter(t => t.fecha === this.fecha)
+            .filter(t => t.fecha === this.fecha && t.estado !== "cancelado")
             .map(t => ({ hora: t.hora }));
     }
 

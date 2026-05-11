@@ -5,7 +5,7 @@ export class BusquedaService {
         this.pacienteService = pacienteService;
     }
 
-    buscar(filtros, paginacion) {
+    buscar(filtros) {
         return Promise.all([
             this.pacienteService.obtenerPorId(filtros.pacienteId),
             this.medicoService.obtenerTodos(),
@@ -29,7 +29,7 @@ export class BusquedaService {
 
                             return slots.flatMap((hora) =>
                                 servicios.map((servicio) => ({
-                                    medico:     { id: medico.id, nombre: medico.nombre, matricula: medico.matricula },
+                                    medico:   { id: medico.id, nombre: medico.nombre, matricula: medico.matricula },
                                     servicio,
                                     fecha,
                                     hora,
@@ -42,10 +42,7 @@ export class BusquedaService {
             });
 
             return Promise.all(promesas)
-                .then((resultadosPorFecha) => {
-                    const todos = resultadosPorFecha.flat();
-                    return this._paginar(this._ordenar(todos, paginacion), paginacion);
-                });
+                .then((resultadosPorFecha) => this._agruparPorDia(resultadosPorFecha.flat()));
         });
     }
 
@@ -117,22 +114,14 @@ export class BusquedaService {
         return fechas;
     }
 
-    _ordenar(resultados, { ordenarPor, orden }) {
-        const factor = orden === "desc" ? -1 : 1;
-        return [...resultados].sort((a, b) => {
-            if (ordenarPor === "costo") return factor * (a.montoAbonar - b.montoAbonar);
-            return factor * (new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`));
-        });
-    }
-
-    _paginar(resultados, { page, limit }) {
-        const inicio = (page - 1) * limit;
-        return {
-            total:      resultados.length,
-            page,
-            limit,
-            totalPages: Math.ceil(resultados.length / limit),
-            resultados: resultados.slice(inicio, inicio + limit),
-        };
+    _agruparPorDia(resultados) {
+        const grupos = {};
+        for (const { fecha, ...resto } of resultados) {
+            if (!grupos[fecha]) grupos[fecha] = [];
+            grupos[fecha].push(resto);
+        }
+        return Object.keys(grupos)
+            .sort()
+            .map((fecha) => ({ fecha, turnos: grupos[fecha] }));
     }
 }

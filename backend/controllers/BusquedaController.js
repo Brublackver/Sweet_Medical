@@ -29,10 +29,6 @@ export class BusquedaController {
             sede,
             fechaDesde,
             fechaHasta,
-            page       = "1",
-            limit      = "10",
-            ordenarPor = "fecha",
-            orden      = "asc",
         } = req.query;
 
         if (!pacienteId)
@@ -49,12 +45,6 @@ export class BusquedaController {
                 return next(parsedMedicoId);
         }
 
-        if (!["fecha", "costo"].includes(ordenarPor))
-            return next(new BadRequestError("ordenarPor debe ser 'fecha' o 'costo'"));
-
-        if (!["asc", "desc"].includes(orden))
-            return next(new BadRequestError("orden debe ser 'asc' o 'desc'"));
-
         const filtros = {
             pacienteId:   parsedPacienteId,
             medicoId:     parsedMedicoId,
@@ -65,14 +55,7 @@ export class BusquedaController {
             fechaHasta:   fechaHasta   || enTreintaDias(),
         };
 
-        const paginacion = {
-            page:      Math.max(1, parseInt(page)  || 1),
-            limit:     Math.min(100, Math.max(1, parseInt(limit) || 10)),
-            ordenarPor,
-            orden,
-        };
-
-        return this.busquedaService.buscar(filtros, paginacion)
+        return this.busquedaService.buscar(filtros)
             .then((resultado) => res.status(200).json({ status: "success", data: resultado }))
             .catch(next);
     };

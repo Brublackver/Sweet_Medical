@@ -49,9 +49,17 @@ export class PacienteService {
 
     // Retorna todos los turnos del paciente (todos los estados).
     // Permite consultar el historial completo: reservados, cancelados, realizados.
-    historialTurnos(pacienteId) {
+    historialTurnos(pacienteId, fechaDesde, fechaHasta) {
         return this.obtenerPorId(pacienteId)
-            .then(() => this.turnoService.historialPorPaciente(pacienteId));
+            .then(() => this.turnoService.historialPorPaciente(pacienteId))
+            .then((turnos) => {
+                if (!fechaDesde && !fechaHasta) return turnos;
+                return turnos.filter((t) => {
+                    if (fechaDesde && t.fecha < fechaDesde) return false;
+                    if (fechaHasta && t.fecha > fechaHasta) return false;
+                    return true;
+                });
+            });
     }
 
     // Solicita un cambio de fecha para un turno del paciente.

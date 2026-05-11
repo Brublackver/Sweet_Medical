@@ -1,6 +1,9 @@
-import { Paciente }    from "../domain/Paciente.js";
-import PacienteModel   from "../models/PacienteModel.js";
-import ContadorModel   from "../models/ContadorModel.js";
+import { Paciente }             from "../domain/Paciente.js";
+import { Plan }                 from "../domain/Plan.js";
+import { CoberturaEspecialidad } from "../domain/CoberturaEspecialidad.js";
+import { CoberturaPractica }    from "../domain/CoberturaPractica.js";
+import PacienteModel            from "../models/PacienteModel.js";
+import ContadorModel            from "../models/ContadorModel.js";
 
 export class PacienteRepository {
 
@@ -42,13 +45,21 @@ export class PacienteRepository {
     }
 
     _toPaciente(doc) {
+        let plan = null;
+        if (doc.plan) {
+            const coberturasEsp = (doc.plan.coberturasEspecialidad || [])
+                .map((c) => new CoberturaEspecialidad(c.especialidad, c.nivel));
+            const coberturasPrac = (doc.plan.coberturasPractica || [])
+                .map((c) => new CoberturaPractica(c.practica, c.nivel));
+            plan = new Plan(null, doc.plan.nombre, coberturasEsp, coberturasPrac);
+        }
         return new Paciente(
             doc.pacienteId,
             doc.usuario,
             doc.dni,
             doc.nombre,
             doc.obraSocial,
-            doc.plan,
+            plan,
         );
     }
 }

@@ -43,11 +43,13 @@ export class PacienteController {
             .then((turno) => res.status(201).json({ status: "success", data: turno }))
             .catch(next);
 
-    obtenerHistorial = (req, res, next) =>
-        validarIdNumerico(req.params.id)
-            .then((pacienteId) => this.pacienteService.historialTurnos(pacienteId))
+    obtenerHistorial = (req, res, next) => {
+        const { fechaDesde, fechaHasta } = req.query;
+        return validarIdNumerico(req.params.id)
+            .then((pacienteId) => this.pacienteService.historialTurnos(pacienteId, fechaDesde, fechaHasta))
             .then((turnos) => res.status(200).json({ status: "success", data: turnos }))
             .catch(next);
+    };
 
     cancelarTurno = (req, res, next) =>
         Promise.all([
