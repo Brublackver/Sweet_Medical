@@ -6,7 +6,7 @@ const notificacionSchema = new Schema({
     mensaje:       { type: String, required: true },
     leida:         { type: Boolean, default: false },
     fechaCreacion: { type: String },
-});
+}, { timestamps: true });
 
 notificacionSchema.index({ usuarioId: 1, leida: 1 });
 

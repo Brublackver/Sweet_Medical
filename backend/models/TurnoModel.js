@@ -36,7 +36,7 @@ const turnoSchema = new Schema({
     historialEstados:     [cambioEstadoSchema],
     solicitudCambioFecha: { type: propuestaCambioSchema, default: null },
     propuestaMedicoFecha: { type: propuestaCambioSchema, default: null },
-});
+}, { timestamps: true });
 
 // Índices para mejorar las búsquedas más frecuentes
 turnoSchema.index({ medicoId: 1, fecha: 1 });

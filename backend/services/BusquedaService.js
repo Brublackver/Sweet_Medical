@@ -42,7 +42,7 @@ export class BusquedaService {
             });
 
             return Promise.all(promesas)
-                .then((resultadosPorFecha) => this._agruparPorDia(resultadosPorFecha.flat()));
+                .then((resultadosPorFecha) => this._agruparPorDia(resultadosPorFecha.flat(), filtros.direccion));
         });
     }
 
@@ -114,14 +114,16 @@ export class BusquedaService {
         return fechas;
     }
 
-    _agruparPorDia(resultados) {
+    // Agrupa los resultados por fecha. La dirección controla el orden de los días:
+    // "asc" → del más cercano al más lejano; "desc" → del más lejano al más cercano.
+    _agruparPorDia(resultados, direccion = "asc") {
         const grupos = {};
         for (const { fecha, ...resto } of resultados) {
             if (!grupos[fecha]) grupos[fecha] = [];
             grupos[fecha].push(resto);
         }
-        return Object.keys(grupos)
-            .sort()
-            .map((fecha) => ({ fecha, turnos: grupos[fecha] }));
+        const fechasOrdenadas = Object.keys(grupos).sort();
+        if (direccion === "desc") fechasOrdenadas.reverse();
+        return fechasOrdenadas.map((fecha) => ({ fecha, turnos: grupos[fecha] }));
     }
 }

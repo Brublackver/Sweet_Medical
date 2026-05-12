@@ -39,6 +39,6 @@ const medicoSchema = new Schema({
     practicas:        [practicaSchema],
     disponibilidades: [disponibilidadSchema],
     sedes:            [sedeEmbebidaSchema],
-});
+}, { timestamps: true });
 
 export default model("Medico", medicoSchema);

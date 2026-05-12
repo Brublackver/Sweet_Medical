@@ -23,6 +23,6 @@ const pacienteSchema = new Schema({
     nombre:     { type: String, required: true, trim: true },
     obraSocial: { type: String },
     plan:       { type: planSchema },
-});
+}, { timestamps: true });
 
 export default model("Paciente", pacienteSchema);

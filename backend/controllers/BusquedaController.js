@@ -29,6 +29,7 @@ export class BusquedaController {
             sede,
             fechaDesde,
             fechaHasta,
+            direccion,
         } = req.query;
 
         if (!pacienteId)
@@ -53,6 +54,7 @@ export class BusquedaController {
             sede:         sede         || null,
             fechaDesde:   fechaDesde   || hoy(),
             fechaHasta:   fechaHasta   || enTreintaDias(),
+            direccion:    direccion === "desc" ? "desc" : "asc",
         };
 
         return this.busquedaService.buscar(filtros)

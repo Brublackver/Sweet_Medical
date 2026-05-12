@@ -615,6 +615,7 @@ export const swaggerSpec = {
                     { name: "sede",        in: "query", required: false, schema: { type: "string"  }, description: "Filtrar por sede" },
                     { name: "fechaDesde",  in: "query", required: false, schema: { type: "string"  }, description: "Fecha de inicio (YYYY-MM-DD)" },
                     { name: "fechaHasta",  in: "query", required: false, schema: { type: "string"  }, description: "Fecha de fin (YYYY-MM-DD)" },
+                    { name: "direccion",   in: "query", required: false, schema: { type: "string", enum: ["asc", "desc"], default: "asc" }, description: "Orden de los días en el resultado: asc (default) o desc" },
                 ],
                 responses: { 200: { description: "Turnos agrupados por día con cobertura calculada" } },
             },
