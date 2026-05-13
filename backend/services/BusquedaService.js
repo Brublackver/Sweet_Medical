@@ -124,6 +124,11 @@ export class BusquedaService {
         }
         const fechasOrdenadas = Object.keys(grupos).sort();
         if (direccion === "desc") fechasOrdenadas.reverse();
-        return fechasOrdenadas.map((fecha) => ({ fecha, turnos: grupos[fecha] }));
+        return fechasOrdenadas.map((fecha) => {
+            const turnos = grupos[fecha].sort((a, b) =>
+                direccion === "asc" ? a.montoAbonar - b.montoAbonar : b.montoAbonar - a.montoAbonar
+            );
+            return { fecha, turnos };
+        });
     }
 }
