@@ -4,4 +4,12 @@ export class Sede {
         this.nombre = nombre;
         this.direccion = direccion;
     }
+
+    toJSON() {
+        return {
+            sede_id:   this.id,
+            nombre:    this.nombre,
+            direccion: this.direccion,
+        };
+    }
 }

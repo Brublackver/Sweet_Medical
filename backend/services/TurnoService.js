@@ -1,108 +1,269 @@
-/*
-    SERVICE — Capa de logica de negocio para Turnos
-    Contiene las reglas de negocio:
-    - Un turno solo se puede crear si el medico tiene disponibilidad ese dia/hora
-    - Un turno solo se puede cancelar con al menos 1 hora de anticipacion
-    - No se pueden crear turnos duplicados para el mismo medico y horario
-
-    SERVICE --- DOMAIN
-             |
-         REPOSITORY
-*/
-
-import { TurnoRepository } from "../repositories/TurnoRepository.js";
-import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { NotFoundError, ConflictError, BadRequestError } from "../errors/AppError.js";
+import { ESTADOS } from "../domain/Turno.js";
 
 export class TurnoService {
-    constructor({
-        turnoRepository = new TurnoRepository(),
-        medicoRepository = new MedicoRepository()
-    } = {}) {
-        this.turnoRepository = turnoRepository;
-        this.medicoRepository = medicoRepository;
+    constructor({ turnoRepository, medicoService, notificacionService } = {}) {
+        this.turnoRepository     = turnoRepository;
+        this.medicoService       = medicoService;
+        this.notificacionService = notificacionService;
     }
 
-    // Devuelve todos los turnos → Promise<Turno[]>
-    // Viene de: TurnoController.obtenerTodos()
-    // Va hacia: TurnoRepository.obtenerTodos()
     obtenerTodos() {
         return this.turnoRepository.obtenerTodos();
     }
 
-    // Crea un turno validando disponibilidad del medico y que no haya duplicados → Promise<Turno>
-    // Viene de: TurnoController.crearTurno() con datos validados por Zod
-    // Paso 1: Verifica que el medico exista en MedicoRepository
-    // Paso 2: Verifica que el medico tenga disponibilidad en el dia/hora solicitado
-    // Paso 3: Verifica que no exista un turno en el mismo horario para ese medico
-    // Paso 4: Crea el turno en TurnoRepository
+    // Reserva un turno validando disponibilidad del médico y sin solapamiento.
     crearTurno(datos) {
-        let medicoEncontrado;
-
-        const fechaTurno = new Date(datos.fecha + "T" + datos.hora + ":00");
-        const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
-        const diaSemana = diasSemana[fechaTurno.getDay()];
-        const horaNum = fechaTurno.getHours();
-        const fecha = datos.fecha;
-        const hora = datos.hora;
-
-        return this.medicoRepository.obtenerPorId(datos.medicoId)
+        return this.medicoService
+            .obtenerPorId(datos.medicoId)
             .then((medico) => {
-                if (!medico) {
-                    return Promise.reject(new NotFoundError("Medico no encontrado"));
-                }
-                medicoEncontrado = medico;
-
-                const disponibilidad = medicoEncontrado.obtenerDisponibilidad();
-                const dispDelDia = disponibilidad[diaSemana];
-
-                if (!dispDelDia) {
+                if (!medico.tieneDisponibilidad(datos.fecha, datos.hora, datos.duracion))
                     return Promise.reject(new BadRequestError(
-                        "El medico no tiene disponibilidad el dia " + diaSemana
+                        `El médico no tiene disponibilidad el ${datos.fecha} a las ${datos.hora} por ${datos.duracion} minutos`
                     ));
-                }
 
-                if (horaNum < dispDelDia.horaDesde || horaNum >= dispDelDia.horaHasta) {
-                    return Promise.reject(new BadRequestError(
-                        "La hora del turno esta fuera del rango de disponibilidad (" + dispDelDia.horaDesde + ":00 - " + dispDelDia.horaHasta + ":00)"
-                    ));
-                }
+                return this.turnoRepository
+                    .buscarPorMedicoYFecha(datos.medicoId, datos.fecha)
+                    .then((turnosDeLaFecha) => {
+                        if (medico.tieneConflictoConTurnos(datos.hora, datos.duracion, turnosDeLaFecha))
+                            return Promise.reject(new ConflictError(
+                                "El horario solicitado se superpone con un turno ya reservado"
+                            ));
 
-                return this.turnoRepository.buscarPorMedicoFechaYHora(datos.medicoId, fecha, hora);
-            })
-            .then((turnoExistente) => {
-                if (turnoExistente) {
-                    return Promise.reject(new ConflictError("Ya existe un turno para ese medico en ese horario"));
-                }
-
-                return this.turnoRepository.crear(datos.medicoId, fecha, hora);
+                        return this.turnoRepository.crear(
+                            datos.medicoId, datos.pacienteId,
+                            datos.fecha, datos.hora, datos.duracion
+                        );
+                    });
             });
     }
 
-    // Cancela un turno verificando que falte al menos 1 hora → Promise<boolean>
-    // Viene de: TurnoController.cancelarTurno() con id validado
-    // Paso 1: Verifica que el turno exista en TurnoRepository
-    // Paso 2: Calcula la diferencia entre la fecha del turno y ahora
-    // Paso 3: Si falta menos de 1 hora, rechaza con BadRequestError
-    // Paso 4: Elimina el turno del TurnoRepository
-    cancelarTurno(turnoId) {
+    // --- Cancelación --------------------------------------------------------
+
+    // Cancela un turno validando que pertenece al paciente.
+    cancelarTurnoPorPaciente(turnoId, pacienteId, motivo) {
         return this.turnoRepository.obtenerPorId(turnoId)
             .then((turno) => {
-                if (!turno) {
+                if (!turno)
                     return Promise.reject(new NotFoundError("Turno no encontrado"));
-                }
-
-                const ahora = new Date();
-                const fechaTurno = new Date(turno.fecha + "T" + turno.hora + ":00");
-                const diferenciaHoras = (fechaTurno - ahora) / (1000 * 60 * 60);
-
-                if (diferenciaHoras < 1) {
+                if (turno.pacienteId !== pacienteId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al paciente"));
+                if (!turno.puedeSerCancelado())
                     return Promise.reject(new BadRequestError(
-                        "No se puede cancelar el turno con menos de una hora de antelacion"
+                        "No se puede cancelar: el turno ya fue cancelado, realizado, o falta menos de 1 hora"
                     ));
-                }
 
-                return this.turnoRepository.eliminar(turnoId);
+                turno.cancelar(motivo);
+                return this.turnoRepository.actualizar(turno);
             });
+    }
+
+    // Cancela un turno validando que pertenece al médico.
+    cancelarTurnoPorMedico(turnoId, medicoId, motivo) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.medicoId !== medicoId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al médico"));
+                if (!turno.puedeSerCancelado())
+                    return Promise.reject(new BadRequestError(
+                        "No se puede cancelar: el turno ya fue cancelado, realizado, o falta menos de 1 hora"
+                    ));
+
+                turno.cancelar(motivo);
+                return this.turnoRepository.actualizar(turno);
+            });
+    }
+
+    // --- Marcar como realizado ----------------------------------------------
+
+    marcarRealizado(turnoId, medicoId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.medicoId !== medicoId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al médico"));
+                if (!turno.puedeMarcarseRealizado())
+                    return Promise.reject(new BadRequestError(
+                        "No se puede marcar como realizado: estado inválido o el turno aún no ocurrió"
+                    ));
+
+                turno.marcarRealizado();
+                return this.turnoRepository.actualizar(turno);
+            });
+    }
+
+    // --- Cambios de fecha: flujo del PACIENTE (solicita → médico confirma) --
+
+    solicitarCambioFecha(turnoId, pacienteId, nuevaFecha, nuevaHora) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.pacienteId !== pacienteId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al paciente"));
+                if (!turno.puedeSolicitarCambioFecha())
+                    return Promise.reject(new BadRequestError(
+                        "No se puede solicitar cambio de fecha: estado inválido o falta menos de 1 hora"
+                    ));
+
+                turno.solicitarCambioFecha(nuevaFecha, nuevaHora);
+                return this.turnoRepository.actualizar(turno);
+            });
+    }
+
+    // El médico confirma la solicitud del paciente → valida disponibilidad antes de aplicar.
+    confirmarCambioPaciente(turnoId, medicoId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.medicoId !== medicoId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al médico"));
+                if (turno.estado !== ESTADOS.PENDIENTE_CAMBIO || !turno.solicitudCambioFecha)
+                    return Promise.reject(new BadRequestError("El turno no tiene una solicitud de cambio pendiente"));
+
+                const { nuevaFecha, nuevaHora } = turno.solicitudCambioFecha;
+
+                return this.medicoService
+                    .obtenerPorId(medicoId)
+                    .then((medico) => {
+                        if (!medico.tieneDisponibilidad(nuevaFecha, nuevaHora, turno.duracion))
+                            return Promise.reject(new BadRequestError(
+                                `El médico no tiene disponibilidad para la nueva fecha ${nuevaFecha} a las ${nuevaHora}`
+                            ));
+
+                        return this.turnoRepository
+                            .buscarPorMedicoYFecha(medicoId, nuevaFecha)
+                            .then((turnosDeLaFecha) => {
+                                const otros = turnosDeLaFecha.filter(t => t.id !== turnoId);
+                                if (medico.tieneConflictoConTurnos(nuevaHora, turno.duracion, otros))
+                                    return Promise.reject(new ConflictError(
+                                        "La nueva fecha/hora se superpone con otro turno reservado"
+                                    ));
+
+                                turno.confirmarCambioSolicitado();
+                                return this.turnoRepository.actualizar(turno);
+                            });
+                    });
+            });
+    }
+
+    // El médico rechaza la solicitud del paciente → turno vuelve a RESERVADO con fecha original.
+    rechazarCambioPaciente(turnoId, medicoId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.medicoId !== medicoId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al médico"));
+                if (turno.estado !== ESTADOS.PENDIENTE_CAMBIO || !turno.solicitudCambioFecha)
+                    return Promise.reject(new BadRequestError("El turno no tiene una solicitud de cambio pendiente"));
+
+                turno.rechazarCambioSolicitado();
+                return this.turnoRepository.actualizar(turno);
+            });
+    }
+
+    // --- Cambios de fecha: flujo del MÉDICO (propone → paciente confirma) ---
+
+    proponerCambioFecha(turnoId, medicoId, nuevaFecha, nuevaHora) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.medicoId !== medicoId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al médico"));
+                if (!turno.puedeProponerCambioFecha())
+                    return Promise.reject(new BadRequestError(
+                        "No se puede proponer cambio: estado inválido o falta menos de 1 hora"
+                    ));
+
+                turno.proponerCambioFecha(nuevaFecha, nuevaHora);
+
+                return this.turnoRepository.actualizar(turno)
+                    .then((turnoActualizado) => {
+                        if (this.notificacionService)
+                            return this.notificacionService.crear(
+                                turno.pacienteId,
+                                "PROPUESTA_CAMBIO_FECHA",
+                                `El médico propuso cambiar tu turno del ${turno.fecha} ${turno.hora} al ${nuevaFecha} ${nuevaHora}`
+                            ).then(() => turnoActualizado);
+                        return turnoActualizado;
+                    });
+            });
+    }
+
+    // El paciente confirma la propuesta del médico → valida disponibilidad antes de aplicar.
+    confirmarPropuestaMedico(turnoId, pacienteId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.pacienteId !== pacienteId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al paciente"));
+                if (turno.estado !== ESTADOS.PROPUESTA_MEDICO || !turno.propuestaMedicoFecha)
+                    return Promise.reject(new BadRequestError("El turno no tiene una propuesta del médico pendiente"));
+
+                const { nuevaFecha, nuevaHora } = turno.propuestaMedicoFecha;
+
+                return this.medicoService
+                    .obtenerPorId(turno.medicoId)
+                    .then((medico) => {
+                        if (!medico.tieneDisponibilidad(nuevaFecha, nuevaHora, turno.duracion))
+                            return Promise.reject(new BadRequestError(
+                                `El médico no tiene disponibilidad para la nueva fecha ${nuevaFecha} a las ${nuevaHora}`
+                            ));
+
+                        return this.turnoRepository
+                            .buscarPorMedicoYFecha(turno.medicoId, nuevaFecha)
+                            .then((turnosDeLaFecha) => {
+                                const otros = turnosDeLaFecha.filter(t => t.id !== turnoId);
+                                if (medico.tieneConflictoConTurnos(nuevaHora, turno.duracion, otros))
+                                    return Promise.reject(new ConflictError(
+                                        "La nueva fecha/hora se superpone con otro turno reservado"
+                                    ));
+
+                                turno.confirmarPropuestaMedico();
+                                return this.turnoRepository.actualizar(turno);
+                            });
+                    });
+            });
+    }
+
+    // El paciente rechaza la propuesta del médico → turno vuelve a RESERVADO con fecha original.
+    rechazarPropuestaMedico(turnoId, pacienteId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.pacienteId !== pacienteId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al paciente"));
+                if (turno.estado !== ESTADOS.PROPUESTA_MEDICO || !turno.propuestaMedicoFecha)
+                    return Promise.reject(new BadRequestError("El turno no tiene una propuesta del médico pendiente"));
+
+                turno.rechazarPropuestaMedico();
+                return this.turnoRepository.actualizar(turno);
+            });
+    }
+
+    // --- Historial y búsquedas ----------------------------------------------
+
+    historialPorPaciente(pacienteId) {
+        return this.turnoRepository.buscarPorPaciente(pacienteId);
+    }
+
+    historialPorMedicoYPaciente(medicoId, pacienteId) {
+        return this.turnoRepository.buscarPorMedicoYPaciente(medicoId, pacienteId);
+    }
+
+    buscarPorMedico(medicoId) {
+        return this.turnoRepository.buscarPorMedico(medicoId);
+    }
+
+    buscarPorMedicoYFecha(medicoId, fecha) {
+        return this.turnoRepository.buscarPorMedicoYFecha(medicoId, fecha);
     }
 }

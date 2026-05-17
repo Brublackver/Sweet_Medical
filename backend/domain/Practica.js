@@ -1,9 +1,19 @@
 export class Practica {
-    constructor(id, codigo, nombre, duracionTurnoEnMins, costo) {
-        this.id = id;
-        this.codigo = codigo;
-        this.nombre = nombre;
+    constructor(codigo, nombre, duracionTurnoEnMins, costo) {
+        this.id = null;
+        this.codigo = codigo.trim().toUpperCase();
+        this.nombre = nombre.trim();
         this.duracionTurnoEnMins = duracionTurnoEnMins;
         this.costo = costo;
+    }
+
+    toJSON() {
+        return {
+            practica_id:         this.id,
+            codigo:              this.codigo,
+            nombre:              this.nombre,
+            duracionTurnoEnMins: this.duracionTurnoEnMins,
+            costo:               this.costo,
+        };
     }
 }

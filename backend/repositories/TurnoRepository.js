@@ -1,66 +1,113 @@
 /*
-    REPOSITORY — Capa de acceso a datos para Turnos
-    Almacena los turnos en memoria.
-    Recibe pedidos del TurnoService y devuelve Promises.
+    REPOSITORY — Acceso a datos para Turnos (MongoDB)
+
+    Los turnos nunca se eliminan físicamente — solo cambian de estado.
+    El historial de estados, las solicitudes de cambio y las propuestas
+    del médico viajan embebidos en el documento del turno.
 */
 
-import { Turno } from "../domain/Turno.js";
+import { Turno, ESTADOS } from "../domain/Turno.js";
+import TurnoModel         from "../models/TurnoModel.js";
+import ContadorModel      from "../models/ContadorModel.js";
 
 export class TurnoRepository {
-    constructor() {
-        this.turnos = [];
-        this.nextId = 1;
+
+    _siguienteId() {
+        return ContadorModel.findOneAndUpdate(
+            { nombre: "turno" },
+            { $inc: { valor: 1 } },
+            { new: true, upsert: true }
+        ).then((doc) => doc.valor);
     }
 
-    // Devuelve todos los turnos almacenados → Promise<Turno[]>
-    // Viene de: TurnoService.obtenerTodos()
-    // Va hacia: TurnoController como respuesta JSON
     obtenerTodos() {
-        return Promise.resolve(this.turnos);
+        return TurnoModel.find().lean()
+            .then((docs) => docs.map(this._toTurno));
     }
 
-    // Busca un turno por su id → Promise<Turno|null>
-    // Recibe: id (number) desde TurnoService.cancelarTurno()
-    // Va hacia: TurnoService para validar existencia antes de cancelar
     obtenerPorId(id) {
-        const turno = this.turnos.find((t) => t.id === id) || null;
-        return Promise.resolve(turno);
+        return TurnoModel.findOne({ turnoId: id }).lean()
+            .then((doc) => doc ? this._toTurno(doc) : null);
     }
 
-    // Devuelve todos los turnos de un medico → Promise<Turno[]>
-    // Viene de: MedicoService.obtenerDisponibilidad()
-    // Va hacia: MedicoService para armar la respuesta con turnos reservados
     buscarPorMedico(medicoId) {
-        const turnos = this.turnos.filter((t) => t.medicoId === medicoId);
-        return Promise.resolve(turnos);
+        return TurnoModel.find({ medicoId }).lean()
+            .then((docs) => docs.map(this._toTurno));
     }
 
-    // Busca si ya existe un turno para un medico en una fecha y hora especifica → Promise<Turno|null>
-    // Recibe: medicoId (number), fecha (string) y hora (string) desde TurnoService.crearTurno()
-    // Va hacia: TurnoService para verificar que no haya turno duplicado
-    buscarPorMedicoFechaYHora(medicoId, fecha, hora) {
-        const turno = this.turnos.find(
-            (t) => t.medicoId === medicoId && t.fecha === fecha && t.hora === hora
-        ) || null;
-        return Promise.resolve(turno);
+    // Retorna los turnos activos de un médico para una fecha (excluye cancelados).
+    buscarPorMedicoYFecha(medicoId, fecha) {
+        return TurnoModel.find({
+            medicoId,
+            fecha,
+            estado: { $ne: ESTADOS.CANCELADO },
+        }).lean()
+            .then((docs) => docs.map(this._toTurno));
     }
 
-    // Crea un nuevo turno con id autoincrementado → Promise<Turno>
-    // Recibe: medicoId, pacienteId, fecha, hora desde TurnoService.crearTurno()
-    // Va hacia: TurnoService → TurnoController como respuesta 201
-    crear(medicoId, fecha, hora) {
-        const nuevoTurno = new Turno(this.nextId++, medicoId, fecha, hora);
-        this.turnos.push(nuevoTurno);
-        return Promise.resolve(nuevoTurno);
+    // Retorna todos los turnos del paciente (todos los estados, incluye historial completo).
+    buscarPorPaciente(pacienteId) {
+        return TurnoModel.find({ pacienteId }).lean()
+            .then((docs) => docs.map(this._toTurno));
     }
 
-    // Elimina un turno por su id → Promise<boolean>
-    // Recibe: id (number) desde TurnoService.cancelarTurno()
-    // Va hacia: TurnoService → TurnoController como respuesta 204
-    eliminar(id) {
-        const index = this.turnos.findIndex((t) => t.id === id);
-        if (index === -1) return Promise.resolve(false);
-        this.turnos.splice(index, 1);
-        return Promise.resolve(true);
+    buscarPorMedicoYPaciente(medicoId, pacienteId) {
+        return TurnoModel.find({ medicoId, pacienteId }).lean()
+            .then((docs) => docs.map(this._toTurno));
+    }
+
+    crear(medicoId, pacienteId, fecha, hora, duracion) {
+        const ahora = new Date().toISOString();
+        return this._siguienteId()
+            .then((turnoId) => new TurnoModel({
+                turnoId,
+                medicoId,
+                pacienteId,
+                fecha,
+                hora,
+                duracion,
+                estado:        ESTADOS.RESERVADO,
+                fechaCreacion: ahora,
+                historialEstados: [{
+                    fechaHora: ahora,
+                    estado:    ESTADOS.RESERVADO,
+                    motivo:    null,
+                }],
+            }).save())
+            .then((doc) => this._toTurno(doc.toObject()));
+    }
+
+    // Persiste el estado actualizado del turno en MongoDB.
+    actualizar(turno) {
+        return TurnoModel.findOneAndUpdate(
+            { turnoId: turno.id },
+            {
+                estado:               turno.estado,
+                fecha:                turno.fecha,
+                hora:                 turno.hora,
+                historialEstados:     turno.historialEstados,
+                solicitudCambioFecha: turno.solicitudCambioFecha,
+                propuestaMedicoFecha: turno.propuestaMedicoFecha,
+            },
+            { new: true }
+        ).lean()
+            .then((doc) => this._toTurno(doc));
+    }
+
+    _toTurno(doc) {
+        const turno = new Turno(
+            doc.turnoId,
+            doc.medicoId,
+            doc.pacienteId,
+            doc.fecha,
+            doc.hora,
+            doc.duracion,
+        );
+        turno.estado               = doc.estado;
+        turno.historialEstados     = doc.historialEstados     || [];
+        turno.solicitudCambioFecha = doc.solicitudCambioFecha || null;
+        turno.propuestaMedicoFecha = doc.propuestaMedicoFecha || null;
+        turno.fechaCreacion        = doc.fechaCreacion        || turno.fechaCreacion;
+        return turno;
     }
 }

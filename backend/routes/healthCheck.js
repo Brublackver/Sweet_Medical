@@ -1,10 +1,10 @@
 import { Router } from "express";
 
-const healthCheckRouter = Router();
+const healthcheckRouter = Router();
 
-// GET /healthCheck → verifica que el servidor este corriendo
-healthCheckRouter.get("/", (req, res) => {
-    res.json({ status: "ok" });
+// GET /healthcheck → verifica que el servidor este corriendo
+healthcheckRouter.get("/", (req, res) => {
+  res.json({ status: "ok" });
 });
 
-export default healthCheckRouter;
+export default healthcheckRouter;

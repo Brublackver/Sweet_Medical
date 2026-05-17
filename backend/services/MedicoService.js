@@ -1,135 +1,246 @@
-/*
-    SERVICE — Capa de logica de negocio
-    Recibe datos validados externamente desde el Controller.
-    Aplica reglas de negocio y delega el acceso a datos al Repository.
-
-    SERVICE --- DOMAIN
-             |
-         REPOSITORY
-*/
-
-import { MedicoRepository } from "../repositories/MedicoRepository.js";
-import { NotFoundError } from "../errors/AppError.js";
-import { DisponibilidadHoraria } from "../domain/DisponibilidadHoraria.js";
-
-/*export class MedicoService {
-    constructor({ medicoRepository = new MedicoRepository()} = {}) {
-        this.medicoRepository = medicoRepository;
-    }
-
- */
-
+import { NotFoundError, BadRequestError, ConflictError } from "../errors/AppError.js";
 
 export class MedicoService {
-    constructor({ medicoRepository, turnoRepository} = {}) {
+    constructor({ medicoRepository, sedeService } = {}) {
         this.medicoRepository = medicoRepository;
-        this.turnoRepository = turnoRepository;
+        this.sedeService      = sedeService;
+        this.turnoService     = null;
     }
 
-    // Verifica que el medico exista en el repository → Promise<Medico>
-    // Recibe: id (number) desde cualquier metodo de este service
-    // Si no existe: rechaza la Promise con NotFoundError
-    validarMedico(id) {
+    setTurnoService(turnoService) {
+        this.turnoService = turnoService;
+    }
+
+    obtenerPorId(id) {
         return this.medicoRepository.obtenerPorId(id)
             .then((medico) => {
-                if (!medico) {
-                    return Promise.reject(new NotFoundError("Medico no encontrado"));
-                }
+                if (!medico) return Promise.reject(new NotFoundError("Médico no encontrado"));
                 return medico;
             });
     }
 
-    // Devuelve todos los medicos → Promise<Medico[]>
-    // Viene de: MedicoController.obtenerTodos()
-    // Va hacia: MedicoRepository.obtenerTodos()
     obtenerTodos() {
         return this.medicoRepository.obtenerTodos();
     }
 
-    obtenerMedico() {
-        return this.medicoRepository.obtenerMedico();
-    }
-
-    // Crea un nuevo medico con los datos recibidos → Promise<Medico>
-    // Viene de: MedicoController.crearMedico() con datos ya validados por Zod
-    // Va hacia: MedicoRepository.crear()
     crear(datos) {
         return this.medicoRepository.crear(datos);
     }
 
-    // Obtiene la disponibilidad horaria de un medico → Promise<Object>
-    // Viene de: MedicoController.obtenerDisponibilidad() con id validado
-    // Va hacia: Medico.obtenerDisponibilidad() (metodo del dominio)
+    // --- Disponibilidad -----------------------------------------------------
+
     obtenerDisponibilidad(id) {
-        let disponibilidadMedico;
+        return this.obtenerPorId(id)
+            .then((medico) =>
+                this.turnoService.buscarPorMedico(id)
+                    .then((turnos) => medico.obtenerDisponibilidadConTurnos(turnos))
+            );
+    }
 
-        return this.validarMedico(id)
+    obtenerDisponibilidadPorFecha(id, fecha) {
+        return this.obtenerPorId(id)
+            .then((medico) =>
+                this.turnoService.buscarPorMedico(id)
+                    .then((turnos) => medico.obtenerDisponibilidadPorFecha(fecha, turnos))
+            );
+    }
+
+    consultarSlotsDisponibles(medicoId, fecha, duracion, filtro = {}) {
+        return this.obtenerPorId(medicoId)
             .then((medico) => {
-                disponibilidadMedico = medico.obtenerDisponibilidad();
-                return this.turnoRepository.buscarPorMedico(id);
-            })
-            .then((turnos) => {
-                const resultado = {};
+                if (filtro.especialidad && !medico.tieneEspecialidad(filtro.especialidad))
+                    return Promise.reject(new BadRequestError(
+                        `El médico no ofrece la especialidad "${filtro.especialidad}"`
+                    ));
 
-                for (const dia in disponibilidadMedico) {
-                    const disp = disponibilidadMedico[dia];
-                    const turnosDelDia = turnos
-                        .filter((t) => {
-                            const fechaTurno = new Date(t.fecha + "T" + t.hora + ":00");
-                            const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
-                            return diasSemana[fechaTurno.getDay()] === dia;
-                        })
-                        .map((t) => ({ hora: t.hora, pacienteId: t.pacienteId }));
+                if (filtro.practica && !medico.tienePractica(filtro.practica))
+                    return Promise.reject(new BadRequestError(
+                        `El médico no ofrece la práctica "${filtro.practica}"`
+                    ));
 
-                    resultado[dia] = {
-                        horaDesde: disp.horaDesde,
-                        horaHasta: disp.horaHasta,
-                        turnosReservados: turnosDelDia
-                    };
-                }
-
-                return resultado;
+                return this.turnoService
+                    .buscarPorMedico(medicoId)
+                    .then((turnos) => {
+                        const turnosActivos = turnos.filter(t => t.fecha === fecha);
+                        return {
+                            fecha,
+                            duracion,
+                            slotsDisponibles: medico.calcularSlotsDisponibles(fecha, duracion, turnosActivos),
+                        };
+                    });
             });
     }
 
-    // Define la disponibilidad de un medico (reemplaza la existente) → Promise<void>
-    // Viene de: MedicoController.definirDisponibilidad() con id y body validados
-    // Va hacia: Medico.definirDisponibilidad() (metodo del dominio)
-    // Podríamos cambiar esta implementación en un futuro para que las disponibilidades sea un array de varios dias con sus respectivos horarios.
     definirDisponibilidad(id, body) {
-        return this.validarMedico(id)
+        return this.obtenerPorId(id)
             .then((medico) => {
-                const disponibilidad = new DisponibilidadHoraria(
-                    body.diaSemana,
-                    body.horaDesde,
-                    body.horaHasta
-                );
-                medico.definirDisponibilidad(disponibilidad);
+                medico.definirDisponibilidad(body);
+                return this.medicoRepository.actualizar(medico);
             });
     }
 
-    // Cambia la disponibilidad de un dia especifico sin borrar las demas → Promise<void>
-    // Viene de: MedicoController.cambiarDisponibilidad() con id y body validados
-    // Va hacia: Medico.cambiarDisponibilidad() (metodo del dominio)
     cambiarDisponibilidad(id, body) {
-        return this.validarMedico(id)
+        return this.obtenerPorId(id)
             .then((medico) => {
-                const disponibilidad = new DisponibilidadHoraria(
-                    body.diaSemana,
-                    body.horaDesde,
-                    body.horaHasta
-                );
-                medico.cambiarDisponibilidad(disponibilidad);
+                const cambiado = medico.cambiarDisponibilidad(body);
+                if (!cambiado)
+                    return Promise.reject(new BadRequestError(`No existe disponibilidad para la fecha ${body.fecha}`));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 
-    // Elimina toda la disponibilidad de un medico → Promise<void>
-    // Viene de: MedicoController.eliminarDisponibilidad() con id validado
-    // Va hacia: Medico.eliminarDisponibilidad() (metodo del dominio)
-    eliminarDisponibilidad(id) {
-        return this.validarMedico(id)
+    obtenerDisponibilidadPorId(medicoId, disponibilidadId) {
+        return this.obtenerPorId(medicoId)
             .then((medico) => {
-                medico.eliminarDisponibilidad();
+                const disp = medico.obtenerDisponibilidadPorId(disponibilidadId);
+                if (!disp) return Promise.reject(new NotFoundError("Disponibilidad no encontrada"));
+                return disp;
+            });
+    }
+
+    eliminarDisponibilidadPorId(medicoId, disponibilidadId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const eliminado = medico.eliminarDisponibilidadPorId(disponibilidadId);
+                if (!eliminado) return Promise.reject(new NotFoundError("Disponibilidad no encontrada"));
+                return this.medicoRepository.actualizar(medico);
+            });
+    }
+
+    // --- Operaciones sobre turnos -------------------------------------------
+
+    // Cancela un turno del médico con motivo obligatorio.
+    cancelarTurno(medicoId, turnoId, motivo) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.cancelarTurnoPorMedico(turnoId, medicoId, motivo));
+    }
+
+    obtenerTurnosConfirmados(medicoId) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.buscarPorMedico(medicoId))
+            .then((turnos) => turnos.filter((t) => t.estado === "reservado"));
+    }
+
+    // Consulta el historial de turnos de un paciente específico con este médico.
+    historialTurnosDePaciente(medicoId, pacienteId) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.historialPorMedicoYPaciente(medicoId, pacienteId));
+    }
+
+    // Propone un cambio de fecha → el paciente deberá confirmar o rechazar.
+    proponerCambioFecha(medicoId, turnoId, nuevaFecha, nuevaHora) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.proponerCambioFecha(turnoId, medicoId, nuevaFecha, nuevaHora));
+    }
+
+    // Confirma la solicitud de cambio de fecha iniciada por el paciente.
+    confirmarCambioPaciente(medicoId, turnoId) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.confirmarCambioPaciente(turnoId, medicoId));
+    }
+
+    // Rechaza la solicitud de cambio de fecha iniciada por el paciente.
+    rechazarCambioPaciente(medicoId, turnoId) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.rechazarCambioPaciente(turnoId, medicoId));
+    }
+
+    // Marca un turno como realizado (el médico confirma que la consulta se realizó).
+    marcarTurnoRealizado(medicoId, turnoId) {
+        return this.obtenerPorId(medicoId)
+            .then(() => this.turnoService.marcarRealizado(turnoId, medicoId));
+    }
+
+    // --- Gestión de sedes ------------------------------------------------------
+
+    asignarSede(medicoId, sedeId) {
+        return Promise.all([
+            this.obtenerPorId(medicoId),
+            this.sedeService.obtenerPorId(sedeId),
+        ])
+        .then(([medico, sede]) => {
+            if (!sede)
+                return Promise.reject(new NotFoundError("Sede no encontrada"));
+            if (!medico.agregarSede(sede))
+                return Promise.reject(new ConflictError("El médico ya tiene asignada esa sede"));
+            return this.medicoRepository.actualizar(medico).then(() => sede);
+        });
+    }
+
+    quitarSede(medicoId, sedeId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                if (!medico.eliminarSede(sedeId))
+                    return Promise.reject(new NotFoundError("El médico no tiene asignada esa sede"));
+                return this.medicoRepository.actualizar(medico);
+            });
+    }
+
+    // --- Gestión de servicios: Especialidades ----------------------------------
+
+    agregarEspecialidad(medicoId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const especialidad = medico.agregarEspecialidad(datos);
+                if (!especialidad)
+                    return Promise.reject(new ConflictError(
+                        `Ya existe una especialidad con código "${datos.codigo.trim().toUpperCase()}"`
+                    ));
+                return this.medicoRepository.actualizar(medico)
+                    .then((m) => m.especialidades.find(e => e.codigo === especialidad.codigo));
+            });
+    }
+
+    modificarEspecialidad(medicoId, especialidadId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const especialidad = medico.modificarEspecialidad(especialidadId, datos);
+                if (!especialidad)
+                    return Promise.reject(new NotFoundError("Especialidad no encontrada"));
+                return this.medicoRepository.actualizar(medico).then(() => especialidad);
+            });
+    }
+
+    eliminarEspecialidad(medicoId, especialidadId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                if (!medico.eliminarEspecialidad(especialidadId))
+                    return Promise.reject(new NotFoundError("Especialidad no encontrada"));
+                return this.medicoRepository.actualizar(medico);
+            });
+    }
+
+    // --- Gestión de servicios: Prácticas ---------------------------------------
+
+    agregarPractica(medicoId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const practica = medico.agregarPractica(datos);
+                if (!practica)
+                    return Promise.reject(new ConflictError(
+                        `Ya existe una práctica con código "${datos.codigo.trim().toUpperCase()}"`
+                    ));
+                return this.medicoRepository.actualizar(medico)
+                    .then((m) => m.practicas.find(p => p.codigo === practica.codigo));
+            });
+    }
+
+    modificarPractica(medicoId, practicaId, datos) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                const practica = medico.modificarPractica(practicaId, datos);
+                if (!practica)
+                    return Promise.reject(new NotFoundError("Práctica no encontrada"));
+                return this.medicoRepository.actualizar(medico).then(() => practica);
+            });
+    }
+
+    eliminarPractica(medicoId, practicaId) {
+        return this.obtenerPorId(medicoId)
+            .then((medico) => {
+                if (!medico.eliminarPractica(practicaId))
+                    return Promise.reject(new NotFoundError("Práctica no encontrada"));
+                return this.medicoRepository.actualizar(medico);
             });
     }
 }
