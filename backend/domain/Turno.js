@@ -9,7 +9,7 @@ export const ESTADOS = Object.freeze({
 import { horaAMinutos } from "./tiempo.js";
 
 export class Turno {
-    constructor(id, medicoId, pacienteId, fecha, hora, duracion) {
+    constructor(id, medicoId, pacienteId, fecha, hora, duracion, snapshotMedico = null, snapshotPaciente = null) {
         this.id         = id;
         this.medicoId   = medicoId;
         this.pacienteId = pacienteId;
@@ -18,6 +18,8 @@ export class Turno {
         this.duracion   = duracion;
         this.estado     = ESTADOS.RESERVADO;
         this.fechaCreacion = new Date().toISOString();
+        this.snapshotMedico   = snapshotMedico;
+        this.snapshotPaciente = snapshotPaciente;
 
         // Auditoría: registro inmutable de cada transición de estado.
         this.historialEstados = [{
@@ -178,6 +180,8 @@ export class Turno {
             historialEstados:     this.historialEstados,
             solicitudCambioFecha: this.solicitudCambioFecha,
             propuestaMedicoFecha: this.propuestaMedicoFecha,
+            snapshotMedico:       this.snapshotMedico,
+            snapshotPaciente:     this.snapshotPaciente,
         };
     }
 

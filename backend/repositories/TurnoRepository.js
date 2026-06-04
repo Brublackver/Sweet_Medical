@@ -56,7 +56,7 @@ export class TurnoRepository {
             .then((docs) => docs.map(this._toTurno));
     }
 
-    crear(medicoId, pacienteId, fecha, hora, duracion) {
+    crear(medicoId, pacienteId, fecha, hora, duracion, snapshotMedico, snapshotPaciente) {
         const ahora = new Date().toISOString();
         return this._siguienteId()
             .then((turnoId) => new TurnoModel({
@@ -73,6 +73,8 @@ export class TurnoRepository {
                     estado:    ESTADOS.RESERVADO,
                     motivo:    null,
                 }],
+                snapshotMedico,
+                snapshotPaciente,
             }).save())
             .then((doc) => this._toTurno(doc.toObject()));
     }
@@ -102,6 +104,8 @@ export class TurnoRepository {
             doc.fecha,
             doc.hora,
             doc.duracion,
+            doc.snapshotMedico   || null,
+            doc.snapshotPaciente || null,
         );
         turno.estado               = doc.estado;
         turno.historialEstados     = doc.historialEstados     || [];

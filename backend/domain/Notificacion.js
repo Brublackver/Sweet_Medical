@@ -20,4 +20,15 @@ export class Notificacion {
     marcarLeida() {
         this.leida = true;
     }
+
+    toJSON() {
+        return {
+            notificacion_id: this.id,
+            usuario_id:      this.usuarioId,
+            tipo:            this.tipo,
+            mensaje:         this.mensaje,
+            leida:           this.leida,
+            fechaCreacion:   this.fechaCreacion,
+        };
+    }
 }

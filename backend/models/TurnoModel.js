@@ -17,6 +17,41 @@ const propuestaCambioSchema = new Schema({
     propuestoEn:  String,
 }, { _id: false });
 
+// Snapshots — imagen inmutable del médico y paciente al momento de crear el turno
+const snapshotServicioSchema = new Schema({
+    codigo:              { type: String },
+    nombre:              { type: String },
+    duracionTurnoEnMins: { type: Number },
+    costo:               { type: Number },
+}, { _id: false });
+
+const snapshotMedicoSchema = new Schema({
+    medicoId:       { type: Number },
+    nombre:         { type: String },
+    matricula:      { type: String },
+    especialidades: [snapshotServicioSchema],
+    practicas:      [snapshotServicioSchema],
+}, { _id: false });
+
+const snapshotCoberturaSchema = new Schema({
+    codigo: { type: String },
+    nivel:  { type: Number },
+}, { _id: false });
+
+const snapshotPlanSchema = new Schema({
+    nombre:                 { type: String },
+    coberturasEspecialidad: [snapshotCoberturaSchema],
+    coberturasPractica:     [snapshotCoberturaSchema],
+}, { _id: false });
+
+const snapshotPacienteSchema = new Schema({
+    pacienteId: { type: Number },
+    nombre:     { type: String },
+    dni:        { type: String },
+    obraSocial: { type: String },
+    plan:       { type: snapshotPlanSchema, default: null },
+}, { _id: false });
+
 const turnoSchema = new Schema({
     turnoId:    { type: Number, required: true, unique: true },
     medicoId:   { type: Number, required: true },
@@ -36,6 +71,9 @@ const turnoSchema = new Schema({
     historialEstados:     [cambioEstadoSchema],
     solicitudCambioFecha: { type: propuestaCambioSchema, default: null },
     propuestaMedicoFecha: { type: propuestaCambioSchema, default: null },
+
+    snapshotMedico:   { type: snapshotMedicoSchema,   default: null },
+    snapshotPaciente: { type: snapshotPacienteSchema, default: null },
 }, { timestamps: true });
 
 // Índices para mejorar las búsquedas más frecuentes
