@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { MedicoController } from "../controllers/MedicoController.js";
-import { MedicoService }    from "../services/MedicoService.js";
-import { MedicoRepository } from "../repositories/MedicoRepository.js";
-import { TurnoRepository }  from "../repositories/TurnoRepository.js";
-import { sedeService }      from "./sedeRoutes.js";
+import { MedicoController }      from "../controllers/MedicoController.js";
+import { MedicoService }         from "../services/MedicoService.js";
+import { MedicoRepository }      from "../repositories/MedicoRepository.js";
+import { TurnoRepository }       from "../repositories/TurnoRepository.js";
+import { sedeService }           from "./sedeRoutes.js";
+import { notificacionController } from "./notificacionRoutes.js";
 
 const medicoRouter = Router();
 
@@ -83,5 +84,12 @@ medicoRouter.route("/:id/practicas")
 medicoRouter.route("/:id/practicas/:practicaId")
     .put(medicoController.modificarPractica)
     .delete(medicoController.eliminarPractica);
+
+// Notificaciones — REST: recurso anidado bajo el médico
+medicoRouter.route("/:id/notificaciones")
+    .get(notificacionController.obtenerNotificaciones);
+
+medicoRouter.route("/:id/notificaciones/:notificacionId")
+    .patch(notificacionController.marcarLeida);
 
 export default medicoRouter;

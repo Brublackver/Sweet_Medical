@@ -12,12 +12,14 @@
 import { Router } from "express";
 import { TurnoController }   from "../controllers/TurnoController.js";
 import { TurnoService }      from "../services/TurnoService.js";
+import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { medicoRepository, turnoRepository, medicoService } from "./medicoRoutes.js";
 import { notificacionService } from "./notificacionRoutes.js";
 
 const turnoRouter = Router();
+const pacienteRepository = new PacienteRepository();
 
-export const turnoService = new TurnoService({ turnoRepository, medicoService, notificacionService });
+export const turnoService = new TurnoService({ turnoRepository, medicoService, pacienteRepository, notificacionService });
 medicoService.setTurnoService(turnoService);
 
 const turnoController = new TurnoController({ turnoService });

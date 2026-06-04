@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Paciente } from "../domain/Paciente.js";
 
 const coberturaEspecialidadSchema = new Schema({
     especialidad: { codigo: { type: String } },
@@ -23,6 +24,7 @@ const pacienteSchema = new Schema({
     nombre:     { type: String, required: true, trim: true },
     obraSocial: { type: String },
     plan:       { type: planSchema },
-}, { timestamps: true });
-
+}, { timestamps: true, id: false });
+pacienteSchema.virtual('id').get(function() { return this.pacienteId; });
+pacienteSchema.loadClass(Paciente);
 export default model("Paciente", pacienteSchema);

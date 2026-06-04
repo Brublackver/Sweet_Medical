@@ -2,9 +2,10 @@ import { NotFoundError, ConflictError, BadRequestError } from "../errors/AppErro
 import { ESTADOS } from "../domain/Turno.js";
 
 export class TurnoService {
-    constructor({ turnoRepository, medicoService, notificacionService } = {}) {
+    constructor({ turnoRepository, medicoService, pacienteRepository, notificacionService } = {}) {
         this.turnoRepository     = turnoRepository;
         this.medicoService       = medicoService;
+        this.pacienteRepository  = pacienteRepository;
         this.notificacionService = notificacionService;
     }
 
@@ -13,29 +14,66 @@ export class TurnoService {
     }
 
     // Reserva un turno validando disponibilidad del médico y sin solapamiento.
+    // Captura un snapshot del médico y del paciente para preservar su estado actual.
     crearTurno(datos) {
-        return this.medicoService
-            .obtenerPorId(datos.medicoId)
-            .then((medico) => {
-                if (!medico.tieneDisponibilidad(datos.fecha, datos.hora, datos.duracion))
-                    return Promise.reject(new BadRequestError(
-                        `El médico no tiene disponibilidad el ${datos.fecha} a las ${datos.hora} por ${datos.duracion} minutos`
-                    ));
+        return Promise.all([
+            this.medicoService.obtenerPorId(datos.medicoId),
+            this.pacienteRepository.obtenerPorId(datos.pacienteId),
+        ]).then(([medico, paciente]) => {
+            if (!paciente)
+                return Promise.reject(new NotFoundError("Paciente no encontrado"));
 
-                return this.turnoRepository
-                    .buscarPorMedicoYFecha(datos.medicoId, datos.fecha)
-                    .then((turnosDeLaFecha) => {
-                        if (medico.tieneConflictoConTurnos(datos.hora, datos.duracion, turnosDeLaFecha))
-                            return Promise.reject(new ConflictError(
-                                "El horario solicitado se superpone con un turno ya reservado"
-                            ));
+            if (!medico.tieneDisponibilidad(datos.fecha, datos.hora, datos.duracion))
+                return Promise.reject(new BadRequestError(
+                    `El médico no tiene disponibilidad el ${datos.fecha} a las ${datos.hora} por ${datos.duracion} minutos`
+                ));
 
-                        return this.turnoRepository.crear(
-                            datos.medicoId, datos.pacienteId,
-                            datos.fecha, datos.hora, datos.duracion
-                        );
-                    });
-            });
+            return this.turnoRepository
+                .buscarPorMedicoYFecha(datos.medicoId, datos.fecha)
+                .then((turnosDeLaFecha) => {
+                    if (medico.tieneConflictoConTurnos(datos.hora, datos.duracion, turnosDeLaFecha))
+                        return Promise.reject(new ConflictError(
+                            "El horario solicitado se superpone con un turno ya reservado"
+                        ));
+
+                    const snapshotMedico = {
+                        medicoId:       medico.id,
+                        nombre:         medico.nombre,
+                        matricula:      medico.matricula,
+                        especialidades: medico.especialidades.map((e) => ({
+                            codigo: e.codigo, nombre: e.nombre,
+                            duracionTurnoEnMins: e.duracionTurnoEnMins, costo: e.costo,
+                        })),
+                        practicas: medico.practicas.map((p) => ({
+                            codigo: p.codigo, nombre: p.nombre,
+                            duracionTurnoEnMins: p.duracionTurnoEnMins, costo: p.costo,
+                        })),
+                    };
+
+                    const planPaciente = paciente.plan;
+                    const snapshotPaciente = {
+                        pacienteId: paciente.pacienteId,
+                        nombre:     paciente.nombre,
+                        dni:        paciente.dni,
+                        obraSocial: paciente.obraSocial,
+                        plan: planPaciente ? {
+                            nombre:                 planPaciente.nombre,
+                            coberturasEspecialidad: (planPaciente.coberturasEspecialidad || []).map((c) => ({
+                                codigo: c.especialidad?.codigo, nivel: c.nivel,
+                            })),
+                            coberturasPractica: (planPaciente.coberturasPractica || []).map((c) => ({
+                                codigo: c.practica?.codigo, nivel: c.nivel,
+                            })),
+                        } : null,
+                    };
+
+                    return this.turnoRepository.crear(
+                        datos.medicoId, datos.pacienteId,
+                        datos.fecha, datos.hora, datos.duracion,
+                        snapshotMedico, snapshotPaciente
+                    );
+                });
+        });
     }
 
     // --- Cancelación --------------------------------------------------------

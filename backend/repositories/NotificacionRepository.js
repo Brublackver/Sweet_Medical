@@ -1,41 +1,42 @@
-/*
-    REPOSITORY — Acceso a datos para Notificaciones (MongoDB)
-
-    Las notificaciones nunca se eliminan físicamente.
-    Solo cambian de estado: leida: false → leida: true.
-*/
-
 import { Notificacion }   from "../domain/Notificacion.js";
 import NotificacionModel  from "../models/NotificacionModel.js";
+import ContadorModel      from "../models/ContadorModel.js";
 
 export class NotificacionRepository {
 
+    _siguienteId() {
+        return ContadorModel.findOneAndUpdate(
+            { nombre: "notificacion" },
+            { $inc: { valor: 1 } },
+            { new: true, upsert: true }
+        ).then((doc) => doc.valor);
+    }
+
     crear(usuarioId, tipo, mensaje) {
         const ahora = new Date().toISOString();
-        return new NotificacionModel({ usuarioId, tipo, mensaje, fechaCreacion: ahora })
-            .save()
+        return this._siguienteId()
+            .then((notificacionId) => new NotificacionModel({
+                notificacionId, usuarioId, tipo, mensaje, fechaCreacion: ahora,
+            }).save())
             .then((doc) => this._toNotificacion(doc.toObject()));
     }
 
     obtenerPorId(id) {
-        return NotificacionModel.findById(id).lean()
+        return NotificacionModel.findOne({ notificacionId: id }).lean()
             .then((doc) => doc ? this._toNotificacion(doc) : null);
     }
 
-    obtenerSinLeerPorUsuario(usuarioId) {
-        return NotificacionModel.find({ usuarioId, leida: false }).lean()
+    // leida = true → solo leídas | leida = false → solo sin leer | undefined → todas
+    obtenerPorUsuario(usuarioId, leida) {
+        const filtro = { usuarioId };
+        if (leida !== undefined) filtro.leida = leida;
+        return NotificacionModel.find(filtro).lean()
             .then((docs) => docs.map(this._toNotificacion));
     }
 
-    obtenerLeidasPorUsuario(usuarioId) {
-        return NotificacionModel.find({ usuarioId, leida: true }).lean()
-            .then((docs) => docs.map(this._toNotificacion));
-    }
-
-    // Persiste el cambio de estado (leida: true) en MongoDB.
     actualizar(notificacion) {
-        return NotificacionModel.findByIdAndUpdate(
-            notificacion.id,
+        return NotificacionModel.findOneAndUpdate(
+            { notificacionId: notificacion.id },
             { leida: notificacion.leida },
             { new: true }
         ).lean()
@@ -43,7 +44,7 @@ export class NotificacionRepository {
     }
 
     _toNotificacion(doc) {
-        const n = new Notificacion(doc._id.toString(), doc.usuarioId, doc.tipo, doc.mensaje);
+        const n = new Notificacion(doc.notificacionId, doc.usuarioId, doc.tipo, doc.mensaje);
         n.leida         = doc.leida;
         n.fechaCreacion = doc.fechaCreacion || n.fechaCreacion;
         return n;
