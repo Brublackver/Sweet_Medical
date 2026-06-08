@@ -1,16 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter }           from 'next/navigation';
-import { useMedico }           from '@/context/MedicoContext';
+import { useState, useEffect }  from 'react';
+import { useRouter }            from 'next/navigation';
+import { useMedico }            from '@/context/MedicoContext';
+import { formatearFechaConAnio } from '@/lib/fecha';
 import { getDisponibilidad, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
-
-const formatearFecha = (fechaStr) => {
-  const [anio, mes, dia] = fechaStr.split('-').map(Number);
-  return new Date(anio, mes - 1, dia).toLocaleDateString('es-AR', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  });
-};
 
 export default function DisponibilidadPage() {
   const { medico }                     = useMedico();
@@ -126,7 +120,7 @@ export default function DisponibilidadPage() {
               <div key={d.disponibilidad_id ?? d.id}
                 className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-800 capitalize">{formatearFecha(d.fecha)}</p>
+                  <p className="text-sm font-medium text-gray-800 capitalize">{formatearFechaConAnio(d.fecha)}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{d.horaDesde} hs — {d.horaHasta} hs</p>
                 </div>
                 <button

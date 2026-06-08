@@ -26,10 +26,12 @@ export function CarritoProvider({ children }) {
     return items.some((i) => i.key === key);
   };
 
+  const quitarTurno = (turno) => quitar(computarKey(turno));
+
   const vaciar = () => setItems([]);
 
   return (
-    <CarritoContext.Provider value={{ items, agregar, quitar, estaAgregado, vaciar }}>
+    <CarritoContext.Provider value={{ items, agregar, quitar, quitarTurno, estaAgregado, vaciar }}>
       {children}
     </CarritoContext.Provider>
   );

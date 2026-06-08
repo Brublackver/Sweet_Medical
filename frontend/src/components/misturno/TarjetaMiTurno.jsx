@@ -1,20 +1,14 @@
 'use client';
 
-import { useState }       from 'react';
-import { EstadoBadge }    from '@/components/ui/EstadoBadge';
-import { CoberturasBadge } from '@/components/ui/Badge';
+import { useState }                                   from 'react';
+import { EstadoBadge }                                from '@/components/ui/EstadoBadge';
+import { CoberturasBadge }                            from '@/components/ui/Badge';
+import { formatearFechaConAnio, formatearFechaCorta } from '@/lib/fecha';
 import {
   confirmarPropuestaMedico,
   rechazarPropuestaMedico,
   solicitarCambioFecha,
 } from '@/lib/api';
-
-const formatearFecha = (fechaStr) => {
-  const [anio, mes, dia] = fechaStr.split('-').map(Number);
-  return new Date(anio, mes - 1, dia).toLocaleDateString('es-AR', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  });
-};
 
 export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
   const [cargando,       setCargando]       = useState(false);
@@ -57,8 +51,7 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
         <div className="sm:w-28 shrink-0 text-center sm:text-left">
           <p className="text-2xl font-bold text-gray-900">{turno.hora} hs</p>
           <p className="text-xs text-gray-400 mt-0.5 capitalize">
-            {new Date(...turno.fecha.split('-').map((v, i) => i === 1 ? v - 1 : Number(v)))
-              .toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+            {formatearFechaCorta(turno.fecha)}
           </p>
         </div>
 
@@ -68,7 +61,7 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
             <EstadoBadge estado={turno.estado} />
             {turno.cobertura && <CoberturasBadge cobertura={turno.cobertura} />}
           </div>
-          <p className="text-sm text-gray-700 capitalize">{formatearFecha(turno.fecha)}</p>
+          <p className="text-sm text-gray-700 capitalize">{formatearFechaConAnio(turno.fecha)}</p>
           <div className="text-sm text-gray-600 space-y-0.5">
             <p>👨‍⚕️ Dr/a. {turno.medico.nombre} <span className="text-gray-400">(Mat. {turno.medico.matricula})</span></p>
             {turno.sede && <p>📍 {turno.sede}</p>}

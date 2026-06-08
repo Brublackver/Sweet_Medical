@@ -1,13 +1,5 @@
-import TarjetaTurno from './TarjetaTurno';
-
-const formatearFecha = (fechaStr) => {
-  const [anio, mes, dia] = fechaStr.split('-').map(Number);
-  return new Date(anio, mes - 1, dia).toLocaleDateString('es-AR', {
-    weekday: 'long',
-    day:     'numeric',
-    month:   'long',
-  });
-};
+import TarjetaTurno       from './TarjetaTurno';
+import { formatearFecha } from '@/lib/fecha';
 
 export default function ResultadosDia({ dia }) {
   return (

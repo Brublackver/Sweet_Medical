@@ -5,14 +5,8 @@ import Link            from 'next/link';
 import { useRouter }   from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useCarrito }  from '@/context/CarritoContext';
-import { CoberturasBadge } from '@/components/ui/Badge';
-
-const formatearFecha = (fechaStr) => {
-  const [anio, mes, dia] = fechaStr.split('-').map(Number);
-  return new Date(anio, mes - 1, dia).toLocaleDateString('es-AR', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  });
-};
+import { CoberturasBadge }  from '@/components/ui/Badge';
+import { formatearFecha }   from '@/lib/fecha';
 
 export default function ConfirmacionPage() {
   const { paciente }              = usePaciente();

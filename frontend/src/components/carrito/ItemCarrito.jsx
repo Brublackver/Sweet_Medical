@@ -1,13 +1,5 @@
 import { CoberturasBadge } from '@/components/ui/Badge';
-
-const formatearFecha = (fechaStr) => {
-  const [anio, mes, dia] = fechaStr.split('-').map(Number);
-  return new Date(anio, mes - 1, dia).toLocaleDateString('es-AR', {
-    weekday: 'long',
-    day:     'numeric',
-    month:   'long',
-  });
-};
+import { formatearFecha }  from '@/lib/fecha';
 
 export default function ItemCarrito({ item, onQuitar }) {
   return (

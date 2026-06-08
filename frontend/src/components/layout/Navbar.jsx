@@ -7,16 +7,16 @@ import { useMedico }   from '@/context/MedicoContext';
 import { useCarrito }  from '@/context/CarritoContext';
 
 export default function Navbar() {
-  const { paciente, logout }       = usePaciente();
-  const { medico,   logoutMedico } = useMedico();
-  const { items }                  = useCarrito();
-  const router                     = useRouter();
-  const pathname                   = usePathname();
+  const { paciente, logout: logoutPaciente } = usePaciente();
+  const { medico,   logout: logoutMedico }   = useMedico();
+  const { items }                            = useCarrito();
+  const router                               = useRouter();
+  const pathname                             = usePathname();
 
   if (pathname === '/login') return null;
 
   const handleLogout = () => {
-    if (paciente) logout();
+    if (paciente) logoutPaciente();
     if (medico)   logoutMedico();
     router.push('/login');
   };

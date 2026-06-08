@@ -132,14 +132,14 @@ export default function MisTurnosPage() {
           <h2 className="text-lg font-semibold text-gray-700">
             {turnos.length === 0 ? 'No tenés turnos registrados' : 'No hay turnos en esta categoría'}
           </h2>
-          <p className="text-gray-500 mt-2 mb-6 text-sm">
+          <p className="text-gray-400 mt-2 mb-6 text-sm">
             {filtro === 'proximos' || turnos.length === 0
               ? '¿Querés buscar un turno disponible?'
               : 'Probá con otro filtro.'}
           </p>
           {(filtro === 'proximos' || turnos.length === 0) && (
-            <Link href="/buscar" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors">
-              Buscar turnos
+            <Link href="/buscar" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 shadow-sm hover:shadow-md transition-all">
+              🔍 Buscar turnos
             </Link>
           )}
         </div>

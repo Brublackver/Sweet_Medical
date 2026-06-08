@@ -1,7 +1,8 @@
 'use client';
 
-import { useState }    from 'react';
-import { EstadoBadge } from '@/components/ui/EstadoBadge';
+import { useState }                              from 'react';
+import { EstadoBadge }                           from '@/components/ui/EstadoBadge';
+import { formatearFechaConAnio, formatearFechaCorta } from '@/lib/fecha';
 import {
   cancelarTurnoMedico,
   marcarRealizado,
@@ -9,13 +10,6 @@ import {
   confirmarCambioPaciente,
   rechazarCambioPaciente,
 } from '@/lib/api';
-
-const formatearFecha = (fechaStr) => {
-  const [anio, mes, dia] = fechaStr.split('-').map(Number);
-  return new Date(anio, mes - 1, dia).toLocaleDateString('es-AR', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  });
-};
 
 const yaPaso = (fecha, hora) => new Date(`${fecha}T${hora}:00`) <= new Date();
 
@@ -27,10 +21,10 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   const [nuevaFecha,     setNuevaFecha]      = useState('');
   const [nuevaHora,      setNuevaHora]       = useState('');
 
-  const ejecutar = (promesa) => {
+  const ejecutar = (accion) => {
     setError('');
     setCargando(true);
-    promesa
+    accion()
       .then((t) => { onActualizar(t); setAccionActiva(null); setMotivo(''); setNuevaFecha(''); setNuevaHora(''); })
       .catch((e) => setError(e.response?.data?.message ?? 'Ocurrió un error. Intentá de nuevo.'))
       .finally(() => setCargando(false));
@@ -39,23 +33,23 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   const handleCancelar = (e) => {
     e.preventDefault();
     if (!motivo.trim()) { setError('El motivo es obligatorio.'); return; }
-    ejecutar(cancelarTurnoMedico(medicoId, turno.turno_id, motivo));
+    ejecutar(() => cancelarTurnoMedico(medicoId, turno.turno_id, motivo));
   };
 
   const handleMarcarRealizado = () =>
-    ejecutar(marcarRealizado(medicoId, turno.turno_id));
+    ejecutar(() => marcarRealizado(medicoId, turno.turno_id));
 
   const handleProponerCambio = (e) => {
     e.preventDefault();
     if (!nuevaFecha || !nuevaHora) { setError('Completá la nueva fecha y hora.'); return; }
-    ejecutar(proponerCambio(medicoId, turno.turno_id, nuevaFecha, nuevaHora));
+    ejecutar(() => proponerCambio(medicoId, turno.turno_id, nuevaFecha, nuevaHora));
   };
 
   const handleConfirmarCambio = () =>
-    ejecutar(confirmarCambioPaciente(medicoId, turno.turno_id));
+    ejecutar(() => confirmarCambioPaciente(medicoId, turno.turno_id));
 
   const handleRechazarCambio = () =>
-    ejecutar(rechazarCambioPaciente(medicoId, turno.turno_id));
+    ejecutar(() => rechazarCambioPaciente(medicoId, turno.turno_id));
 
   const paciente  = turno.snapshotPaciente;
   const medico    = turno.snapshotMedico;
@@ -70,8 +64,7 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
         <div className="sm:w-28 shrink-0 text-center sm:text-left">
           <p className="text-2xl font-bold text-gray-900">{turno.hora} hs</p>
           <p className="text-xs text-gray-400 mt-0.5 capitalize">
-            {new Date(...turno.fecha.split('-').map((v, i) => i === 1 ? v - 1 : Number(v)))
-              .toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+            {formatearFechaCorta(turno.fecha)}
           </p>
         </div>
 
@@ -82,7 +75,7 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
             </p>
             <EstadoBadge estado={turno.estado} />
           </div>
-          <p className="text-sm text-gray-700 capitalize">{formatearFecha(turno.fecha)}</p>
+          <p className="text-sm text-gray-700 capitalize">{formatearFechaConAnio(turno.fecha)}</p>
           <p className="text-sm text-gray-500">
             Duración: {turno.duracion} min
             {medico && medico.especialidades?.length > 0 && (

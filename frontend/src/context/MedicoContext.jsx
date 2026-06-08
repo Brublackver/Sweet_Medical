@@ -16,18 +16,18 @@ export function MedicoProvider({ children }) {
     }
   }, []);
 
-  const loginMedico = (data) => {
+  const login = (data) => {
     setMedico(data);
     localStorage.setItem('medico', JSON.stringify(data));
   };
 
-  const logoutMedico = () => {
+  const logout = () => {
     setMedico(null);
     localStorage.removeItem('medico');
   };
 
   return (
-    <MedicoContext.Provider value={{ medico, loginMedico, logoutMedico }}>
+    <MedicoContext.Provider value={{ medico, login, logout }}>
       {children}
     </MedicoContext.Provider>
   );

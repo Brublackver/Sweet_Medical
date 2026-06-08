@@ -3,16 +3,12 @@
 import { useCarrito }       from '@/context/CarritoContext';
 import { CoberturasBadge }  from '@/components/ui/Badge';
 
-const computarKey = (turno) =>
-  `${turno.medico.id}-${turno.fecha}-${turno.hora}-${turno.servicio.id}`;
-
 export default function TarjetaTurno({ turno, fecha }) {
-  const { agregar, quitar, estaAgregado } = useCarrito();
+  const { agregar, quitarTurno, estaAgregado } = useCarrito();
   const item      = { ...turno, fecha };
   const enCarrito = estaAgregado(item);
-  const key       = computarKey(item);
 
-  const handleToggle = () => enCarrito ? quitar(key) : agregar(item);
+  const handleToggle = () => enCarrito ? quitarTurno(item) : agregar(item);
 
   return (
     <article
