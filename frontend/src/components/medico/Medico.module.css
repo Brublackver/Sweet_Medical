@@ -1,0 +1,198 @@
+/* ====== SHARED PAGE ====== */
+.page { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header       { margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.pageSubtitle { color: #6b7280; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+.tab {
+  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+  border: 1px solid #e5e7eb; background: #fff; color: #4b5563;
+  cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.tab:focus  { outline: none; box-shadow: 0 0 0 2px #60a5fa; }
+.tab:hover  { border-color: #93c5fd; color: #2563eb; }
+
+.tabActivo       { background-color: #2563eb; color: #fff; border-color: #2563eb; }
+.tabActivo:hover { background-color: #1d4ed8; }
+
+.alerta {
+  background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
+  border-radius: 0.75rem; padding: 1.5rem; text-align: center; font-size: 0.875rem;
+}
+
+.emptyState { text-align: center; padding: 5rem 0; }
+.emptyIcon  { font-size: 3rem; margin-bottom: 1rem; }
+.emptyTitle { font-size: 1.125rem; font-weight: 600; color: #374151; }
+
+.lista { display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* ====== TARJETA TURNO MÉDICO ====== */
+.tarjeta {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;
+  transition: box-shadow 0.15s;
+}
+.tarjeta:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+.tarjetaBody { display: flex; flex-direction: column; gap: 1rem; }
+
+.tarjetaHora  { flex-shrink: 0; text-align: center; }
+.horaNum      { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.horaFecha    { font-size: 0.75rem; color: #9ca3af; margin-top: 0.125rem; text-transform: capitalize; }
+
+.tarjetaInfo       { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.375rem; }
+.tarjetaBadges     { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.tarjetaNombre     { font-weight: 600; color: #111827; }
+.tarjetaFecha      { font-size: 0.875rem; color: #374151; text-transform: capitalize; }
+.tarjetaDetalle    { font-size: 0.875rem; color: #6b7280; }
+.tarjetaSecundario { color: #9ca3af; }
+.tarjetaObraSocial { font-size: 0.75rem; color: #9ca3af; }
+
+/* Solicitud cambio paciente */
+.solicitudBox    { background-color: #fefce8; border: 1px solid #fef08a; border-radius: 0.75rem; padding: 1rem; }
+.solicitudTitulo { font-size: 0.875rem; font-weight: 600; color: #a16207; margin-bottom: 0.25rem; }
+.solicitudTexto  { font-size: 0.875rem; color: #ca8a04; margin-bottom: 0.75rem; }
+
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.btnVerde {
+  padding: 0.5rem 1rem; background-color: #16a34a; color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnVerde:hover:not(:disabled) { background-color: #15803d; }
+.btnVerde:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnRojo {
+  padding: 0.5rem 1rem; background: #fff; border: 1px solid #fca5a5;
+  color: #dc2626; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  cursor: pointer; transition: background-color 0.15s;
+}
+.btnRojo:hover:not(:disabled) { background-color: #fef2f2; }
+.btnRojo:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.divisor { border-top: 1px solid #f3f4f6; padding-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.btnVerdePeq {
+  padding: 0.375rem 0.75rem; background-color: #16a34a; color: #fff;
+  font-size: 0.875rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnVerdePeq:hover:not(:disabled) { background-color: #15803d; }
+.btnVerdePeq:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnAzulPeq {
+  padding: 0.375rem 0.75rem; background-color: #eff6ff; color: #1d4ed8;
+  font-size: 0.875rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnAzulPeq:hover { background-color: #dbeafe; }
+
+.btnRojoPeq {
+  padding: 0.375rem 0.75rem; background: #fff; border: 1px solid #fecaca;
+  color: #ef4444; font-size: 0.875rem; border-radius: 0.5rem;
+  cursor: pointer; transition: background-color 0.15s;
+}
+.btnRojoPeq:hover { background-color: #fef2f2; }
+
+/* Forms */
+.form        { border-top: 1px solid #f3f4f6; padding-top: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.formTitulo  { font-size: 0.875rem; font-weight: 500; color: #374151; }
+.formInputs  { display: flex; flex-direction: column; gap: 0.75rem; }
+.formAcciones { display: flex; gap: 0.5rem; }
+
+.campoLabel { display: block; font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem; }
+
+.input {
+  width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  border-radius: 0.5rem; border: 1px solid #d1d5db; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box;
+}
+.input:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #bfdbfe; }
+
+.textarea {
+  width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  border-radius: 0.5rem; border: 1px solid #d1d5db; outline: none;
+  resize: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box;
+}
+.textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #bfdbfe; }
+
+.btnEnviar {
+  padding: 0.5rem 1rem; background-color: #2563eb; color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnEnviar:hover:not(:disabled) { background-color: #1d4ed8; }
+.btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnEnviarRojo {
+  padding: 0.5rem 1rem; background-color: #dc2626; color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnEnviarRojo:hover:not(:disabled) { background-color: #b91c1c; }
+.btnEnviarRojo:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnVolver {
+  padding: 0.5rem 1rem; font-size: 0.875rem; color: #6b7280;
+  background: none; border: none; cursor: pointer; transition: color 0.15s;
+}
+.btnVolver:hover { color: #374151; }
+
+.errorInline {
+  font-size: 0.75rem; color: #dc2626; background-color: #fef2f2;
+  border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+}
+
+/* ====== DISPONIBILIDAD ====== */
+.card { background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; }
+.cardTitle { font-weight: 600; color: #111827; margin-bottom: 1rem; }
+
+.formGrid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+.addBtn {
+  padding: 0.625rem 1.25rem; background-color: #2563eb; color: #fff;
+  font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s; margin-top: 0.25rem;
+}
+.addBtn:hover:not(:disabled) { background-color: #1d4ed8; }
+.addBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.errorForm {
+  font-size: 0.75rem; color: #dc2626; background-color: #fef2f2;
+  border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+}
+
+.subTitle     { font-weight: 600; color: #111827; margin-bottom: 1rem; }
+.cargandoText { font-size: 0.875rem; color: #9ca3af; }
+
+.dispLista { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.dispItem {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+  padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+
+.dispFecha { font-size: 0.875rem; font-weight: 500; color: #1f2937; text-transform: capitalize; }
+.dispHoras { font-size: 0.75rem; color: #6b7280; margin-top: 0.125rem; }
+
+.eliminarBtn {
+  font-size: 0.75rem; color: #f87171; background: none; border: none;
+  cursor: pointer; text-decoration: underline; transition: color 0.15s; flex-shrink: 0;
+}
+.eliminarBtn:hover { color: #dc2626; }
+
+.emptyCard      { text-align: center; padding: 3rem; background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb; }
+.emptyCardIcon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.emptyCardText  { color: #6b7280; font-size: 0.875rem; }
+
+@media (min-width: 640px) {
+  .page       { padding: 2rem 1.5rem; }
+  .tarjetaBody { flex-direction: row; align-items: flex-start; }
+  .tarjetaHora { text-align: left; width: 7rem; }
+  .formGrid   { grid-template-columns: repeat(3, 1fr); }
+  .formInputs { flex-direction: row; }
+}
+
+@media (min-width: 1024px) { .page { padding: 2rem 2rem; } }

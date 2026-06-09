@@ -1,0 +1,91 @@
+/* ====== PAGE ====== */
+.page { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.pageSubtitle { color: #6b7280; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.limpiarBtn {
+  font-size: 0.875rem; color: #f87171; background: none; border: none;
+  cursor: pointer; transition: color 0.15s; margin-top: 0.25rem;
+}
+.limpiarBtn:hover { color: #dc2626; }
+
+.emptyState  { text-align: center; padding: 5rem 0; }
+.emptyIcon   { font-size: 3.75rem; margin-bottom: 1rem; }
+.emptyTitle  { font-size: 1.25rem; font-weight: 600; color: #374151; }
+.emptyText   { color: #6b7280; margin-top: 0.5rem; margin-bottom: 2rem; font-size: 0.875rem; }
+
+.buscarLink {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.5rem; background-color: #2563eb; color: #fff;
+  font-weight: 600; border-radius: 0.75rem; text-decoration: none;
+  transition: background-color 0.15s;
+}
+.buscarLink:hover { background-color: #1d4ed8; }
+
+.lista { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.resumen {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+  padding: 1.5rem; margin-top: 1.5rem;
+}
+
+.resumenInner { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.25rem; }
+.totalLabel   { font-size: 0.875rem; color: #6b7280; }
+.totalMonto   { font-size: 1.875rem; font-weight: 700; color: #111827; margin-top: 0.25rem; }
+.totalNota    { font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem; }
+
+.seguirLink {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.625rem 1.25rem; font-size: 0.875rem; font-weight: 500;
+  color: #2563eb; border: 1px solid #bfdbfe; border-radius: 0.75rem;
+  text-decoration: none; transition: background-color 0.15s;
+}
+.seguirLink:hover { background-color: #eff6ff; }
+
+.confirmarLink {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; padding: 0.75rem; background-color: #2563eb; color: #fff;
+  font-weight: 600; border-radius: 0.75rem; text-decoration: none;
+  transition: background-color 0.15s;
+}
+.confirmarLink:hover { background-color: #1d4ed8; }
+
+@media (min-width: 640px) {
+  .page { padding: 2rem 1.5rem; }
+  .resumenInner { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+
+@media (min-width: 1024px) { .page { padding: 2rem 2rem; } }
+
+/* ====== ITEM CARRITO ====== */
+.item {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+  padding: 1.25rem; display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 1rem; transition: box-shadow 0.15s;
+}
+.item:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+.itemInfo { flex: 1; min-width: 0; }
+
+.itemTituloRow { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.itemNombre    { font-weight: 600; color: #111827; }
+
+.itemDetalle     { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.itemDetalleItem { font-size: 0.875rem; color: #4b5563; }
+.itemSecundario  { color: #9ca3af; }
+
+.itemPrecio        { text-align: right; flex-shrink: 0; }
+.itemPrecioGratis  { color: #16a34a; font-weight: 700; }
+.itemPrecioMonto   { color: #111827; font-weight: 700; }
+.itemPrecioTachado { font-size: 0.75rem; color: #9ca3af; text-decoration: line-through; }
+
+.quitarBtn {
+  display: block; margin-top: 0.5rem; font-size: 0.75rem; color: #f87171;
+  background: none; border: none; cursor: pointer; text-decoration: underline;
+  transition: color 0.15s;
+}
+.quitarBtn:hover { color: #dc2626; }
+
+.capitalize { text-transform: capitalize; }

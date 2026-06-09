@@ -15,6 +15,9 @@ export const buscarTurnos = (params) =>
 export const getTurnosPaciente = (pacienteId) =>
   api.get(`/paciente/${pacienteId}/turnos`).then((r) => r.data.data);
 
+export const reservarTurno = (pacienteId, datos) =>
+  api.post(`/paciente/${pacienteId}/turno`, datos).then((r) => r.data.data);
+
 export const getMedico = (id) =>
   api.get(`/medico/${id}`).then((r) => r.data.data);
 
@@ -54,5 +57,21 @@ export const definirDisponibilidad = (medicoId, datos) =>
 
 export const eliminarDisponibilidad = (medicoId, disponibilidadId) =>
   api.delete(`/medico/${medicoId}/disponibilidad/${disponibilidadId}`).then((r) => r.data);
+
+// --- Admin ----------------------------------------------------------------
+export const crearMedico = (datos) =>
+  api.post('/medico', datos).then((r) => r.data.data);
+
+export const agregarEspecialidadMedico = (medicoId, datos) =>
+  api.post(`/medico/${medicoId}/especialidades`, datos).then((r) => r.data.data);
+
+export const eliminarMedico = (medicoId) =>
+  api.delete(`/medico/${medicoId}`);
+
+export const crearPaciente = (datos) =>
+  api.post('/paciente', datos).then((r) => r.data.data);
+
+export const eliminarPaciente = (pacienteId) =>
+  api.delete(`/paciente/${pacienteId}`);
 
 export default api;

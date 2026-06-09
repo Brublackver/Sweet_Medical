@@ -1,0 +1,126 @@
+/* ====== PAGE ====== */
+.page { max-width: 42rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header       { margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.pageSubtitle { color: #6b7280; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.lista { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+
+.item {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+  padding: 1rem; display: flex; align-items: flex-start; gap: 1rem;
+}
+
+.itemHora    { text-align: center; flex-shrink: 0; width: 4rem; }
+.itemHoraNum { font-size: 1.125rem; font-weight: 700; color: #111827; }
+.itemHoraLabel { font-size: 0.75rem; color: #9ca3af; }
+
+.itemInfo      { flex: 1; min-width: 0; }
+.itemTituloRow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+.itemNombre    { font-weight: 600; color: #111827; font-size: 0.875rem; }
+.itemFecha     { font-size: 0.75rem; color: #6b7280; text-transform: capitalize; margin-bottom: 0.125rem; }
+.itemMedico    { font-size: 0.75rem; color: #6b7280; }
+
+.itemPrecio      { text-align: right; flex-shrink: 0; }
+.itemPrecioGratis { color: #16a34a; font-weight: 700; font-size: 0.875rem; }
+.itemPrecioMonto  { color: #111827; font-weight: 700; font-size: 0.875rem; }
+
+.totalCard {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+  padding: 1.25rem; margin-bottom: 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.totalLabel { font-size: 0.875rem; color: #6b7280; }
+.totalMonto { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.totalNota  { font-size: 0.75rem; color: #9ca3af; max-width: 10rem; text-align: right; }
+
+.acciones { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.confirmarBtn {
+  flex: 1; padding: 0.75rem; background-color: #2563eb; color: #fff;
+  font-weight: 600; border-radius: 0.75rem; border: none; cursor: pointer;
+  transition: background-color 0.15s; display: flex; align-items: center;
+  justify-content: center; gap: 0.5rem; font-size: 1rem;
+}
+.confirmarBtn:hover:not(:disabled) { background-color: #1d4ed8; }
+.confirmarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.volverLink {
+  flex: 1; padding: 0.75rem; text-align: center; border: 1px solid #e5e7eb;
+  color: #4b5563; font-weight: 500; border-radius: 0.75rem;
+  text-decoration: none; transition: background-color 0.15s;
+}
+.volverLink:hover { background-color: #f9fafb; }
+
+.spinner { width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
+
+/* ====== SUCCESS ====== */
+.successPage { max-width: 42rem; margin: 0 auto; padding: 4rem 1rem; text-align: center; }
+
+.successCard {
+  background: #fff; border-radius: 1rem; border: 1px solid #bbf7d0;
+  padding: 2.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.successIcon  { font-size: 3.75rem; margin-bottom: 1rem; }
+.successTitle { font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem; }
+.successText  { color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem; }
+
+.successLista { display: flex; flex-direction: column; gap: 0.75rem; text-align: left; margin-bottom: 2rem; }
+
+.successItem {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem; background-color: #f0fdf4;
+  border-radius: 0.75rem; border: 1px solid #dcfce7;
+}
+
+.successCheck     { color: #16a34a; font-size: 1.125rem; }
+.successItemInfo  { flex: 1; min-width: 0; }
+.successItemNombre  { font-size: 0.875rem; font-weight: 500; color: #1f2937; }
+.successItemDetalle { font-size: 0.75rem; color: #6b7280; text-transform: capitalize; }
+
+.errorLista {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  text-align: left; margin-bottom: 1.5rem;
+}
+
+.errorListaTitulo { font-size: 0.875rem; font-weight: 600; color: #b91c1c; margin-bottom: 0.25rem; }
+
+.errorItem {
+  padding: 0.625rem 0.875rem;
+  background-color: #fef2f2;
+  border-radius: 0.5rem;
+  border: 1px solid #fecaca;
+}
+
+.errorItemNombre { font-size: 0.8125rem; font-weight: 500; color: #1f2937; }
+.errorItemMsg    { font-size: 0.75rem; color: #b91c1c; margin-top: 0.125rem; }
+
+.successAcciones { display: flex; flex-direction: column; gap: 0.75rem; justify-content: center; }
+
+.successPrimaryLink {
+  padding: 0.75rem 1.5rem; background-color: #2563eb; color: #fff;
+  font-weight: 600; border-radius: 0.75rem; text-decoration: none;
+  transition: background-color 0.15s;
+}
+.successPrimaryLink:hover { background-color: #1d4ed8; }
+
+.successSecondaryLink {
+  padding: 0.75rem 1.5rem; border: 1px solid #e5e7eb; color: #4b5563;
+  font-weight: 500; border-radius: 0.75rem; text-decoration: none;
+  transition: background-color 0.15s;
+}
+.successSecondaryLink:hover { background-color: #f9fafb; }
+
+@media (min-width: 640px) {
+  .page { padding: 2rem 1.5rem; }
+  .acciones { flex-direction: row; }
+  .successAcciones { flex-direction: row; }
+}
+
+.spinnerCircle { opacity: 0.25; }
+.spinnerPath   { opacity: 0.75; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

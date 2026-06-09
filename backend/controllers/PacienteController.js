@@ -35,6 +35,12 @@ export class PacienteController {
             .then((paciente) => res.status(201).json({ status: "success", data: paciente }))
             .catch(next);
 
+    eliminarPaciente = (req, res, next) =>
+        validarIdNumerico(req.params.id)
+            .then((id) => this.pacienteService.eliminar(id))
+            .then(() => res.status(204).send())
+            .catch(next);
+
     // El pacienteId viene del route param para garantizar que el paciente
     // solo pueda reservar turnos bajo su propio id.
     reservarTurno = (req, res, next) =>

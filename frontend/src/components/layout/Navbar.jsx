@@ -4,89 +4,77 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useMedico }   from '@/context/MedicoContext';
+import { useAdmin }    from '@/context/AdminContext';
 import { useCarrito }  from '@/context/CarritoContext';
+import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const { paciente, logout: logoutPaciente } = usePaciente();
   const { medico,   logout: logoutMedico }   = useMedico();
+  const { admin,    logout: logoutAdmin }    = useAdmin();
   const { items }                            = useCarrito();
   const router                               = useRouter();
   const pathname                             = usePathname();
 
   if (pathname === '/login') return null;
+  if (pathname === '/admin') return null;
 
   const handleLogout = () => {
     if (paciente) logoutPaciente();
     if (medico)   logoutMedico();
+    if (admin)    logoutAdmin();
     router.push('/login');
   };
 
   const navLink = (href, label) => (
     <Link
       href={href}
-      className={`hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-        pathname === href
-          ? 'bg-blue-100 text-blue-700'
-          : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-      }`}
+      className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ''}`}
     >
       {label}
     </Link>
   );
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <nav className={styles.nav}>
+      <div className={styles.inner}>
+        <Link href={medico ? '/medico/turnos' : '/buscar'} className={styles.logo}>
+          🏥 <span>Sweet Medical</span>
+        </Link>
 
-          <Link href={medico ? '/medico/turnos' : '/buscar'} className="flex items-center gap-2 text-blue-600 font-bold text-lg">
-            🏥 <span>Sweet Medical</span>
-          </Link>
+        <div className={styles.links}>
+          {(paciente || medico) && (
+            <span className={styles.userName}>
+              Hola, <strong>{paciente?.nombre ?? medico?.nombre}</strong>
+              <span> {medico ? '(Médico)' : '(Paciente)'}</span>
+            </span>
+          )}
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            {(paciente || medico) && (
-              <span className="hidden sm:block text-sm text-gray-600 truncate max-w-[200px]">
-                Hola, <strong>{paciente?.nombre ?? medico?.nombre}</strong>
-                <span className="ml-1 text-xs text-gray-400">
-                  {medico ? '(Médico)' : '(Paciente)'}
-                </span>
-              </span>
-            )}
+          {paciente && navLink('/buscar',     '🔍 Buscar')}
+          {paciente && navLink('/mis-turnos', '📋 Mis turnos')}
 
-            {/* Links paciente */}
-            {paciente && navLink('/buscar',     '🔍 Buscar')}
-            {paciente && navLink('/mis-turnos', '📋 Mis turnos')}
+          {medico && navLink('/medico/turnos',         '📋 Mis turnos')}
+          {medico && navLink('/medico/disponibilidad', '🗓 Disponibilidad')}
 
-            {/* Links médico */}
-            {medico && navLink('/medico/turnos',         '📋 Mis turnos')}
-            {medico && navLink('/medico/disponibilidad', '🗓 Disponibilidad')}
+          {paciente && (
+            <Link
+              href="/solicitudes"
+              aria-label={`Mis solicitudes: ${items.length} turnos`}
+              className={styles.carritoBtn}
+            >
+              <span>🗓️</span>
+              <span className={styles.carritoLabel}>Mis solicitudes</span>
+              {items.length > 0 && (
+                <span className={styles.carritoBadge}>{items.length}</span>
+              )}
+            </Link>
+          )}
 
-            {/* Solicitudes / carrito (solo paciente) */}
-            {paciente && (
-              <Link
-                href="/solicitudes"
-                aria-label={`Mis solicitudes: ${items.length} turnos`}
-                className="relative flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium"
-              >
-                <span>🗓️</span>
-                <span className="hidden sm:inline">Mis solicitudes</span>
-                {items.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                    {items.length}
-                  </span>
-                )}
-              </Link>
-            )}
-
-            {(paciente || medico) && (
-              <button
-                onClick={handleLogout}
-                className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                Salir
-              </button>
-            )}
-          </div>
+          {(paciente || medico) && (
+            <button onClick={handleLogout} className={styles.logoutBtn}>
+              Salir
+            </button>
+          )}
         </div>
       </div>
     </nav>

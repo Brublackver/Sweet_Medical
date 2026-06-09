@@ -7,6 +7,7 @@ import { usePaciente }         from '@/context/PacienteContext';
 import { getTurnosPaciente, getMedico } from '@/lib/api';
 import TarjetaMiTurno          from '@/components/misturno/TarjetaMiTurno';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
+import styles from './MisTurnos.module.css';
 
 const FILTROS = [
   { key: 'todos',     label: 'Todos' },
@@ -44,7 +45,7 @@ const mapTurno = (t) => ({
 });
 
 export default function MisTurnosPage() {
-  const { paciente }              = usePaciente();
+  const { paciente, logout }      = usePaciente();
   const router                    = useRouter();
   const [filtro, setFiltro]       = useState('todos');
   const [turnos, setTurnos]       = useState([]);
@@ -79,7 +80,14 @@ export default function MisTurnosPage() {
           });
       })
       .then(setTurnos)
-      .catch(() => setError('No pudimos cargar tus turnos. Intentá de nuevo.'))
+      .catch((err) => {
+        if (err.response?.status === 404) {
+          logout();
+          router.replace('/login');
+        } else {
+          setError('No pudimos cargar tus turnos. Intentá de nuevo.');
+        }
+      })
       .finally(() => setCargando(false));
   }, [paciente, router]);
 
@@ -92,26 +100,22 @@ export default function MisTurnosPage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Mis turnos</h1>
-        <p className="text-gray-500 mt-1 text-sm">
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <h1 className={styles.pageTitle}>Mis turnos</h1>
+        <p className={styles.pageSubtitle}>
           Hola <strong>{paciente.nombre}</strong>, acá encontrás todos tus turnos.
         </p>
       </header>
 
-      <div className="flex gap-2 mb-6 flex-wrap" role="tablist" aria-label="Filtrar turnos">
+      <div className={styles.tabs} role="tablist" aria-label="Filtrar turnos">
         {FILTROS.map(({ key, label }) => (
           <button
             key={key}
             role="tab"
             aria-selected={filtro === key}
             onClick={() => setFiltro(key)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none ${
-              filtro === key
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600'
-            }`}
+            className={`${styles.tab} ${filtro === key ? styles.tabActivo : ''}`}
           >
             {label}
           </button>
@@ -121,24 +125,22 @@ export default function MisTurnosPage() {
       {cargando && <SkeletonDia />}
 
       {error && !cargando && (
-        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-6 text-center text-sm">
-          {error}
-        </div>
+        <div role="alert" className={styles.alerta}>{error}</div>
       )}
 
       {!cargando && !error && turnosFiltrados.length === 0 && (
-        <div className="text-center py-20">
-          <p className="text-5xl mb-4" aria-hidden="true">📋</p>
-          <h2 className="text-lg font-semibold text-gray-700">
+        <div className={styles.emptyState}>
+          <p className={styles.emptyIcon} aria-hidden="true">📋</p>
+          <h2 className={styles.emptyTitle}>
             {turnos.length === 0 ? 'No tenés turnos registrados' : 'No hay turnos en esta categoría'}
           </h2>
-          <p className="text-gray-400 mt-2 mb-6 text-sm">
+          <p className={styles.emptyText}>
             {filtro === 'proximos' || turnos.length === 0
               ? '¿Querés buscar un turno disponible?'
               : 'Probá con otro filtro.'}
           </p>
           {(filtro === 'proximos' || turnos.length === 0) && (
-            <Link href="/buscar" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 shadow-sm hover:shadow-md transition-all">
+            <Link href="/buscar" className={styles.buscarLink}>
               🔍 Buscar turnos
             </Link>
           )}
@@ -146,7 +148,7 @@ export default function MisTurnosPage() {
       )}
 
       {!cargando && !error && turnosFiltrados.length > 0 && (
-        <div className="space-y-3" role="list">
+        <div className={styles.lista} role="list">
           {turnosFiltrados.map((turno) => (
             <div key={turno.id} role="listitem">
               <TarjetaMiTurno

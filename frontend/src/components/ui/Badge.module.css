@@ -1,0 +1,24 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+/* Cobertura */
+.completa    { background-color: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.parcial     { background-color: #fef9c3; color: #a16207; border-color: #fef08a; }
+.noCubierta  { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+/* Estado */
+.reservado       { background-color: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+.realizado       { background-color: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.cancelado       { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
+.pendienteCambio { background-color: #fef9c3; color: #a16207; border-color: #fef08a; }
+.propuestaMedico { background-color: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+
+.default { background-color: #f3f4f6; color: #4b5563; border-color: #e5e7eb; }

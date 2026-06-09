@@ -40,6 +40,12 @@ export class MedicoController {
             .then((medico) => res.status(201).json({ status: "success", data: medico }))
             .catch(next);
 
+    eliminarMedico = (req, res, next) =>
+        validarIdNumerico(req.params.id)
+            .then((id) => this.medicoService.eliminar(id))
+            .then(() => res.status(204).send())
+            .catch(next);
+
     obtenerDisponibilidad = (req, res, next) => {
         const { fecha } = req.query;
         return validarIdNumerico(req.params.id)

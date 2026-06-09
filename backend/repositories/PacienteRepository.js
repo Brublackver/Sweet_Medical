@@ -24,6 +24,10 @@ export class PacienteRepository {
             .then((doc) => !!doc);
     }
 
+    eliminar(id) {
+        return PacienteModel.deleteOne({ pacienteId: id });
+    }
+
     crear(datos) {
         return this._siguienteId()
             .then((pacienteId) => new PacienteModel({

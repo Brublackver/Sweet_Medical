@@ -27,6 +27,11 @@ export class MedicoService {
         return this.medicoRepository.crear(datos);
     }
 
+    eliminar(id) {
+        return this.obtenerPorId(id)
+            .then(() => this.medicoRepository.eliminar(id));
+    }
+
     // --- Disponibilidad -----------------------------------------------------
 
     obtenerDisponibilidad(id) {

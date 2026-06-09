@@ -23,7 +23,8 @@ medicoRouter.route("/")
     .post(medicoController.crearMedico);
 
 medicoRouter.route("/:id")
-    .get(medicoController.obtenerMedico);
+    .get(medicoController.obtenerMedico)
+    .delete(medicoController.eliminarMedico);
 
 // Slots disponibles — debe ir ANTES de /:id/disponibilidad/:disponibilidadId
 // para que "slots" no se interprete como un disponibilidadId

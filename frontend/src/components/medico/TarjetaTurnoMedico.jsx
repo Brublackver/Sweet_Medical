@@ -2,7 +2,7 @@
 
 import { useState }                              from 'react';
 import { EstadoBadge }                           from '@/components/ui/EstadoBadge';
-import { formatearFechaConAnio, formatearFechaCorta } from '@/lib/fecha';
+import { formatearFechaConAnio, formatearFechaCorta, formatearFecha } from '@/lib/fecha';
 import {
   cancelarTurnoMedico,
   marcarRealizado,
@@ -10,13 +10,14 @@ import {
   confirmarCambioPaciente,
   rechazarCambioPaciente,
 } from '@/lib/api';
+import styles from './Medico.module.css';
 
 const yaPaso = (fecha, hora) => new Date(`${fecha}T${hora}:00`) <= new Date();
 
 export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   const [cargando,       setCargando]        = useState(false);
   const [error,          setError]           = useState('');
-  const [accionActiva,   setAccionActiva]    = useState(null); // 'cancelar' | 'proponer'
+  const [accionActiva,   setAccionActiva]    = useState(null);
   const [motivo,         setMotivo]          = useState('');
   const [nuevaFecha,     setNuevaFecha]      = useState('');
   const [nuevaHora,      setNuevaHora]       = useState('');
@@ -57,126 +58,125 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   const activo    = ['reservado', 'pendiente_cambio', 'propuesta_medico'].includes(turno.estado);
 
   return (
-    <article className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-4 hover:shadow-sm transition-shadow">
-
-      {/* Cabecera */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-        <div className="sm:w-28 shrink-0 text-center sm:text-left">
-          <p className="text-2xl font-bold text-gray-900">{turno.hora} hs</p>
-          <p className="text-xs text-gray-400 mt-0.5 capitalize">
-            {formatearFechaCorta(turno.fecha)}
-          </p>
+    <article className={styles.tarjeta}>
+      <div className={styles.tarjetaBody}>
+        <div className={styles.tarjetaHora}>
+          <p className={styles.horaNum}>{turno.hora} hs</p>
+          <p className={styles.horaFecha}>{formatearFechaCorta(turno.fecha)}</p>
         </div>
 
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-semibold text-gray-900">
+        <div className={styles.tarjetaInfo}>
+          <div className={styles.tarjetaBadges}>
+            <p className={styles.tarjetaNombre}>
               {paciente ? paciente.nombre : `Paciente #${turno.paciente_id}`}
             </p>
             <EstadoBadge estado={turno.estado} />
           </div>
-          <p className="text-sm text-gray-700 capitalize">{formatearFechaConAnio(turno.fecha)}</p>
-          <p className="text-sm text-gray-500">
+          <p className={styles.tarjetaFecha}>{formatearFechaConAnio(turno.fecha)}</p>
+          <p className={styles.tarjetaDetalle}>
             Duración: {turno.duracion} min
             {medico && medico.especialidades?.length > 0 && (
-              <span className="ml-2">· {medico.especialidades[0].nombre}</span>
+              <span className={styles.tarjetaSecundario}> · {medico.especialidades[0].nombre}</span>
             )}
           </p>
           {paciente?.obraSocial && (
-            <p className="text-xs text-gray-400">Obra social: {paciente.obraSocial}</p>
+            <p className={styles.tarjetaObraSocial}>Obra social: {paciente.obraSocial}</p>
           )}
         </div>
       </div>
 
-      {/* El paciente solicitó un cambio */}
       {turno.estado === 'pendiente_cambio' && solicitud && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-          <p className="text-sm font-semibold text-yellow-700 mb-1">⟳ El paciente solicitó un cambio de fecha</p>
-          <p className="text-sm text-yellow-600 mb-3">
+        <div className={styles.solicitudBox}>
+          <p className={styles.solicitudTitulo}>⟳ El paciente solicitó un cambio de fecha</p>
+          <p className={styles.solicitudTexto}>
             Nueva fecha propuesta: <strong>{formatearFecha(solicitud.nuevaFecha)}</strong> a las <strong>{solicitud.nuevaHora} hs</strong>
           </p>
-          <div className="flex gap-2 flex-wrap">
-            <button onClick={handleConfirmarCambio} disabled={cargando}
-              className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
+          <div className={styles.acciones}>
+            <button onClick={handleConfirmarCambio} disabled={cargando} className={styles.btnVerde}>
               {cargando ? 'Procesando...' : '✓ Confirmar cambio'}
             </button>
-            <button onClick={handleRechazarCambio} disabled={cargando}
-              className="px-4 py-2 bg-white border border-red-300 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors">
+            <button onClick={handleRechazarCambio} disabled={cargando} className={styles.btnRojo}>
               {cargando ? 'Procesando...' : '✕ Rechazar cambio'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Acciones principales */}
       {activo && accionActiva === null && (
-        <div className="border-t border-gray-100 pt-3 flex flex-wrap gap-2">
+        <div className={styles.divisor}>
           {turno.estado === 'reservado' && yaPaso(turno.fecha, turno.hora) && (
-            <button onClick={handleMarcarRealizado} disabled={cargando}
-              className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
+            <button onClick={handleMarcarRealizado} disabled={cargando} className={styles.btnVerdePeq}>
               ✓ Marcar realizado
             </button>
           )}
           {turno.estado === 'reservado' && (
-            <button onClick={() => setAccionActiva('proponer')}
-              className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm rounded-lg hover:bg-blue-100 transition-colors">
+            <button onClick={() => setAccionActiva('proponer')} className={styles.btnAzulPeq}>
               🗓 Proponer cambio
             </button>
           )}
-          <button onClick={() => setAccionActiva('cancelar')}
-            className="px-3 py-1.5 bg-white border border-red-200 text-red-500 text-sm rounded-lg hover:bg-red-50 transition-colors">
+          <button onClick={() => setAccionActiva('cancelar')} className={styles.btnRojoPeq}>
             Cancelar turno
           </button>
         </div>
       )}
 
-      {/* Form cancelar */}
       {accionActiva === 'cancelar' && (
-        <form onSubmit={handleCancelar} className="border-t border-gray-100 pt-3 space-y-3">
-          <p className="text-sm font-medium text-gray-700">Motivo de cancelación</p>
+        <form onSubmit={handleCancelar} className={styles.form}>
+          <p className={styles.formTitulo}>Motivo de cancelación</p>
           <textarea
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
             placeholder="Ej: El médico no podrá asistir ese día"
             rows={2}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none resize-none"
+            className={styles.textarea}
           />
-          <div className="flex gap-2">
-            <button type="submit" disabled={cargando}
-              className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors">
+          <div className={styles.formAcciones}>
+            <button type="submit" disabled={cargando} className={styles.btnEnviarRojo}>
               {cargando ? 'Cancelando...' : 'Confirmar cancelación'}
             </button>
-            <button type="button" onClick={() => { setAccionActiva(null); setError(''); }}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            <button
+              type="button"
+              onClick={() => { setAccionActiva(null); setError(''); }}
+              className={styles.btnVolver}
+            >
               Volver
             </button>
           </div>
         </form>
       )}
 
-      {/* Form proponer cambio */}
       {accionActiva === 'proponer' && (
-        <form onSubmit={handleProponerCambio} className="border-t border-gray-100 pt-3 space-y-3">
-          <p className="text-sm font-medium text-gray-700">Proponer nueva fecha y hora al paciente</p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">Nueva fecha</label>
-              <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none" />
+        <form onSubmit={handleProponerCambio} className={styles.form}>
+          <p className={styles.formTitulo}>Proponer nueva fecha y hora al paciente</p>
+          <div className={styles.formInputs}>
+            <div>
+              <label className={styles.campoLabel}>Nueva fecha</label>
+              <input
+                type="date"
+                value={nuevaFecha}
+                onChange={(e) => setNuevaFecha(e.target.value)}
+                className={styles.input}
+              />
             </div>
-            <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">Nueva hora</label>
-              <input type="time" value={nuevaHora} onChange={(e) => setNuevaHora(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none" />
+            <div>
+              <label className={styles.campoLabel}>Nueva hora</label>
+              <input
+                type="time"
+                value={nuevaHora}
+                onChange={(e) => setNuevaHora(e.target.value)}
+                className={styles.input}
+              />
             </div>
           </div>
-          <div className="flex gap-2">
-            <button type="submit" disabled={cargando}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+          <div className={styles.formAcciones}>
+            <button type="submit" disabled={cargando} className={styles.btnEnviar}>
               {cargando ? 'Enviando...' : 'Enviar propuesta'}
             </button>
-            <button type="button" onClick={() => { setAccionActiva(null); setError(''); }}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            <button
+              type="button"
+              onClick={() => { setAccionActiva(null); setError(''); }}
+              className={styles.btnVolver}
+            >
               Volver
             </button>
           </div>
@@ -184,9 +184,7 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
       )}
 
       {error && (
-        <p role="alert" className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          ⚠️ {error}
-        </p>
+        <p role="alert" className={styles.errorInline}>⚠️ {error}</p>
       )}
     </article>
   );

@@ -8,6 +8,7 @@ const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 export const metadata = {
   title:       "Sweet Medical — Reservá tu turno",
   description: "Sistema de gestión de turnos médicos",
+  icons:       { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({ children }) {

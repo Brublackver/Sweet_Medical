@@ -1,0 +1,445 @@
+.page {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(to right, #2563eb, #4338ca);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.headerInner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLogo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.adminTag {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #bfdbfe;
+}
+
+.logoutBtn {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.logoutBtn:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 2.5rem 1.5rem;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.titulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subtitulo {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  background-color: #f3f4f6;
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #6b7280;
+  background: transparent;
+}
+
+.tab:hover { color: #374151; }
+
+.tabActive {
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 2rem;
+}
+
+/* Formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formTitulo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  font-size: 1rem;
+  color: #111827;
+  background-color: #f9fafb;
+  outline: none;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.input::placeholder { color: #9ca3af; }
+.input:focus { border-color: #60a5fa; box-shadow: 0 0 0 2px #dbeafe; background-color: #fff; }
+
+.submitBtn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3b82f6;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-top: 0.5rem;
+}
+
+.submitBtn:hover:not(:disabled) { background-color: #2563eb; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Feedback */
+.exito {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #065f46;
+  background-color: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.exitoId {
+  margin-top: 0.25rem;
+  color: #065f46;
+  font-size: 0.875rem;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #b91c1c;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Especialidades */
+.seccionEsp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background-color: #f9fafb;
+}
+
+.seccionEspTitulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.25rem;
+}
+
+.espLista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.espItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+}
+
+.espInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.espNombre {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.espDetalle {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.espQuitar {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.25rem;
+  line-height: 1;
+  border-radius: 0.25rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.espQuitar:hover { color: #b91c1c; background: #fef2f2; }
+
+.espFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.cobFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.opcional {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+.labelSm {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.agregarBtn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px dashed #93c5fd;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.agregarBtn:hover:not(:disabled) { background: #dbeafe; border-color: #60a5fa; }
+.agregarBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Buscar existente */
+.buscarRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.buscarRow .input { flex: 1; }
+
+.buscarBtn {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: #4f46e5;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.buscarBtn:hover:not(:disabled) { background: #4338ca; }
+.buscarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Ficha del encontrado */
+.fichaBox {
+  margin-top: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.fichaCabeza {
+  padding: 1rem 1.25rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.fichaNombre {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.fichaDetalle {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin-top: 0.125rem;
+}
+
+.sinEsp {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin: 0.25rem 0;
+}
+
+/* Zona eliminar */
+.zonaEliminar {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #fee2e2;
+  background: #fff5f5;
+}
+
+.eliminarBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.eliminarBtn:hover { background: #fee2e2; }
+
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.confirmTexto {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.confirmBtns {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.confirmarEliminarBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: #dc2626;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.confirmarEliminarBtn:hover:not(:disabled) { background: #b91c1c; }
+.confirmarEliminarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cancelarBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cancelarBtn:hover { background: #e5e7eb; }

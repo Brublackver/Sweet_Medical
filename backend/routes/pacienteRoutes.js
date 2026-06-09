@@ -27,7 +27,8 @@ pacienteRouter.route("/")
     .post(pacienteController.crearPaciente);
 
 pacienteRouter.route("/:id")
-    .get(pacienteController.obtenerPaciente);
+    .get(pacienteController.obtenerPaciente)
+    .delete(pacienteController.eliminarPaciente);
 
 pacienteRouter.route("/:id/turno")
     .post(pacienteController.reservarTurno);

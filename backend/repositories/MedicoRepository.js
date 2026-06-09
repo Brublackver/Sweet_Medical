@@ -26,6 +26,10 @@ export class MedicoRepository {
             .then((doc) => doc ? this._toMedico(doc) : null);
     }
 
+    eliminar(id) {
+        return MedicoModel.deleteOne({ medicoId: id });
+    }
+
     crear(datos) {
         return this._siguienteId()
             .then((medicoId) => new MedicoModel({

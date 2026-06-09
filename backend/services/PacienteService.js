@@ -32,6 +32,11 @@ export class PacienteService {
             });
     }
 
+    eliminar(id) {
+        return this.obtenerPorId(id)
+            .then(() => this.pacienteRepository.eliminar(id));
+    }
+
     // Reserva un turno para el paciente identificado por pacienteId.
     // El pacienteId viene del route param — no del body — para evitar
     // que alguien reserve un turno en nombre de otro paciente.

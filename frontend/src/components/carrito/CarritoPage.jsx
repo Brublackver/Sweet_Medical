@@ -6,6 +6,7 @@ import { useRouter }   from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useCarrito }  from '@/context/CarritoContext';
 import ItemCarrito     from '@/components/carrito/ItemCarrito';
+import styles from './Carrito.module.css';
 
 export default function CarritoPage() {
   const { paciente }              = usePaciente();
@@ -21,11 +22,11 @@ export default function CarritoPage() {
   const total = items.reduce((sum, item) => sum + (item.montoAbonar ?? 0), 0);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <header className="flex items-start justify-between mb-8">
+    <div className={styles.page}>
+      <header className={styles.header}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mis solicitudes</h1>
-          <p className="text-gray-500 mt-1 text-sm">
+          <h1 className={styles.pageTitle}>Mis solicitudes</h1>
+          <p className={styles.pageSubtitle}>
             {items.length === 0
               ? 'No tenés turnos en tu lista de solicitudes todavía.'
               : `${items.length} ${items.length === 1 ? 'turno por solicitar' : 'turnos por solicitar'}`}
@@ -35,7 +36,7 @@ export default function CarritoPage() {
           <button
             onClick={vaciar}
             aria-label="Limpiar todas las solicitudes"
-            className="text-sm text-red-400 hover:text-red-600 transition-colors mt-1"
+            className={styles.limpiarBtn}
           >
             Limpiar lista
           </button>
@@ -43,47 +44,40 @@ export default function CarritoPage() {
       </header>
 
       {items.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-6xl mb-4" aria-hidden="true">🗓️</p>
-          <h2 className="text-xl font-semibold text-gray-700">No hay turnos en tu lista</h2>
-          <p className="text-gray-500 mt-2 mb-8 text-sm">
+        <div className={styles.emptyState}>
+          <p className={styles.emptyIcon} aria-hidden="true">🗓️</p>
+          <h2 className={styles.emptyTitle}>No hay turnos en tu lista</h2>
+          <p className={styles.emptyText}>
             Buscá turnos disponibles y agregálos a tus solicitudes.
           </p>
-          <Link
-            href="/buscar"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
-          >
+          <Link href="/buscar" className={styles.buscarLink}>
             Buscar turnos
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <ItemCarrito key={item.key} item={item} onQuitar={() => quitar(item.key)} />
-          ))}
+        <div>
+          <div className={styles.lista}>
+            {items.map((item) => (
+              <ItemCarrito key={item.key} item={item} onQuitar={() => quitar(item.key)} />
+            ))}
+          </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+          <div className={styles.resumen}>
+            <div className={styles.resumenInner}>
               <div>
-                <p className="text-sm text-gray-500">Total estimado a abonar</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">
+                <p className={styles.totalLabel}>Total estimado a abonar</p>
+                <p className={styles.totalMonto}>
                   ${total.toLocaleString('es-AR')}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className={styles.totalNota}>
                   El monto puede variar según tu cobertura al momento de la consulta.
                 </p>
               </div>
-              <Link
-                href="/buscar"
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors"
-              >
+              <Link href="/buscar" className={styles.seguirLink}>
                 Seguir buscando turnos
               </Link>
             </div>
-            <Link
-              href="/confirmar"
-              className="w-full inline-flex items-center justify-center py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            >
+            <Link href="/confirmar" className={styles.confirmarLink}>
               Confirmar solicitud →
             </Link>
           </div>
