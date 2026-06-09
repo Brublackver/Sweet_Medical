@@ -85,4 +85,42 @@ export class PacienteService {
         return this.obtenerPorId(pacienteId)
             .then(() => this.turnoService.rechazarPropuestaMedico(turnoId, pacienteId));
     }
+
+    // --- Gestión de coberturas del plan ---
+
+    agregarCoberturaEspecialidad(pacienteId, datos) {
+        return this.obtenerPorId(pacienteId)
+            .then((paciente) => {
+                const coberturas = paciente.plan?.coberturasEspecialidad || [];
+                if (coberturas.some((c) => c.especialidad?.codigo === datos.codigo))
+                    return Promise.reject(new ConflictError(`Ya existe cobertura para la especialidad "${datos.codigo}"`));
+                return this.pacienteRepository.agregarCoberturaEspecialidad(pacienteId, {
+                    especialidad: { codigo: datos.codigo },
+                    nivel: datos.nivel,
+                });
+            });
+    }
+
+    quitarCoberturaEspecialidad(pacienteId, codigo) {
+        return this.obtenerPorId(pacienteId)
+            .then(() => this.pacienteRepository.quitarCoberturaEspecialidad(pacienteId, codigo));
+    }
+
+    agregarCoberturaPractica(pacienteId, datos) {
+        return this.obtenerPorId(pacienteId)
+            .then((paciente) => {
+                const coberturas = paciente.plan?.coberturasPractica || [];
+                if (coberturas.some((c) => c.practica?.codigo === datos.codigo))
+                    return Promise.reject(new ConflictError(`Ya existe cobertura para la práctica "${datos.codigo}"`));
+                return this.pacienteRepository.agregarCoberturaPractica(pacienteId, {
+                    practica: { codigo: datos.codigo },
+                    nivel: datos.nivel,
+                });
+            });
+    }
+
+    quitarCoberturaPractica(pacienteId, codigo) {
+        return this.obtenerPorId(pacienteId)
+            .then(() => this.pacienteRepository.quitarCoberturaPractica(pacienteId, codigo));
+    }
 }

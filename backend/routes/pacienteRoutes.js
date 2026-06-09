@@ -48,4 +48,16 @@ pacienteRouter.route("/:id/turnos/:turnoId/confirmar-propuesta")
 pacienteRouter.route("/:id/turnos/:turnoId/rechazar-propuesta")
     .patch(pacienteController.rechazarPropuestaMedico);
 
+pacienteRouter.route("/:id/plan/especialidades")
+    .post(pacienteController.agregarCoberturaEspecialidad);
+
+pacienteRouter.route("/:id/plan/especialidades/:codigo")
+    .delete(pacienteController.quitarCoberturaEspecialidad);
+
+pacienteRouter.route("/:id/plan/practicas")
+    .post(pacienteController.agregarCoberturaPractica);
+
+pacienteRouter.route("/:id/plan/practicas/:codigo")
+    .delete(pacienteController.quitarCoberturaPractica);
+
 export default pacienteRouter;

@@ -24,9 +24,8 @@ export default function MedicoTurnosPage() {
   const [cargando, setCargando]  = useState(true);
   const [error, setError]        = useState('');
 
-  const cargarTurnos = () => {
-    if (!medico) return;
-    setCargando(true);
+  useEffect(() => {
+    if (medico === null) { router.replace('/login'); return; }
     getTurnosMedico(medico.medico_id)
       .then(setTurnos)
       .catch((err) => {
@@ -38,12 +37,7 @@ export default function MedicoTurnosPage() {
         }
       })
       .finally(() => setCargando(false));
-  };
-
-  useEffect(() => {
-    if (medico === null) { router.replace('/login'); return; }
-    cargarTurnos();
-  }, [medico, router]);
+  }, [medico, router, logout]);
 
   if (!medico) return null;
 

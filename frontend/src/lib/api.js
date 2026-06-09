@@ -74,4 +74,16 @@ export const crearPaciente = (datos) =>
 export const eliminarPaciente = (pacienteId) =>
   api.delete(`/paciente/${pacienteId}`);
 
+export const agregarCoberturaEspecialidad = (pacienteId, datos) =>
+  api.post(`/paciente/${pacienteId}/plan/especialidades`, datos).then((r) => r.data.data);
+
+export const quitarCoberturaEspecialidad = (pacienteId, codigo) =>
+  api.delete(`/paciente/${pacienteId}/plan/especialidades/${codigo}`).then((r) => r.data.data);
+
+export const agregarCoberturaPractica = (pacienteId, datos) =>
+  api.post(`/paciente/${pacienteId}/plan/practicas`, datos).then((r) => r.data.data);
+
+export const quitarCoberturaPractica = (pacienteId, codigo) =>
+  api.delete(`/paciente/${pacienteId}/plan/practicas/${codigo}`).then((r) => r.data.data);
+
 export default api;

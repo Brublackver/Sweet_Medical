@@ -11,6 +11,7 @@ import {
     validarCancelarTurno,
     validarSolicitarCambioFecha,
     validarReservarTurno,
+    validarCobertura,
 } from "../validators/pacienteValidator.js";
 
 export class PacienteController {
@@ -95,5 +96,29 @@ export class PacienteController {
                 this.pacienteService.rechazarPropuestaMedico(pacienteId, turnoId)
             )
             .then((turno) => res.status(200).json({ status: "success", data: turno }))
+            .catch(next);
+
+    agregarCoberturaEspecialidad = (req, res, next) =>
+        Promise.all([validarIdNumerico(req.params.id), validarCobertura(req.body)])
+            .then(([pacienteId, datos]) => this.pacienteService.agregarCoberturaEspecialidad(pacienteId, datos))
+            .then((paciente) => res.status(201).json({ status: "success", data: paciente }))
+            .catch(next);
+
+    quitarCoberturaEspecialidad = (req, res, next) =>
+        validarIdNumerico(req.params.id)
+            .then((pacienteId) => this.pacienteService.quitarCoberturaEspecialidad(pacienteId, req.params.codigo.trim().toUpperCase()))
+            .then((paciente) => res.status(200).json({ status: "success", data: paciente }))
+            .catch(next);
+
+    agregarCoberturaPractica = (req, res, next) =>
+        Promise.all([validarIdNumerico(req.params.id), validarCobertura(req.body)])
+            .then(([pacienteId, datos]) => this.pacienteService.agregarCoberturaPractica(pacienteId, datos))
+            .then((paciente) => res.status(201).json({ status: "success", data: paciente }))
+            .catch(next);
+
+    quitarCoberturaPractica = (req, res, next) =>
+        validarIdNumerico(req.params.id)
+            .then((pacienteId) => this.pacienteService.quitarCoberturaPractica(pacienteId, req.params.codigo.trim().toUpperCase()))
+            .then((paciente) => res.status(200).json({ status: "success", data: paciente }))
             .catch(next);
 }

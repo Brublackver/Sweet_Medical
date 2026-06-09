@@ -304,6 +304,12 @@
   color: #374151;
 }
 
+.labelSubseccion {
+  composes: labelSm;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
 .agregarBtn {
   width: 100%;
   padding: 0.5rem;

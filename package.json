@@ -1,18 +1,17 @@
 {
-  "name": "2026-1c-backend-grupo-2-1",
+  "name": "sweet-medical",
   "version": "1.0.0",
-  "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Hp1cF9Q4)\r # 2026 1C - TP BACKEND",
-  "main": "server.js",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "type": "module",
   "scripts": {
+    "dev": "concurrently -n backend,frontend -c cyan,magenta \"node --watch backend/server.js\" \"npm run dev --workspace=frontend\"",
     "start": "node backend/server.js",
-    "dev": "node --watch backend/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "format": "prettier --write ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^16.4.7",
@@ -23,6 +22,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.3.0",
+    "concurrently": "^9.1.2",
     "jest": "^30.3.0",
     "prettier": "^3.0.0"
   }

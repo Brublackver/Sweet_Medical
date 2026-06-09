@@ -28,6 +28,38 @@ export class PacienteRepository {
         return PacienteModel.deleteOne({ pacienteId: id });
     }
 
+    agregarCoberturaEspecialidad(pacienteId, cobertura) {
+        return PacienteModel.findOneAndUpdate(
+            { pacienteId },
+            { $push: { "plan.coberturasEspecialidad": cobertura } },
+            { new: true }
+        );
+    }
+
+    quitarCoberturaEspecialidad(pacienteId, codigo) {
+        return PacienteModel.findOneAndUpdate(
+            { pacienteId },
+            { $pull: { "plan.coberturasEspecialidad": { "especialidad.codigo": codigo } } },
+            { new: true }
+        );
+    }
+
+    agregarCoberturaPractica(pacienteId, cobertura) {
+        return PacienteModel.findOneAndUpdate(
+            { pacienteId },
+            { $push: { "plan.coberturasPractica": cobertura } },
+            { new: true }
+        );
+    }
+
+    quitarCoberturaPractica(pacienteId, codigo) {
+        return PacienteModel.findOneAndUpdate(
+            { pacienteId },
+            { $pull: { "plan.coberturasPractica": { "practica.codigo": codigo } } },
+            { new: true }
+        );
+    }
+
     crear(datos) {
         return this._siguienteId()
             .then((pacienteId) => new PacienteModel({
