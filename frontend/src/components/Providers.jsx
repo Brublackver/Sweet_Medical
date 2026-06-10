@@ -1,5 +1,3 @@
-'use client';
-
 import { PacienteProvider } from '@/context/PacienteContext';
 import { CarritoProvider }  from '@/context/CarritoContext';
 import { MedicoProvider }   from '@/context/MedicoContext';

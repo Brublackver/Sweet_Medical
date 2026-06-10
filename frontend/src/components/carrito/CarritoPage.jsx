@@ -1,8 +1,5 @@
-'use client';
-
 import { useEffect }   from 'react';
-import Link            from 'next/link';
-import { useRouter }   from 'next/navigation';
+import { Link, useNavigate } from 'react-router-dom';
 import { usePaciente } from '@/context/PacienteContext';
 import { useCarrito }  from '@/context/CarritoContext';
 import ItemCarrito     from '@/components/carrito/ItemCarrito';
@@ -11,11 +8,11 @@ import styles from './Carrito.module.css';
 export default function CarritoPage() {
   const { paciente }              = usePaciente();
   const { items, quitar, vaciar } = useCarrito();
-  const router                    = useRouter();
+  const navigate                  = useNavigate();
 
   useEffect(() => {
-    if (paciente === null) router.replace('/login');
-  }, [paciente, router]);
+    if (paciente === null) navigate('/login', { replace: true });
+  }, [paciente, navigate]);
 
   if (!paciente) return null;
 
@@ -50,7 +47,7 @@ export default function CarritoPage() {
           <p className={styles.emptyText}>
             Buscá turnos disponibles y agregálos a tus solicitudes.
           </p>
-          <Link href="/buscar" className={styles.buscarLink}>
+          <Link to="/buscar" className={styles.buscarLink}>
             Buscar turnos
           </Link>
         </div>
@@ -73,11 +70,11 @@ export default function CarritoPage() {
                   El monto puede variar según tu cobertura al momento de la consulta.
                 </p>
               </div>
-              <Link href="/buscar" className={styles.seguirLink}>
+              <Link to="/buscar" className={styles.seguirLink}>
                 Seguir buscando turnos
               </Link>
             </div>
-            <Link href="/confirmar" className={styles.confirmarLink}>
+            <Link to="/confirmar" className={styles.confirmarLink}>
               Confirmar solicitud →
             </Link>
           </div>

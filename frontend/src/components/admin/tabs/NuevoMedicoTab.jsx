@@ -1,17 +1,11 @@
-'use client';
-
 import { useState } from 'react';
 import { crearMedico, agregarEspecialidadMedico } from '@/lib/api';
+import { espValida } from '@/lib/adminUtils';
 import EspecialidadesEditor from '../editors/EspecialidadesEditor';
 import styles from '../AdminPage.module.css';
 
 const MEDICO_VACIO       = { usuario: '', nombre: '', matricula: '' };
 const ESPECIALIDAD_VACIA = { codigo: '', nombre: '', duracionTurnoEnMins: '', costo: '' };
-
-const espValida = (f) =>
-  f.codigo.trim() && f.nombre.trim() &&
-  parseInt(f.duracionTurnoEnMins, 10) > 0 &&
-  !isNaN(parseFloat(f.costo)) && parseFloat(f.costo) >= 0;
 
 export default function NuevoMedicoTab() {
   const [medicoForm, setMedicoForm]         = useState(MEDICO_VACIO);

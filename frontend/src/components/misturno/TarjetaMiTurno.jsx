@@ -1,5 +1,3 @@
-'use client';
-
 import { useState }                                   from 'react';
 import { EstadoBadge }                                from '@/components/ui/EstadoBadge';
 import { CoberturasBadge }                            from '@/components/ui/Badge';

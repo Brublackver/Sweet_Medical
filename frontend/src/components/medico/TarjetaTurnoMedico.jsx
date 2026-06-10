@@ -1,5 +1,3 @@
-'use client';
-
 import { useState }                              from 'react';
 import { EstadoBadge }                           from '@/components/ui/EstadoBadge';
 import { formatearFechaConAnio, formatearFechaCorta, formatearFecha } from '@/lib/fecha';

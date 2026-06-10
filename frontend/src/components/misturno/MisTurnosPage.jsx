@@ -1,10 +1,8 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import Link                    from 'next/link';
-import { useRouter }           from 'next/navigation';
+import { Link, useNavigate }   from 'react-router-dom';
 import { usePaciente }         from '@/context/PacienteContext';
 import { getTurnosPaciente, getMedico } from '@/lib/api';
+import { filtrarTurnos }       from '@/lib/turnos';
 import TarjetaMiTurno          from '@/components/misturno/TarjetaMiTurno';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './MisTurnos.module.css';
@@ -46,14 +44,14 @@ const mapTurno = (t) => ({
 
 export default function MisTurnosPage() {
   const { paciente, logout }      = usePaciente();
-  const router                    = useRouter();
+  const navigate                  = useNavigate();
   const [filtro, setFiltro]       = useState('todos');
   const [turnos, setTurnos]       = useState([]);
   const [cargando, setCargando]   = useState(true);
   const [error, setError]         = useState('');
 
   useEffect(() => {
-    if (paciente === null) { router.replace('/login'); return; }
+    if (paciente === null) { navigate('/login', { replace: true }); return; }
 
     getTurnosPaciente(paciente.paciente_id)
       .then((turnos) => {
@@ -83,21 +81,17 @@ export default function MisTurnosPage() {
       .catch((err) => {
         if (err.response?.status === 404) {
           logout();
-          router.replace('/login');
+          navigate('/login', { replace: true });
         } else {
           setError('No pudimos cargar tus turnos. Intentá de nuevo.');
         }
       })
       .finally(() => setCargando(false));
-  }, [paciente, router]);
+  }, [paciente, navigate, logout]);
 
   if (!paciente) return null;
 
-  const turnosFiltrados = turnos.filter((t) => {
-    if (filtro === 'todos')    return true;
-    if (filtro === 'proximos') return ['reservado', 'pendiente_cambio', 'propuesta_medico'].includes(t.estado);
-    return t.estado === filtro;
-  });
+  const turnosFiltrados = filtrarTurnos(turnos, filtro);
 
   return (
     <div className={styles.page}>
@@ -140,7 +134,7 @@ export default function MisTurnosPage() {
               : 'Probá con otro filtro.'}
           </p>
           {(filtro === 'proximos' || turnos.length === 0) && (
-            <Link href="/buscar" className={styles.buscarLink}>
+            <Link to="/buscar" className={styles.buscarLink}>
               🔍 Buscar turnos
             </Link>
           )}

@@ -1,20 +1,10 @@
-'use client';
-
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
+import { leerStorage } from '@/lib/storage';
 
 const MedicoContext = createContext(null);
 
 export function MedicoProvider({ children }) {
-  const [medico, setMedico] = useState(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('medico');
-      if (stored) setMedico(JSON.parse(stored));
-    } catch {
-      localStorage.removeItem('medico');
-    }
-  }, []);
+  const [medico, setMedico] = useState(() => leerStorage('medico'));
 
   const login = (data) => {
     setMedico(data);

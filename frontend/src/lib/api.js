@@ -1,9 +1,7 @@
-'use client';
-
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
 });
 
 export const getPaciente = (id) =>
@@ -85,5 +83,3 @@ export const agregarCoberturaPractica = (pacienteId, datos) =>
 
 export const quitarCoberturaPractica = (pacienteId, codigo) =>
   api.delete(`/paciente/${pacienteId}/plan/practicas/${codigo}`).then((r) => r.data.data);
-
-export default api;

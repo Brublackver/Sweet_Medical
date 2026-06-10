@@ -1,7 +1,5 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { useRouter }    from 'next/navigation';
+import { useNavigate }  from 'react-router-dom';
 import { usePaciente }  from '@/context/PacienteContext';
 import { buscarTurnos } from '@/lib/api';
 import FiltrosBusqueda  from '@/components/busqueda/FiltrosBusqueda';
@@ -11,14 +9,14 @@ import styles from './Busqueda.module.css';
 
 export default function BuscarPage() {
   const { paciente }                    = usePaciente();
-  const router                          = useRouter();
+  const navigate                        = useNavigate();
   const [resultados, setResultados]     = useState(null);
   const [cargando,   setCargando]       = useState(false);
   const [error,      setError]          = useState('');
 
   useEffect(() => {
-    if (paciente === null) router.replace('/login');
-  }, [paciente, router]);
+    if (paciente === null) navigate('/login', { replace: true });
+  }, [paciente, navigate]);
 
   if (!paciente) return null;
 

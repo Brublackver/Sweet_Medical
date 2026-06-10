@@ -1,5 +1,3 @@
-'use client';
-
 import { createContext, useContext, useState } from 'react';
 
 const CarritoContext = createContext(null);

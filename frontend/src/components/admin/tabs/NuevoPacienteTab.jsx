@@ -1,16 +1,11 @@
-'use client';
-
 import { useState } from 'react';
 import { crearPaciente } from '@/lib/api';
+import { cobValida } from '@/lib/adminUtils';
 import CoberturaEditor from '../editors/CoberturaEditor';
 import styles from '../AdminPage.module.css';
 
 const PACIENTE_VACIO  = { usuario: '', dni: '', nombre: '', obraSocial: '', planNombre: '' };
 const COBERTURA_VACIA = { codigo: '', nivel: '' };
-
-const cobValida = (f) =>
-  f.codigo.trim() && f.nivel !== '' &&
-  parseInt(f.nivel, 10) >= 0 && parseInt(f.nivel, 10) <= 100;
 
 export default function NuevoPacienteTab() {
   const [pacienteForm, setPacienteForm]         = useState(PACIENTE_VACIO);

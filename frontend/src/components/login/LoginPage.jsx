@@ -1,7 +1,5 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { useRouter }             from 'next/navigation';
+import { useNavigate }           from 'react-router-dom';
 import { usePaciente }           from '@/context/PacienteContext';
 import { useMedico }             from '@/context/MedicoContext';
 import { useAdmin }              from '@/context/AdminContext';
@@ -14,17 +12,17 @@ export default function LoginPage() {
   const { paciente, login: loginPaciente } = usePaciente();
   const { medico,   login: loginMedico }   = useMedico();
   const { admin,    login: loginAdmin }    = useAdmin();
-  const router                             = useRouter();
+  const navigate                           = useNavigate();
   const [rol, setRol]                      = useState('paciente');
   const [id, setId]                        = useState('');
   const [cargando, setCargando]            = useState(false);
   const [error, setError]                  = useState('');
 
   useEffect(() => {
-    if (paciente) { router.replace('/buscar'); return; }
-    if (medico)   { router.replace('/medico/turnos'); return; }
-    if (admin)    { router.replace('/admin'); }
-  }, [paciente, medico, admin, router]);
+    if (paciente) { navigate('/buscar',        { replace: true }); return; }
+    if (medico)   { navigate('/medico/turnos', { replace: true }); return; }
+    if (admin)    { navigate('/admin',         { replace: true }); }
+  }, [paciente, medico, admin, navigate]);
 
   const handleRolChange = (r) => {
     setRol(r);
@@ -42,7 +40,7 @@ export default function LoginPage() {
         return;
       }
       loginAdmin();
-      router.push('/admin');
+      navigate('/admin');
       return;
     }
 
@@ -54,8 +52,8 @@ export default function LoginPage() {
     setCargando(true);
     const entidad = rol === 'paciente' ? 'paciente' : 'médico';
     const peticion = rol === 'paciente'
-      ? getPaciente(numId).then((data) => { loginPaciente(data); router.push('/buscar'); })
-      : getMedico(numId).then((data)   => { loginMedico(data);   router.push('/medico/turnos'); });
+      ? getPaciente(numId).then((data) => { loginPaciente(data); navigate('/buscar'); })
+      : getMedico(numId).then((data)   => { loginMedico(data);   navigate('/medico/turnos'); });
     peticion
       .catch((err) => setError(
         err.response?.status === 404

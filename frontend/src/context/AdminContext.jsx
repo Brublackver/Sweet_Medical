@@ -1,20 +1,10 @@
-'use client';
-
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
+import { leerStorage } from '@/lib/storage';
 
 const AdminContext = createContext(null);
 
 export function AdminProvider({ children }) {
-  const [admin, setAdmin] = useState(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('admin');
-      if (stored) setAdmin(JSON.parse(stored));
-    } catch {
-      localStorage.removeItem('admin');
-    }
-  }, []);
+  const [admin, setAdmin] = useState(() => leerStorage('admin'));
 
   const login = () => {
     const data = { nombre: 'Administrador' };

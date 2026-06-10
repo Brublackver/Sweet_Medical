@@ -1,7 +1,5 @@
-'use client';
-
 import { useState, useEffect }  from 'react';
-import { useRouter }            from 'next/navigation';
+import { useNavigate }          from 'react-router-dom';
 import { useMedico }            from '@/context/MedicoContext';
 import { formatearFechaConAnio } from '@/lib/fecha';
 import { getDisponibilidad, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
@@ -9,7 +7,7 @@ import styles from './Medico.module.css';
 
 export default function DisponibilidadPage() {
   const { medico }                     = useMedico();
-  const router                         = useRouter();
+  const navigate                       = useNavigate();
   const [disponibilidades, setDisponibilidades] = useState([]);
   const [cargando,  setCargando]       = useState(true);
   const [error,     setError]          = useState('');
@@ -20,18 +18,14 @@ export default function DisponibilidadPage() {
   const [horaDesde, setHoraDesde]      = useState('');
   const [horaHasta, setHoraHasta]      = useState('');
 
-  const cargar = () => {
+  useEffect(() => {
+    if (medico === null) { navigate('/login', { replace: true }); return; }
     if (!medico) return;
     getDisponibilidad(medico.medico_id)
       .then(setDisponibilidades)
       .catch(() => setError('No pudimos cargar la disponibilidad.'))
       .finally(() => setCargando(false));
-  };
-
-  useEffect(() => {
-    if (medico === null) { router.replace('/login'); return; }
-    cargar();
-  }, [medico, router]);
+  }, [medico, navigate]);
 
   if (!medico) return null;
 

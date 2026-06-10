@@ -1,9 +1,8 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { useRouter }           from 'next/navigation';
+import { useNavigate }         from 'react-router-dom';
 import { useMedico }           from '@/context/MedicoContext';
 import { getTurnosMedico }     from '@/lib/api';
+import { filtrarTurnos }       from '@/lib/turnos';
 import TarjetaTurnoMedico      from '@/components/medico/TarjetaTurnoMedico';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './Medico.module.css';
@@ -18,34 +17,30 @@ const FILTROS = [
 
 export default function MedicoTurnosPage() {
   const { medico, logout }       = useMedico();
-  const router                   = useRouter();
+  const navigate                 = useNavigate();
   const [filtro, setFiltro]      = useState('todos');
   const [turnos, setTurnos]      = useState([]);
   const [cargando, setCargando]  = useState(true);
   const [error, setError]        = useState('');
 
   useEffect(() => {
-    if (medico === null) { router.replace('/login'); return; }
+    if (medico === null) { navigate('/login', { replace: true }); return; }
     getTurnosMedico(medico.medico_id)
       .then(setTurnos)
       .catch((err) => {
         if (err.response?.status === 404) {
           logout();
-          router.replace('/login');
+          navigate('/login', { replace: true });
         } else {
           setError('No pudimos cargar los turnos. Intentá de nuevo.');
         }
       })
       .finally(() => setCargando(false));
-  }, [medico, router, logout]);
+  }, [medico, navigate, logout]);
 
   if (!medico) return null;
 
-  const turnosFiltrados = turnos.filter((t) => {
-    if (filtro === 'todos')    return true;
-    if (filtro === 'proximos') return ['reservado', 'pendiente_cambio', 'propuesta_medico'].includes(t.estado);
-    return t.estado === filtro;
-  });
+  const turnosFiltrados = filtrarTurnos(turnos, filtro);
 
   const handleActualizar = (turnoActualizado) =>
     setTurnos((prev) => prev.map((t) =>

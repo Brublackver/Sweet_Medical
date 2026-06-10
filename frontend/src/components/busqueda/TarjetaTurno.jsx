@@ -1,5 +1,3 @@
-'use client';
-
 import { useCarrito }      from '@/context/CarritoContext';
 import { CoberturasBadge } from '@/components/ui/Badge';
 import styles from './Busqueda.module.css';

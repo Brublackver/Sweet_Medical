@@ -1,18 +1,13 @@
-'use client';
-
 import { useState } from 'react';
 import {
   getPaciente, eliminarPaciente,
   agregarCoberturaEspecialidad, quitarCoberturaEspecialidad,
   agregarCoberturaPractica, quitarCoberturaPractica,
 } from '@/lib/api';
+import { cobValida } from '@/lib/adminUtils';
 import styles from '../AdminPage.module.css';
 
 const COBERTURA_VACIA = { codigo: '', nivel: '' };
-
-const cobValida = (f) =>
-  f.codigo.trim() && f.nivel !== '' &&
-  parseInt(f.nivel, 10) >= 0 && parseInt(f.nivel, 10) <= 100;
 
 export default function GestionarPacienteTab() {
   const [buscarId, setBuscarId]                   = useState('');
