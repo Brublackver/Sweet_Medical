@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n backend,frontend -c cyan,magenta \"node --watch backend/server.js\" \"vite --root frontend\"",
+    "dev": "concurrently -n backend,frontend -c cyan,magenta \"node --watch backend/server.js\" \"vite frontend\"",
     "start": "node backend/server.js",
-    "build": "vite build --root frontend",
-    "preview": "vite preview --root frontend",
+    "build": "vite build frontend",
+    "preview": "vite preview frontend",
     "lint": "eslint frontend/src",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "format": "prettier --write ."
