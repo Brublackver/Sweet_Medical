@@ -34,10 +34,12 @@ export default function Carousel({ children, ariaLabel = 'Lista deslizable' }) {
       setPuedeDerecha(track.scrollLeft + track.clientWidth < track.scrollWidth - 4);
     };
 
-    actualizarControles();
+    // rAF garantiza que el layout ya fue calculado antes de leer scrollWidth.
+    const rafId = requestAnimationFrame(actualizarControles);
     track.addEventListener('scroll', actualizarControles, { passive: true });
     window.addEventListener('resize', actualizarControles);
     return () => {
+      cancelAnimationFrame(rafId);
       track.removeEventListener('scroll', actualizarControles);
       window.removeEventListener('resize', actualizarControles);
     };

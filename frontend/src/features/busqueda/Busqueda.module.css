@@ -7,7 +7,7 @@
 
 .layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
 
-.results    { min-height: 25rem; }
+.results    { min-height: 25rem; min-width: 0; }
 .resultsList { display: flex; flex-direction: column; gap: 2rem; }
 
 .resultCount        { font-size: 0.875rem; color: #6b7280; margin-bottom: 1.5rem; }

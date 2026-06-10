@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
@@ -14,6 +15,9 @@ export default function Navbar() {
   const { items }                            = useCarrito();
   const router                               = useRouter();
   const pathname                             = usePathname();
+  const [mounted, setMounted]                = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   if (pathname === '/login') return null;
   if (pathname === '/admin') return null;
@@ -42,20 +46,20 @@ export default function Navbar() {
         </Link>
 
         <div className={styles.links}>
-          {(paciente || medico) && (
+          {mounted && (paciente || medico) && (
             <span className={styles.userName}>
               Hola, <strong>{paciente?.nombre ?? medico?.nombre}</strong>
               <span> {medico ? '(Médico)' : '(Paciente)'}</span>
             </span>
           )}
 
-          {paciente && navLink('/buscar',     '🔍 Buscar')}
-          {paciente && navLink('/mis-turnos', '📋 Mis turnos')}
+          {mounted && paciente && navLink('/buscar',     '🔍 Buscar')}
+          {mounted && paciente && navLink('/mis-turnos', '📋 Mis turnos')}
 
-          {medico && navLink('/medico/turnos',         '📋 Mis turnos')}
-          {medico && navLink('/medico/disponibilidad', '🗓 Disponibilidad')}
+          {mounted && medico && navLink('/medico/turnos',         '📋 Mis turnos')}
+          {mounted && medico && navLink('/medico/disponibilidad', '🗓 Disponibilidad')}
 
-          {paciente && (
+          {mounted && paciente && (
             <Link
               href="/solicitudes"
               aria-label={`Mis solicitudes: ${items.length} turnos`}
@@ -69,7 +73,7 @@ export default function Navbar() {
             </Link>
           )}
 
-          {(paciente || medico) && (
+          {mounted && (paciente || medico) && (
             <button onClick={handleLogout} className={styles.logoutBtn}>
               Salir
             </button>
