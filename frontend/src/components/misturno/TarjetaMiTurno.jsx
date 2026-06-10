@@ -7,7 +7,7 @@ import {
   rechazarPropuestaMedico,
   solicitarCambioFecha,
 } from '@/lib/api';
-import styles from './MisTurnos.module.css';
+import styles from '@/features/misturno/MisTurnos.module.css';
 
 export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
   const [cargando,       setCargando]       = useState(false);

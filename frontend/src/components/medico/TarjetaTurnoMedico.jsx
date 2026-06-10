@@ -8,7 +8,7 @@ import {
   confirmarCambioPaciente,
   rechazarCambioPaciente,
 } from '@/lib/api';
-import styles from './Medico.module.css';
+import styles from '@/features/medico/Medico.module.css';
 
 const yaPaso = (fecha, hora) => new Date(`${fecha}T${hora}:00`) <= new Date();
 

@@ -5,7 +5,7 @@ import {
   agregarCoberturaPractica, quitarCoberturaPractica,
 } from '@/lib/api';
 import { cobValida } from '@/lib/adminUtils';
-import styles from '../AdminPage.module.css';
+import styles from '@/features/admin/AdminPage.module.css';
 
 const COBERTURA_VACIA = { codigo: '', nivel: '' };
 

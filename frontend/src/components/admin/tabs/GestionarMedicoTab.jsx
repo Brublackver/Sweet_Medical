@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getMedico, agregarEspecialidadMedico, eliminarMedico } from '@/lib/api';
 import { espValida } from '@/lib/adminUtils';
-import styles from '../AdminPage.module.css';
+import styles from '@/features/admin/AdminPage.module.css';
 
 const ESPECIALIDAD_VACIA = { codigo: '', nombre: '', duracionTurnoEnMins: '', costo: '' };
 

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '@/context/AdminContext';
-import NuevoMedicoTab      from './tabs/NuevoMedicoTab';
-import GestionarMedicoTab  from './tabs/GestionarMedicoTab';
-import NuevoPacienteTab    from './tabs/NuevoPacienteTab';
-import GestionarPacienteTab from './tabs/GestionarPacienteTab';
+import NuevoMedicoTab       from '@/components/admin/tabs/NuevoMedicoTab';
+import GestionarMedicoTab   from '@/components/admin/tabs/GestionarMedicoTab';
+import NuevoPacienteTab     from '@/components/admin/tabs/NuevoPacienteTab';
+import GestionarPacienteTab from '@/components/admin/tabs/GestionarPacienteTab';
 import styles from './AdminPage.module.css';
 
 const TABS = [

@@ -1,6 +1,6 @@
 import { CoberturasBadge } from '@/components/ui/Badge';
 import { formatearFecha }  from '@/lib/fecha';
-import styles from './Carrito.module.css';
+import styles from '@/features/carrito/Carrito.module.css';
 
 export default function ItemCarrito({ item, onQuitar }) {
   return (

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { crearMedico, agregarEspecialidadMedico } from '@/lib/api';
 import { espValida } from '@/lib/adminUtils';
 import EspecialidadesEditor from '../editors/EspecialidadesEditor';
-import styles from '../AdminPage.module.css';
+import styles from '@/features/admin/AdminPage.module.css';
 
 const MEDICO_VACIO       = { usuario: '', nombre: '', matricula: '' };
 const ESPECIALIDAD_VACIA = { codigo: '', nombre: '', duracionTurnoEnMins: '', costo: '' };

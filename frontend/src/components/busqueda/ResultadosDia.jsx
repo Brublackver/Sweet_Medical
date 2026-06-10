@@ -1,6 +1,6 @@
 import TarjetaTurno       from './TarjetaTurno';
 import { formatearFecha } from '@/lib/fecha';
-import styles from './Busqueda.module.css';
+import styles from '@/features/busqueda/Busqueda.module.css';
 
 export default function ResultadosDia({ dia }) {
   return (

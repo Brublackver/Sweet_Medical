@@ -1,4 +1,4 @@
-import styles from '../AdminPage.module.css';
+import styles from '@/features/admin/AdminPage.module.css';
 
 export default function CoberturaEditor({ titulo, tipo, items, form, onFormChange, onAgregar, onQuitar, valida }) {
   const labelCodigo = tipo === 'especialidad' ? 'Cód. especialidad' : 'Cód. práctica';

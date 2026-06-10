@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './Busqueda.module.css';
+import styles from '@/features/busqueda/Busqueda.module.css';
 
 const hoy = () => new Date().toISOString().split('T')[0];
 const en30Dias = () => {

@@ -1,4 +1,4 @@
-import styles from '../AdminPage.module.css';
+import styles from '@/features/admin/AdminPage.module.css';
 
 export default function EspecialidadesEditor({ especialidades, espForm, onFormChange, onAgregar, onQuitar, espValida }) {
   return (

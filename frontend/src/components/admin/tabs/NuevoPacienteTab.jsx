@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { crearPaciente } from '@/lib/api';
 import { cobValida } from '@/lib/adminUtils';
 import CoberturaEditor from '../editors/CoberturaEditor';
-import styles from '../AdminPage.module.css';
+import styles from '@/features/admin/AdminPage.module.css';
 
 const PACIENTE_VACIO  = { usuario: '', dni: '', nombre: '', obraSocial: '', planNombre: '' };
 const COBERTURA_VACIA = { codigo: '', nivel: '' };

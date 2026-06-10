@@ -1,6 +1,6 @@
 import { useCarrito }      from '@/context/CarritoContext';
 import { CoberturasBadge } from '@/components/ui/Badge';
-import styles from './Busqueda.module.css';
+import styles from '@/features/busqueda/Busqueda.module.css';
 
 export default function TarjetaTurno({ turno, fecha }) {
   const { agregar, quitarTurno, estaAgregado } = useCarrito();

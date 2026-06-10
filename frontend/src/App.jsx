@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Providers          from '@/components/Providers';
 import Navbar             from '@/components/layout/Navbar';
-import LoginPage          from '@/components/login/LoginPage';
-import AdminPage          from '@/components/admin/AdminPage';
-import BuscarPage         from '@/components/busqueda/BuscarPage';
-import MisTurnosPage      from '@/components/misturno/MisTurnosPage';
-import CarritoPage        from '@/components/carrito/CarritoPage';
-import ConfirmacionPage   from '@/components/confirmacion/ConfirmacionPage';
-import DisponibilidadPage from '@/components/medico/DisponibilidadPage';
-import MedicoTurnosPage   from '@/components/medico/MedicoTurnosPage';
+import LoginPage          from '@/features/login/LoginPage';
+import AdminPage          from '@/features/admin/AdminPage';
+import BuscarPage         from '@/features/busqueda/BuscarPage';
+import MisTurnosPage      from '@/features/misturno/MisTurnosPage';
+import CarritoPage        from '@/features/carrito/CarritoPage';
+import ConfirmacionPage   from '@/features/confirmacion/ConfirmacionPage';
+import DisponibilidadPage from '@/features/medico/DisponibilidadPage';
+import MedicoTurnosPage   from '@/features/medico/MedicoTurnosPage';
 
 export default function App() {
   return (
