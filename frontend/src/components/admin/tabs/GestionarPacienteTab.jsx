@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  getPaciente, eliminarPaciente,
+  getPaciente, getAllPacientes, eliminarPaciente,
   agregarCoberturaEspecialidad, quitarCoberturaEspecialidad,
   agregarCoberturaPractica, quitarCoberturaPractica,
 } from '@/lib/api';
@@ -18,13 +18,18 @@ export default function GestionarPacienteTab() {
   const [cargando, setCargando]                   = useState(false);
   const [resultado, setResultado]                 = useState('');
   const [error, setError]                         = useState('');
+  const [pacientesLista, setPacientesLista]       = useState([]);
+
+  // Lista de pacientes para el selector (GetAll), así no hay que adivinar IDs.
+  useEffect(() => {
+    getAllPacientes().then(setPacientesLista).catch(() => {});
+  }, []);
 
   const mostrarError = (err, fallback) => setError(err.response?.data?.message || err.response?.data?.error || fallback);
   const mostrarExito = (msg) => { setResultado(msg); setError(''); };
 
-  const handleBuscar = (e) => {
-    e.preventDefault();
-    const id = parseInt(buscarId, 10);
+  const buscarPorId = (idRaw) => {
+    const id = parseInt(idRaw, 10);
     if (!id || id <= 0) { setError('Ingresá un ID válido.'); return; }
     setError('');
     setPaciente(null);
@@ -34,6 +39,17 @@ export default function GestionarPacienteTab() {
       .then((data) => setPaciente(data))
       .catch((err) => mostrarError(err, 'Paciente no encontrado.'))
       .finally(() => setCargando(false));
+  };
+
+  const handleBuscar = (e) => {
+    e.preventDefault();
+    buscarPorId(buscarId);
+  };
+
+  const handleSeleccion = (e) => {
+    const id = e.target.value;
+    setBuscarId(id);
+    if (id) buscarPorId(id);
   };
 
   const handleEliminar = () => {
@@ -107,9 +123,19 @@ export default function GestionarPacienteTab() {
       {resultado && <div className={styles.exito}><span>✅</span><span>{resultado}</span></div>}
       {error && <div className={styles.error}><span>⚠️</span><span>{error}</span></div>}
 
+      <div className={styles.campo}>
+        <label htmlFor="selector-paciente" className={styles.labelSm}>Seleccionar paciente</label>
+        <select id="selector-paciente" value={buscarId} onChange={handleSeleccion} className={styles.input}>
+          <option value="">— Elegí un paciente de la lista —</option>
+          {pacientesLista.map((p) => (
+            <option key={p.paciente_id} value={p.paciente_id}>{p.nombre} (#{p.paciente_id})</option>
+          ))}
+        </select>
+      </div>
+
       <form onSubmit={handleBuscar} noValidate className={styles.buscarRow}>
         <input type="number" min="1" value={buscarId} className={styles.input}
-          placeholder="ID del paciente"
+          placeholder="…o ingresá el ID a mano"
           onChange={(e) => { setBuscarId(e.target.value); setError(''); setPaciente(null); }} />
         <button type="submit" className={styles.buscarBtn} disabled={cargando || !buscarId.trim()}>
           {cargando ? '...' : 'Buscar'}

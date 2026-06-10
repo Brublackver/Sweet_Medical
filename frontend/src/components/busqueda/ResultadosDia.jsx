@@ -1,4 +1,5 @@
 import TarjetaTurno       from './TarjetaTurno';
+import Carousel           from '@/components/ui/Carousel';
 import { formatearFecha } from '@/lib/fecha';
 import styles from '@/features/busqueda/Busqueda.module.css';
 
@@ -12,7 +13,7 @@ export default function ResultadosDia({ dia }) {
         </span>
       </div>
 
-      <div className={styles.diaGrid}>
+      <Carousel ariaLabel={`Turnos disponibles del ${formatearFecha(dia.fecha)}`}>
         {dia.turnos.map((turno, i) => (
           <TarjetaTurno
             key={`${turno.medico.id}-${turno.hora}-${turno.servicio.id}-${i}`}
@@ -20,7 +21,7 @@ export default function ResultadosDia({ dia }) {
             fecha={dia.fecha}
           />
         ))}
-      </div>
+      </Carousel>
     </section>
   );
 }

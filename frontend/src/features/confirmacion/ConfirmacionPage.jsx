@@ -1,5 +1,7 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link            from 'next/link';
+import { useRouter }   from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useCarrito }  from '@/context/CarritoContext';
 import { reservarTurno }    from '@/lib/api';
@@ -10,16 +12,16 @@ import styles from './Confirmacion.module.css';
 export default function ConfirmacionPage() {
   const { paciente }              = usePaciente();
   const { items, vaciar }         = useCarrito();
-  const navigate                  = useNavigate();
+  const router                    = useRouter();
   const [confirmado, setConfirmado] = useState(false);
   const [cargando, setCargando]     = useState(false);
   const [turnosConfirmados, setTurnosConfirmados] = useState([]);
   const [errores, setErrores]       = useState([]);
 
   useEffect(() => {
-    if (paciente === null) { navigate('/login', { replace: true }); return; }
-    if (!confirmado && items.length === 0) navigate('/solicitudes', { replace: true });
-  }, [paciente, items, confirmado, navigate]);
+    if (paciente === null) { router.replace('/login'); return; }
+    if (!confirmado && items.length === 0) router.replace('/solicitudes');
+  }, [paciente, items, confirmado, router]);
 
   if (!paciente) return null;
 
@@ -100,10 +102,10 @@ export default function ConfirmacionPage() {
           )}
 
           <div className={styles.successAcciones}>
-            <Link to="/mis-turnos" className={styles.successPrimaryLink}>
+            <Link href="/mis-turnos" className={styles.successPrimaryLink}>
               Ver mis turnos
             </Link>
-            <Link to="/buscar" className={styles.successSecondaryLink}>
+            <Link href="/buscar" className={styles.successSecondaryLink}>
               Buscar más turnos
             </Link>
           </div>
@@ -174,7 +176,7 @@ export default function ConfirmacionPage() {
             </>
           ) : 'Confirmar solicitud'}
         </button>
-        <Link to="/solicitudes" className={styles.volverLink}>
+        <Link href="/solicitudes" className={styles.volverLink}>
           Volver a mis solicitudes
         </Link>
       </div>

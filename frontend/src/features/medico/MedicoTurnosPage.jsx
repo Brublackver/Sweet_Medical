@@ -1,9 +1,11 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { useNavigate }         from 'react-router-dom';
+import { useRouter }           from 'next/navigation';
 import { useMedico }           from '@/context/MedicoContext';
 import { getTurnosMedico }     from '@/lib/api';
 import { filtrarTurnos }       from '@/lib/turnos';
 import TarjetaTurnoMedico      from '@/components/medico/TarjetaTurnoMedico';
+import Carousel                from '@/components/ui/Carousel';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './Medico.module.css';
 
@@ -17,26 +19,26 @@ const FILTROS = [
 
 export default function MedicoTurnosPage() {
   const { medico, logout }       = useMedico();
-  const navigate                 = useNavigate();
+  const router                   = useRouter();
   const [filtro, setFiltro]      = useState('todos');
   const [turnos, setTurnos]      = useState([]);
   const [cargando, setCargando]  = useState(true);
   const [error, setError]        = useState('');
 
   useEffect(() => {
-    if (medico === null) { navigate('/login', { replace: true }); return; }
+    if (medico === null) { router.replace('/login'); return; }
     getTurnosMedico(medico.medico_id)
       .then(setTurnos)
       .catch((err) => {
         if (err.response?.status === 404) {
           logout();
-          navigate('/login', { replace: true });
+          router.replace('/login');
         } else {
           setError('No pudimos cargar los turnos. Intentá de nuevo.');
         }
       })
       .finally(() => setCargando(false));
-  }, [medico, navigate, logout]);
+  }, [medico, router, logout]);
 
   if (!medico) return null;
 
@@ -86,7 +88,7 @@ export default function MedicoTurnosPage() {
       )}
 
       {!cargando && !error && turnosFiltrados.length > 0 && (
-        <div className={styles.lista}>
+        <Carousel ariaLabel="Turnos del médico">
           {turnosFiltrados.map((turno) => (
             <TarjetaTurnoMedico
               key={turno.turno_id}
@@ -95,7 +97,7 @@ export default function MedicoTurnosPage() {
               onActualizar={handleActualizar}
             />
           ))}
-        </div>
+        </Carousel>
       )}
     </div>
   );

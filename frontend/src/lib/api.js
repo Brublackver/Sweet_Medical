@@ -1,11 +1,21 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
 });
 
 export const getPaciente = (id) =>
   api.get(`/paciente/${id}`).then((r) => r.data.data);
+
+// --- Listados (GetAll) -----------------------------------------------------
+export const getAllMedicos = () =>
+  api.get('/medico').then((r) => r.data.data);
+
+export const getAllPacientes = () =>
+  api.get('/paciente').then((r) => r.data.data);
+
+export const getAllSedes = () =>
+  api.get('/sede').then((r) => r.data.data);
 
 export const buscarTurnos = (params) =>
   api.get('/turno/buscar', { params }).then((r) => r.data.data);

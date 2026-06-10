@@ -1,18 +1,21 @@
+'use client';
 import { useEffect }   from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link            from 'next/link';
+import { useRouter }   from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useCarrito }  from '@/context/CarritoContext';
 import ItemCarrito     from '@/components/carrito/ItemCarrito';
+import Carousel        from '@/components/ui/Carousel';
 import styles from './Carrito.module.css';
 
 export default function CarritoPage() {
   const { paciente }              = usePaciente();
   const { items, quitar, vaciar } = useCarrito();
-  const navigate                  = useNavigate();
+  const router                    = useRouter();
 
   useEffect(() => {
-    if (paciente === null) navigate('/login', { replace: true });
-  }, [paciente, navigate]);
+    if (paciente === null) router.replace('/login');
+  }, [paciente, router]);
 
   if (!paciente) return null;
 
@@ -47,17 +50,17 @@ export default function CarritoPage() {
           <p className={styles.emptyText}>
             Buscá turnos disponibles y agregálos a tus solicitudes.
           </p>
-          <Link to="/buscar" className={styles.buscarLink}>
+          <Link href="/buscar" className={styles.buscarLink}>
             Buscar turnos
           </Link>
         </div>
       ) : (
         <div>
-          <div className={styles.lista}>
+          <Carousel ariaLabel="Turnos en tu lista de solicitudes">
             {items.map((item) => (
               <ItemCarrito key={item.key} item={item} onQuitar={() => quitar(item.key)} />
             ))}
-          </div>
+          </Carousel>
 
           <div className={styles.resumen}>
             <div className={styles.resumenInner}>
@@ -70,11 +73,11 @@ export default function CarritoPage() {
                   El monto puede variar según tu cobertura al momento de la consulta.
                 </p>
               </div>
-              <Link to="/buscar" className={styles.seguirLink}>
+              <Link href="/buscar" className={styles.seguirLink}>
                 Seguir buscando turnos
               </Link>
             </div>
-            <Link to="/confirmar" className={styles.confirmarLink}>
+            <Link href="/confirmar" className={styles.confirmarLink}>
               Confirmar solicitud →
             </Link>
           </div>

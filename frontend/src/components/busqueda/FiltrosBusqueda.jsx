@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getAllSedes, getAllMedicos } from '@/lib/api';
 import styles from '@/features/busqueda/Busqueda.module.css';
 
 const hoy = () => new Date().toISOString().split('T')[0];
@@ -20,6 +21,15 @@ const initialState = () => ({
 
 export default function FiltrosBusqueda({ onBuscar, cargando }) {
   const [filtros, setFiltros] = useState(initialState);
+  const [sedes, setSedes]     = useState([]);
+  const [medicos, setMedicos] = useState([]);
+
+  // Poblamos los selectores con datos reales del backend (GetAll).
+  // Si falla la carga, los selectores quedan solo con la opción "Todas/Todos".
+  useEffect(() => {
+    getAllSedes().then(setSedes).catch(() => {});
+    getAllMedicos().then(setMedicos).catch(() => {});
+  }, []);
 
   const set = (campo) => (e) =>
     setFiltros((prev) => ({ ...prev, [campo]: e.target.value }));
@@ -41,8 +51,25 @@ export default function FiltrosBusqueda({ onBuscar, cargando }) {
       <div className={styles.filtrosFields}>
         <Campo id="especialidad" label="Especialidad" placeholder="Ej: Cardiología"        value={filtros.especialidad} onChange={set('especialidad')} />
         <Campo id="practica"     label="Práctica"     placeholder="Ej: Electrocardiograma" value={filtros.practica}     onChange={set('practica')} />
-        <Campo id="sede"         label="Sede"         placeholder="Ej: Sede Centro"         value={filtros.sede}         onChange={set('sede')} />
-        <Campo id="medicoId"     label="ID Médico"    placeholder="Opcional"                value={filtros.medicoId}     onChange={set('medicoId')} type="number" />
+        <div className={styles.campo}>
+          <label htmlFor="sede" className={styles.campoLabel}>Sede</label>
+          <select id="sede" value={filtros.sede} onChange={set('sede')} className={styles.campoSelect}>
+            <option value="">Todas las sedes</option>
+            {sedes.map((s) => (
+              <option key={s.sede_id} value={s.nombre}>{s.nombre}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.campo}>
+          <label htmlFor="medicoId" className={styles.campoLabel}>Médico</label>
+          <select id="medicoId" value={filtros.medicoId} onChange={set('medicoId')} className={styles.campoSelect}>
+            <option value="">Todos los médicos</option>
+            {medicos.map((m) => (
+              <option key={m.medico_id} value={m.medico_id}>{m.nombre}</option>
+            ))}
+          </select>
+        </div>
 
         <div className={styles.campo}>
           <label htmlFor="fechaDesde" className={styles.campoLabel}>Desde</label>

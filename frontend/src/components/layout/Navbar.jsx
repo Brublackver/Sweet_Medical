@@ -1,4 +1,6 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+'use client';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useMedico }   from '@/context/MedicoContext';
 import { useAdmin }    from '@/context/AdminContext';
@@ -10,8 +12,8 @@ export default function Navbar() {
   const { medico,   logout: logoutMedico }   = useMedico();
   const { admin,    logout: logoutAdmin }    = useAdmin();
   const { items }                            = useCarrito();
-  const navigate                             = useNavigate();
-  const { pathname }                         = useLocation();
+  const router                               = useRouter();
+  const pathname                             = usePathname();
 
   if (pathname === '/login') return null;
   if (pathname === '/admin') return null;
@@ -20,12 +22,12 @@ export default function Navbar() {
     if (paciente) logoutPaciente();
     if (medico)   logoutMedico();
     if (admin)    logoutAdmin();
-    navigate('/login');
+    router.push('/login');
   };
 
   const navLink = (href, label) => (
     <Link
-      to={href}
+      href={href}
       className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ''}`}
     >
       {label}
@@ -35,7 +37,7 @@ export default function Navbar() {
   return (
     <nav className={styles.nav}>
       <div className={styles.inner}>
-        <Link to={medico ? '/medico/turnos' : '/buscar'} className={styles.logo}>
+        <Link href={medico ? '/medico/turnos' : '/buscar'} className={styles.logo}>
           🏥 <span>Sweet Medical</span>
         </Link>
 
@@ -55,7 +57,7 @@ export default function Navbar() {
 
           {paciente && (
             <Link
-              to="/solicitudes"
+              href="/solicitudes"
               aria-label={`Mis solicitudes: ${items.length} turnos`}
               className={styles.carritoBtn}
             >

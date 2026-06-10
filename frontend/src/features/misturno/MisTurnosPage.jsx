@@ -1,9 +1,12 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { Link, useNavigate }   from 'react-router-dom';
+import Link                    from 'next/link';
+import { useRouter }           from 'next/navigation';
 import { usePaciente }         from '@/context/PacienteContext';
 import { getTurnosPaciente, getMedico } from '@/lib/api';
 import { filtrarTurnos }       from '@/lib/turnos';
 import TarjetaMiTurno          from '@/components/misturno/TarjetaMiTurno';
+import Carousel                from '@/components/ui/Carousel';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './MisTurnos.module.css';
 
@@ -44,14 +47,14 @@ const mapTurno = (t) => ({
 
 export default function MisTurnosPage() {
   const { paciente, logout }      = usePaciente();
-  const navigate                  = useNavigate();
+  const router                    = useRouter();
   const [filtro, setFiltro]       = useState('todos');
   const [turnos, setTurnos]       = useState([]);
   const [cargando, setCargando]   = useState(true);
   const [error, setError]         = useState('');
 
   useEffect(() => {
-    if (paciente === null) { navigate('/login', { replace: true }); return; }
+    if (paciente === null) { router.replace('/login'); return; }
 
     getTurnosPaciente(paciente.paciente_id)
       .then((turnos) => {
@@ -81,13 +84,13 @@ export default function MisTurnosPage() {
       .catch((err) => {
         if (err.response?.status === 404) {
           logout();
-          navigate('/login', { replace: true });
+          router.replace('/login');
         } else {
           setError('No pudimos cargar tus turnos. Intentá de nuevo.');
         }
       })
       .finally(() => setCargando(false));
-  }, [paciente, navigate, logout]);
+  }, [paciente, router, logout]);
 
   if (!paciente) return null;
 
@@ -134,7 +137,7 @@ export default function MisTurnosPage() {
               : 'Probá con otro filtro.'}
           </p>
           {(filtro === 'proximos' || turnos.length === 0) && (
-            <Link to="/buscar" className={styles.buscarLink}>
+            <Link href="/buscar" className={styles.buscarLink}>
               🔍 Buscar turnos
             </Link>
           )}
@@ -142,21 +145,20 @@ export default function MisTurnosPage() {
       )}
 
       {!cargando && !error && turnosFiltrados.length > 0 && (
-        <div className={styles.lista} role="list">
+        <Carousel ariaLabel="Tus turnos">
           {turnosFiltrados.map((turno) => (
-            <div key={turno.id} role="listitem">
-              <TarjetaMiTurno
-                turno={turno}
-                pacienteId={paciente.paciente_id}
-                onActualizar={(turnoActualizado) =>
-                  setTurnos((prev) => prev.map((t) =>
-                    t.id === turnoActualizado.turno_id ? mapTurno(turnoActualizado) : t
-                  ))
-                }
-              />
-            </div>
+            <TarjetaMiTurno
+              key={turno.id}
+              turno={turno}
+              pacienteId={paciente.paciente_id}
+              onActualizar={(turnoActualizado) =>
+                setTurnos((prev) => prev.map((t) =>
+                  t.id === turnoActualizado.turno_id ? mapTurno(turnoActualizado) : t
+                ))
+              }
+            />
           ))}
-        </div>
+        </Carousel>
       )}
     </div>
   );

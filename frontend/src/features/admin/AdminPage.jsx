@@ -1,5 +1,6 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAdmin } from '@/context/AdminContext';
 import NuevoMedicoTab       from '@/components/admin/tabs/NuevoMedicoTab';
 import GestionarMedicoTab   from '@/components/admin/tabs/GestionarMedicoTab';
@@ -16,12 +17,12 @@ const TABS = [
 
 export default function AdminPage() {
   const { admin, logout } = useAdmin();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [seccion, setSeccion] = useState('nuevo-medico');
 
   useEffect(() => {
-    if (!admin) navigate('/login', { replace: true });
-  }, [admin, navigate]);
+    if (!admin) router.replace('/login');
+  }, [admin, router]);
 
   if (!admin) return null;
 
@@ -32,7 +33,7 @@ export default function AdminPage() {
           <span className={styles.headerLogo}>🏥 Sweet Medical</span>
           <div className={styles.headerRight}>
             <span className={styles.adminTag}>🔐 Administrador</span>
-            <button onClick={() => { logout(); navigate('/login'); }} className={styles.logoutBtn}>Salir</button>
+            <button onClick={() => { logout(); router.push('/login'); }} className={styles.logoutBtn}>Salir</button>
           </div>
         </div>
       </header>

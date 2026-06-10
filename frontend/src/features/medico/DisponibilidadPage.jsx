@@ -1,13 +1,15 @@
+'use client';
 import { useState, useEffect }  from 'react';
-import { useNavigate }          from 'react-router-dom';
+import { useRouter }            from 'next/navigation';
 import { useMedico }            from '@/context/MedicoContext';
+import Carousel                  from '@/components/ui/Carousel';
 import { formatearFechaConAnio } from '@/lib/fecha';
-import { getDisponibilidad, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
+import { getMedico, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
 import styles from './Medico.module.css';
 
 export default function DisponibilidadPage() {
   const { medico }                     = useMedico();
-  const navigate                       = useNavigate();
+  const router                         = useRouter();
   const [disponibilidades, setDisponibilidades] = useState([]);
   const [cargando,  setCargando]       = useState(true);
   const [error,     setError]          = useState('');
@@ -19,13 +21,17 @@ export default function DisponibilidadPage() {
   const [horaHasta, setHoraHasta]      = useState('');
 
   useEffect(() => {
-    if (medico === null) { navigate('/login', { replace: true }); return; }
+    if (medico === null) { router.replace('/login'); return; }
     if (!medico) return;
-    getDisponibilidad(medico.medico_id)
-      .then(setDisponibilidades)
+    // Usamos getMedico porque su campo `disponibilidades` es un array CON
+    // disponibilidad_id (igual que devuelve el POST al crear una). El endpoint
+    // GET /disponibilidad devuelve un objeto indexado por fecha y sin id, que
+    // no sirve para listar ni para eliminar.
+    getMedico(medico.medico_id)
+      .then((m) => setDisponibilidades(m.disponibilidades ?? []))
       .catch(() => setError('No pudimos cargar la disponibilidad.'))
       .finally(() => setCargando(false));
-  }, [medico, navigate]);
+  }, [medico, router]);
 
   if (!medico) return null;
 
@@ -119,7 +125,7 @@ export default function DisponibilidadPage() {
       )}
 
       {!cargando && disponibilidades.length > 0 && (
-        <div className={styles.dispLista}>
+        <Carousel ariaLabel="Disponibilidades cargadas">
           {disponibilidades
             .slice()
             .sort((a, b) => a.fecha.localeCompare(b.fecha))
@@ -138,7 +144,7 @@ export default function DisponibilidadPage() {
                 </button>
               </div>
             ))}
-        </div>
+        </Carousel>
       )}
     </div>
   );
