@@ -8,9 +8,10 @@ const CarritoContext = createContext(null);
 const computarSlotKey = (turno) =>
   `${turno.medico.id}-${turno.fecha}-${turno.hora}`;
 
-// Identifica el ítem exacto (incluye servicio) para saber qué card mostrar seleccionada.
+// Identifica el ítem exacto. Usa tipo+codigo porque el id de especialidades y prácticas
+// son contadores independientes (ambos empiezan en 1), por lo que id solo no es único.
 const computarItemKey = (turno) =>
-  `${turno.medico.id}-${turno.fecha}-${turno.hora}-${turno.servicio?.id ?? ''}`;
+  `${turno.medico.id}-${turno.fecha}-${turno.hora}-${turno.servicio?.tipo ?? ''}-${turno.servicio?.codigo ?? ''}`;
 
 export function CarritoProvider({ children }) {
   const [items, setItems] = useState([]);
