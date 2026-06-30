@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/navigation';
 import Link                     from 'next/link';
 import CampoPassword            from '@/components/ui/CampoPassword';
+import AuthSidePanel             from '@/components/auth/AuthSidePanel';
 import { usePaciente }           from '@/context/PacienteContext';
 import { registrarPaciente, getAllObrasSociales, guardarToken } from '@/lib/api';
 import styles from '@/features/login/Login.module.css';
@@ -114,32 +115,14 @@ export default function RegistroPage() {
   return (
     <div className={styles.page}>
 
-      <div className={styles.leftPanel}>
-        <div className={styles.leftBg} />
-        <div className={styles.leftTop}>
-          <div className={styles.leftLogo}>🏥</div>
-          <h1 className={styles.leftTitle}>Sweet Medical</h1>
-          <p className={styles.leftSubtitle}>Creá tu cuenta y empezá a reservar turnos</p>
-        </div>
-
-        <div className={styles.features}>
-          {[
-            { icon: '📅', titulo: 'Turnos online',  desc: 'Reservá desde cualquier lugar, en cualquier momento.' },
-            { icon: '🩺', titulo: 'Tu salud, simple', desc: 'Gestioná tus turnos y tu historial en un solo lugar.' },
-            { icon: '🔔', titulo: 'Seguimiento',    desc: 'Confirmaciones y cambios de fecha en tiempo real.' },
-          ].map(({ icon, titulo, desc }) => (
-            <div key={titulo} className={styles.feature}>
-              <span className={styles.featureIcon}>{icon}</span>
-              <div>
-                <p className={styles.featureTitle}>{titulo}</p>
-                <p className={styles.featureDesc}>{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className={styles.leftFooter}>© 2026 Sweet Medical</p>
-      </div>
+      <AuthSidePanel
+        subtitle="Creá tu cuenta y empezá a reservar turnos"
+        features={[
+          { icon: '📅', titulo: 'Turnos online',   desc: 'Reservá desde cualquier lugar, en cualquier momento.' },
+          { icon: '🩺', titulo: 'Tu salud, simple', desc: 'Gestioná tus turnos y tu historial en un solo lugar.' },
+          { icon: '🔔', titulo: 'Seguimiento',     desc: 'Confirmaciones y cambios de fecha en tiempo real.' },
+        ]}
+      />
 
       <div className={styles.rightPanel}>
         <div className={styles.formWrapper}>
