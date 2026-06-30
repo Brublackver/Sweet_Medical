@@ -82,7 +82,7 @@ export default function ConfirmacionPage() {
                   <div className={styles.successItemInfo}>
                     <p className={styles.successItemNombre}>{item.servicio.nombre}</p>
                     <p className={styles.successItemDetalle}>
-                      {formatearFecha(item.fecha)} — {item.hora} hs · Dr/a. {item.medico.nombre}
+                      {formatearFecha(item.fecha)} — {item.hora} hs · {item.medico.nombre}
                     </p>
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export default function ConfirmacionPage() {
                 <CoberturasBadge cobertura={item.cobertura} />
               </div>
               <p className={styles.itemFecha}>{formatearFecha(item.fecha)}</p>
-              <p className={styles.itemMedico}>Dr/a. {item.medico.nombre} · {item.sedes?.[0]?.nombre}</p>
+              <p className={styles.itemMedico}>{item.medico.nombre} · {item.sedes?.[0]?.nombre}</p>
             </div>
             <div className={styles.itemPrecio}>
               {item.montoAbonar === 0

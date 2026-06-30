@@ -53,20 +53,20 @@
 }
 .tarjeta:hover { box-shadow: 0 4px 16px rgba(15, 118, 110, 0.10); transform: translateY(-1px); }
 
-.tarjetaBody { display: flex; flex-direction: column; gap: 1rem; }
+.tarjetaBody { display: flex; flex-direction: row; align-items: flex-start; gap: 0.75rem; }
 
-.tarjetaHora  { flex-shrink: 0; text-align: center; }
-.horaNum      { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
-.horaFecha    { font-size: 0.75rem; color: #94a3b8; margin-top: 0.125rem; text-transform: capitalize; }
+.tarjetaHora  { flex-shrink: 0; text-align: left; width: 4.5rem; }
+.horaNum      { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+.horaFecha    { font-size: 0.7rem; color: #94a3b8; margin-top: 0.125rem; text-transform: capitalize; }
 
 .tarjetaInfo        { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5rem; }
 .tarjetaBadges      { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-.tarjetaNombre      { font-weight: 600; color: #0f172a; }
-.tarjetaFechaLarga  { font-size: 0.875rem; color: #334155; text-transform: capitalize; }
-.tarjetaDetalle     { font-size: 0.875rem; color: #475569; display: flex; flex-direction: column; gap: 0.125rem; }
+.tarjetaNombre      { font-weight: 600; color: #0f172a; font-size: 0.9375rem; }
+.tarjetaFechaLarga  { font-size: 0.8125rem; color: #334155; text-transform: capitalize; }
+.tarjetaDetalle     { font-size: 0.8125rem; color: #475569; display: flex; flex-direction: column; gap: 0.125rem; }
 .tarjetaSecundario  { color: #94a3b8; }
 
-.tarjetaPrecio { flex-shrink: 0; }
+.tarjetaPrecio { flex-shrink: 0; text-align: right; }
 .precioGratis  { color: #16a34a; font-weight: 700; font-size: 0.875rem; }
 .precioMonto   { color: #0f172a; font-weight: 700; font-size: 0.875rem; }
 
@@ -137,8 +137,11 @@
 }
 
 @media (min-width: 640px) {
-  .tarjetaBody      { flex-direction: row; align-items: flex-start; }
-  .tarjetaHora      { text-align: left; width: 7rem; }
-  .tarjetaPrecio    { text-align: right; }
+  .tarjetaHora  { width: 6rem; }
+  .horaNum      { font-size: 1.5rem; }
+  .horaFecha    { font-size: 0.75rem; }
+  .tarjetaNombre      { font-size: 1rem; }
+  .tarjetaFechaLarga  { font-size: 0.875rem; }
+  .tarjetaDetalle     { font-size: 0.875rem; }
   .formCambioInputs { flex-direction: row; }
 }

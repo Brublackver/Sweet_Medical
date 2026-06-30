@@ -62,7 +62,7 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
           </div>
           <p className={styles.tarjetaFechaLarga}>{formatearFechaConAnio(turno.fecha)} · {turno.hora} hs</p>
           <div className={styles.tarjetaDetalle}>
-            <p>👨‍⚕️ Dr/a. {turno.medico.nombre} <span className={styles.tarjetaSecundario}>(Mat. {turno.medico.matricula})</span></p>
+            <p>👨‍⚕️ {turno.medico.nombre} <span className={styles.tarjetaSecundario}>(Mat. {turno.medico.matricula})</span></p>
             <p>⏱ Duración: {turno.duracion} min</p>
             {turno.sede && <p>📍 {turno.sede}</p>}
           </div>

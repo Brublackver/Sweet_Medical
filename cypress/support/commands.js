@@ -1,8 +1,8 @@
 // cy.loginPaciente(usuario, password) — llena el formulario de login como paciente
 Cypress.Commands.add('loginPaciente', (usuario = 'juantest', password = '1234') => {
   cy.visit('/login');
-  cy.get('select').first().select('paciente');
-  cy.get('input[type="text"], input[placeholder*="suario"], input[id="usuario"]').first().type(usuario);
+  cy.get('[aria-label="Tipo de usuario"]').contains('button', 'Paciente').click();
+  cy.get('input[id="usuario"]').type(usuario);
   cy.get('input[type="password"]').first().type(password);
   cy.get('button[type="submit"]').click();
 });
@@ -10,7 +10,7 @@ Cypress.Commands.add('loginPaciente', (usuario = 'juantest', password = '1234') 
 // cy.loginAdmin(password) — login como administrador
 Cypress.Commands.add('loginAdmin', (password = '123456') => {
   cy.visit('/login');
-  cy.get('select').first().select('admin');
+  cy.get('[aria-label="Tipo de usuario"]').contains('button', 'Admin').click();
   cy.get('input[type="password"]').first().type(password);
   cy.get('button[type="submit"]').click();
 });

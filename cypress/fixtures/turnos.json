@@ -5,34 +5,20 @@
       "fecha": "2030-12-15",
       "turnos": [
         {
-          "turno_id": 101,
-          "medico_id": 1,
-          "fecha": "2030-12-15",
-          "hora": "09:00",
-          "duracion": 30,
-          "especialidad": "Cardiología",
-          "tipo": "especialidad",
-          "medico": "Dr. García",
-          "matricula": "M12345",
-          "sede": "Sede Central",
-          "direccion": "Av. Corrientes 1234",
-          "precio": 5000,
-          "precioConCobertura": 1000
+          "medico":   { "id": 1, "nombre": "Dr. García", "matricula": "M12345" },
+          "servicio": { "id": "esp-1", "codigo": "CARD", "nombre": "Cardiología", "duracionTurnoEnMins": 30, "costo": 5000, "tipo": "especialidad" },
+          "hora":     "09:00",
+          "sedes":    [{ "nombre": "Sede Central", "direccion": "Av. Corrientes 1234" }],
+          "cobertura":    "PARCIAL",
+          "montoAbonar":  1000
         },
         {
-          "turno_id": 102,
-          "medico_id": 1,
-          "fecha": "2030-12-15",
-          "hora": "09:30",
-          "duracion": 30,
-          "especialidad": "Cardiología",
-          "tipo": "especialidad",
-          "medico": "Dr. García",
-          "matricula": "M12345",
-          "sede": "Sede Central",
-          "direccion": "Av. Corrientes 1234",
-          "precio": 5000,
-          "precioConCobertura": 1000
+          "medico":   { "id": 1, "nombre": "Dr. García", "matricula": "M12345" },
+          "servicio": { "id": "esp-1", "codigo": "CARD", "nombre": "Cardiología", "duracionTurnoEnMins": 30, "costo": 5000, "tipo": "especialidad" },
+          "hora":     "09:30",
+          "sedes":    [{ "nombre": "Sede Central", "direccion": "Av. Corrientes 1234" }],
+          "cobertura":    "PARCIAL",
+          "montoAbonar":  1000
         }
       ]
     }

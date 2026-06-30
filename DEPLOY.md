@@ -1,195 +1,78 @@
 # Guía de Despliegue — Sweet Medical
 
-## Arquitectura en producción
+## Arquitectura
 
 ```
-Usuario
-  │
-  ▼
-Netlify (Frontend — Next.js)
-  │  NEXT_PUBLIC_API_URL
-  ▼
-Railway (Backend — Node.js / Express)
-  │  MONGODB_URI
-  ▼
-MongoDB Atlas (Base de datos)
+Usuario → Railway (Frontend Next.js) → Railway (Backend Express) → MongoDB Atlas
 ```
+
+Ambos servicios están desplegados en Railway como dos servicios separados dentro del mismo proyecto.
 
 ---
 
 ## Variables de entorno
 
-### Backend (Railway)
+### Backend
+| Variable | Descripción |
+|---|---|
+| `MONGODB_URI` | Connection string de MongoDB Atlas |
+| `JWT_SECRET` | Clave para firmar tokens JWT |
+| `ADMIN_PASSWORD` | Contraseña del administrador |
 
-| Variable | Descripción | Ejemplo |
-|---|---|---|
-| `MONGODB_URI` | Conexión a MongoDB Atlas | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
-| `JWT_SECRET` | Clave para firmar tokens JWT (obligatorio en prod) | `una-clave-larga-y-aleatoria` |
-| `ADMIN_PASSWORD` | Contraseña del administrador | `admin-seguro-2024` |
-| `PORT` | Railway lo setea automáticamente | `3000` |
-
-### Frontend (Netlify)
-
-| Variable | Descripción | Ejemplo |
-|---|---|---|
-| `NEXT_PUBLIC_API_URL` | URL pública del backend en Railway | `https://sweet-medical.up.railway.app` |
+### Frontend
+| Variable | Descripción |
+|---|---|
+| `BACKEND_URL` | URL pública del servicio backend en Railway |
 
 ---
 
 ## Primer despliegue
 
-### Paso 1 — MongoDB Atlas (base de datos)
+### 1. MongoDB Atlas
+1. Crear cuenta en [mongodb.com/atlas](https://www.mongodb.com/atlas) y crear un cluster M0 (gratuito).
+2. **Database Access** → crear usuario con contraseña.
+3. **Network Access** → agregar `0.0.0.0/0`.
+4. Copiar la connection string (`mongodb+srv://...`).
 
-> Si ya tenés la URI de Atlas configurada en `.env`, este paso ya está hecho.
+### 2. Railway — Backend
+1. Crear cuenta en [railway.app](https://railway.app) y crear un nuevo proyecto.
+2. **New Service → GitHub repo** → seleccionar el repositorio.
+3. **Settings → Build** → comando de inicio: `node backend/server.js`.
+4. **Variables** → agregar `MONGODB_URI`, `JWT_SECRET` y `ADMIN_PASSWORD`.
+5. **Settings → Networking** → generar dominio público y copiarlo.
+6. Verificar: `GET https://<url-backend>/healthcheck` → `{ "status": "ok" }`.
 
-1. Ir a [mongodb.com/atlas](https://www.mongodb.com/atlas) y crear una cuenta gratuita.
-2. Crear un **Cluster** (la opción M0 Free es suficiente).
-3. En **Database Access** → crear un usuario con contraseña.
-4. En **Network Access** → agregar `0.0.0.0/0` para permitir acceso desde Railway/Netlify.
-5. Copiar la **Connection String** (formato `mongodb+srv://...`).
-
----
-
-### Paso 2 — Railway (Backend)
-
-1. Ir a [railway.app](https://railway.app) y crear una cuenta (puede usarse con GitHub).
-
-2. Crear un nuevo proyecto: **New Project → Deploy from GitHub repo**.
-
-3. Seleccionar el repositorio `2026-1c-backend-mn-grupo-02-v2`.
-
-4. Railway detecta el `Dockerfile` automáticamente. Verificar que el comando de inicio sea:
-   ```
-   node backend/server.js
-   ```
-
-5. En la pestaña **Variables**, agregar las variables de entorno del backend:
-   ```
-   MONGODB_URI   = <tu connection string de Atlas>
-   JWT_SECRET    = <clave secreta larga y aleatoria>
-   ADMIN_PASSWORD = <contraseña del admin>
-   ```
-
-6. Hacer clic en **Deploy**. Railway construye la imagen Docker y despliega.
-
-7. Una vez desplegado, ir a **Settings → Networking → Public domain** y copiar la URL pública. Tiene el formato:
-   ```
-   https://sweet-medical-production.up.railway.app
-   ```
-   Guardar esta URL — la necesitamos para el paso 3.
-
-8. Verificar que el backend está funcionando:
-   ```
-   GET https://<tu-url>.up.railway.app/healthcheck
-   → { "status": "ok" }
-   ```
+### 3. Railway — Frontend
+1. En el mismo proyecto: **New Service → GitHub repo** (mismo repositorio).
+2. **Settings → Build** → comando de inicio: `npm run start:front`.
+3. **Variables** → agregar `BACKEND_URL = https://<url-backend>`.
+4. Generar dominio público y verificar abriendo el browser.
 
 ---
 
-### Paso 3 — Netlify (Frontend)
+## Nueva release
 
-1. Ir a [netlify.com](https://www.netlify.com) y crear una cuenta (puede usarse con GitHub).
-
-2. Hacer clic en **Add new site → Import an existing project → GitHub**.
-
-3. Seleccionar el repositorio `2026-1c-backend-mn-grupo-02-v2`.
-
-4. Configurar los ajustes de build:
-   | Campo | Valor |
-   |---|---|
-   | Build command | `npm install && npm run build` |
-   | Publish directory | `frontend/.next` |
-
-5. En **Environment variables**, agregar:
-   ```
-   NEXT_PUBLIC_API_URL = https://<tu-url>.up.railway.app
-   ```
-   (usar la URL del paso 2, paso 7)
-
-6. Hacer clic en **Deploy site**.
-
-7. Una vez finalizado, Netlify asigna una URL del tipo:
-   ```
-   https://sweet-medical.netlify.app
-   ```
-
-8. Verificar abriendo la URL en el navegador y haciendo login.
-
----
-
-## Nueva release (actualizaciones en producción)
-
-El flujo de deploy automático está configurado via GitHub. Cualquier push a la rama principal dispara un redeploy tanto en Railway como en Netlify.
-
-### Flujo estándar
+Railway redespliega automáticamente con cada push a la rama `Entrega-3-v2`.
 
 ```bash
-# 1. Mergear los cambios a la rama main
-git checkout main
-git merge feature/mi-feature
-git push origin main
+git checkout -b feature/mi-cambio
+# ... commits ...
+git push origin feature/mi-cambio
 
-# Railway y Netlify detectan el push y redesplegan automáticamente.
-# No es necesario ningún paso manual.
+git checkout Entrega-3-v2
+git merge feature/mi-cambio
+git push origin Entrega-3-v2
+# Railway detecta el push y redespliega ambos servicios.
 ```
 
-### Verificación post-deploy
-
-Después de cada release, verificar:
-
-1. **Backend funcionando:**
-   ```
-   GET https://<railway-url>/healthcheck
-   → { "status": "ok" }
-   ```
-
-2. **Frontend cargando:**  
-   Abrir la URL de Netlify en el navegador y hacer login.
-
-3. **Integración funcionando:**  
-   Realizar una búsqueda de turno en el frontend y verificar que responde.
-
-### Rollback (en caso de error)
-
-**Railway:** En el dashboard → pestaña **Deployments** → seleccionar el deploy anterior → **Redeploy**.
-
-**Netlify:** En el dashboard → pestaña **Deploys** → seleccionar el deploy anterior → **Publish deploy**.
+**Rollback:** Railway → Deployments → seleccionar deploy anterior → Redeploy.
 
 ---
 
-## Correr los tests antes de hacer deploy
+## Tests antes de deploy
 
 ```bash
-# Tests unitarios (servicios y dominio)
-npm test
-
-# Tests de integración (controladores HTTP + MongoDB en memoria)
-npm run test:integration
-
-# Tests E2E (flujos de usuario en el browser — requiere el frontend corriendo)
-npm run dev          # en una terminal
-npm run test:e2e     # en otra terminal
+npm test                  # unitarios
+npm run test:integration  # integración (controladores + MongoDB en memoria)
+npm run test:e2e          # E2E con Cypress (requiere frontend en localhost:3001)
 ```
-
-Los tests de integración y unitarios no requieren ningún servicio externo.  
-Los tests E2E requieren tener el frontend corriendo en `http://localhost:3001`.
-
----
-
-## Resolución de problemas comunes
-
-### El backend en Railway no arranca
-- Verificar que `MONGODB_URI` esté correctamente seteado en las variables de Railway.
-- Revisar los logs en Railway: **Deployments → Ver logs**.
-
-### El frontend muestra "Error al conectar con el servidor"
-- Verificar que `NEXT_PUBLIC_API_URL` apunte a la URL correcta de Railway (sin `/` al final).
-- Verificar que la variable de entorno esté seteada en Netlify (no solo en `.env` local).
-- Confirmar que el backend esté corriendo con el healthcheck.
-
-### Netlify falla el build con error de Next.js
-- En el dashboard de Netlify → **Site settings → Build & deploy → Environment** → agregar:
-  ```
-  NODE_VERSION = 22
-  ```
-- Verificar que el plugin `@netlify/plugin-nextjs` está listado en `netlify.toml`.

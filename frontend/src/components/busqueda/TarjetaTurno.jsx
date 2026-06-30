@@ -28,7 +28,7 @@ export default function TarjetaTurno({ turno, fecha }) {
       </div>
 
       <div>
-        <p className={styles.tarjetaMedico}>Dr/a. {turno.medico.nombre}</p>
+        <p className={styles.tarjetaMedico}>{turno.medico.nombre}</p>
         <p className={styles.tarjetaMatricula}>Matr. {turno.medico.matricula}</p>
       </div>
 

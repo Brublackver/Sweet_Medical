@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from 'react';
 const CarritoContext = createContext(null);
 
 const computarKey = (turno) =>
-  `${turno.medico.id}-${turno.fecha}-${turno.hora}-${turno.servicio.id}`;
+  `${turno.medico.id}-${turno.fecha}-${turno.hora}`;
 
 export function CarritoProvider({ children }) {
   const [items, setItems] = useState([]);
