@@ -5,21 +5,8 @@
 .pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
 .pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
 
-.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-
-.tab {
-  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
-  border: 1px solid #e2e8f0; background: #fff; color: #475569;
-  cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
-}
-.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
-.tab:hover         { border-color: #99f6e4; color: #0f766e; }
-
-.tabActivo       { background-color: #0f766e; color: #fff; border-color: #0f766e; }
-.tabActivo:hover { background-color: #115e59; }
-
 .alerta {
-  background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
+  background-color: var(--c-error-bg); border: 1px solid var(--c-error-border); color: var(--c-error);
   border-radius: 0.75rem; padding: 1.5rem; text-align: center; font-size: 0.875rem;
 }
 
@@ -60,31 +47,31 @@
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
 .btnVerde {
-  padding: 0.5rem 1rem; background-color: #16a34a; color: #fff;
+  padding: 0.5rem 1rem; background-color: var(--c-primary); color: #fff;
   font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   border: none; cursor: pointer; transition: background-color 0.15s;
 }
-.btnVerde:hover:not(:disabled)  { background-color: #15803d; }
-.btnVerde:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
+.btnVerde:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnVerde:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
 .btnVerde:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnRojo {
-  padding: 0.5rem 1rem; background: #fff; border: 1px solid #fca5a5;
-  color: #dc2626; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  padding: 0.5rem 1rem; background: #fff; border: 1px solid var(--c-error-border);
+  color: var(--c-error); font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   cursor: pointer; transition: background-color 0.15s;
 }
-.btnRojo:hover:not(:disabled)  { background-color: #fef2f2; }
-.btnRojo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
+.btnRojo:hover:not(:disabled)  { background-color: var(--c-error-bg); }
+.btnRojo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
 .btnRojo:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .divisor { border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
 .btnVerdePeq {
-  padding: 0.375rem 0.75rem; background-color: #16a34a; color: #fff;
+  padding: 0.375rem 0.75rem; background-color: var(--c-primary); color: #fff;
   font-size: 0.875rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.15s;
 }
-.btnVerdePeq:hover:not(:disabled)  { background-color: #15803d; }
-.btnVerdePeq:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
+.btnVerdePeq:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnVerdePeq:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
 .btnVerdePeq:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnAzulPeq {
@@ -95,12 +82,12 @@
 .btnAzulPeq:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
 
 .btnRojoPeq {
-  padding: 0.375rem 0.75rem; background: #fff; border: 1px solid #fecaca;
-  color: #ef4444; font-size: 0.875rem; border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem; background: #fff; border: 1px solid var(--c-error-border);
+  color: var(--c-error); font-size: 0.875rem; border-radius: 0.5rem;
   cursor: pointer; transition: background-color 0.15s;
 }
-.btnRojoPeq:hover        { background-color: #fef2f2; }
-.btnRojoPeq:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
+.btnRojoPeq:hover        { background-color: var(--c-error-bg); }
+.btnRojoPeq:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
 
 /* Forms */
 .form        { border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -136,12 +123,12 @@
 .btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnEnviarRojo {
-  padding: 0.5rem 1rem; background-color: #dc2626; color: #fff;
+  padding: 0.5rem 1rem; background-color: #c2410c; color: #fff;
   font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   border: none; cursor: pointer; transition: background-color 0.15s;
 }
-.btnEnviarRojo:hover:not(:disabled)  { background-color: #b91c1c; }
-.btnEnviarRojo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.45); }
+.btnEnviarRojo:hover:not(:disabled)  { background-color: #9a3412; }
+.btnEnviarRojo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.45); }
 .btnEnviarRojo:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnVolver {
@@ -152,8 +139,8 @@
 .btnVolver:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 .errorInline {
-  font-size: 0.75rem; color: #dc2626; background-color: #fef2f2;
-  border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+  font-size: 0.75rem; color: var(--c-error); background-color: var(--c-error-bg);
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; padding: 0.375rem 0.75rem;
 }
 
 /* ====== DISPONIBILIDAD ====== */
@@ -172,8 +159,8 @@
 .addBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .errorForm {
-  font-size: 0.75rem; color: #dc2626; background-color: #fef2f2;
-  border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+  font-size: 0.75rem; color: var(--c-error); background-color: var(--c-error-bg);
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; padding: 0.375rem 0.75rem;
 }
 
 .subTitle     { font-weight: 600; color: #0f172a; margin-bottom: 1rem; }
@@ -199,24 +186,15 @@
 .eliminarBtn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 2rem; height: 2rem; flex-shrink: 0;
-  color: #dc2626; background: none; border: 1px solid #fecaca; border-radius: 0.4rem;
+  color: var(--c-error); background: none; border: 1px solid var(--c-error-border); border-radius: 0.4rem;
   cursor: pointer; transition: background-color 0.15s, border-color 0.15s;
 }
-.eliminarBtn:hover { background-color: #fef2f2; border-color: #dc2626; }
-.eliminarBtn:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; }
+.eliminarBtn:hover { background-color: var(--c-error-bg); border-color: var(--c-error); }
+.eliminarBtn:focus-visible { outline: 2px solid var(--c-error); outline-offset: 2px; }
 
 .emptyCard      { text-align: center; padding: 3rem; background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
 .emptyCardIcon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
 .emptyCardText  { color: #64748b; font-size: 0.875rem; }
-
-/* ====== TABS BADGE ====== */
-.tabBadge {
-  display: inline-flex; align-items: center; justify-content: center;
-  margin-left: 0.375rem; min-width: 1.25rem; height: 1.25rem;
-  padding: 0 0.375rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;
-  background: rgba(255,255,255,0.3); color: inherit;
-}
-.tabActivo .tabBadge { background: rgba(255,255,255,0.25); }
 
 /* ====== HISTORIAL DE ATENCIÓN ====== */
 .historialLista { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -269,12 +247,12 @@
 .historialTurnoPaciente { color: #64748b; }
 .historialTurnoEstado   { font-weight: 500; text-align: right; white-space: nowrap; font-size: 0.75rem; }
 
-/* ====== ESTADO TURNO — clases por estado (no solo color) ====== */
-.estadoReservado       { color: #0f766e; }
-.estadoCancelado       { color: #dc2626; }
-.estadoRealizado       { color: #16a34a; }
-.estadoPendienteCambio { color: #d97706; }
-.estadoPropuestaMedico { color: #7c3aed; }
+/* ====== ESTADO TURNO — Okabe-Ito apta para daltónicos (refuerza el ícono+texto) ====== */
+.estadoReservado       { color: var(--c-info); }
+.estadoCancelado       { color: var(--c-error); }
+.estadoRealizado       { color: var(--c-success); }
+.estadoPendienteCambio { color: var(--c-warning); }
+.estadoPropuestaMedico { color: var(--c-special); }
 .estadoDesconocido     { color: #64748b; }
 
 @media (min-width: 640px) {

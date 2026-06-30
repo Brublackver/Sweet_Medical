@@ -7,6 +7,7 @@ import { useNotificaciones }   from '@/hooks/useNotificaciones';
 import { formatearFecha }      from '@/lib/fecha';
 import ListaPaginada           from '@/components/ui/ListaPaginada';
 import EstadoCarga             from '@/components/ui/EstadoCarga';
+import Tabs                    from '@/components/ui/Tabs';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './Notificaciones.module.css';
 
@@ -59,19 +60,12 @@ export default function NotificacionesPage() {
         </p>
       </header>
 
-      <div className={styles.tabs} role="group" aria-label="Filtrar notificaciones">
-        {FILTROS.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            aria-pressed={filtro === key}
-            onClick={() => setFiltro(key)}
-            className={`${styles.tab} ${filtro === key ? styles.tabActivo : ''}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={FILTROS}
+        value={filtro}
+        onChange={setFiltro}
+        ariaLabel="Filtrar notificaciones"
+      />
 
       {error && <p role="alert" className={styles.errorMsg}>⚠️ {error}</p>}
 

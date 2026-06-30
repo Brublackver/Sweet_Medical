@@ -31,20 +31,39 @@
   --c-shadow-md:  rgba(15, 118, 110, 0.12);
   --c-shadow-dark: rgba(15, 23, 42, 0.08);
 
-  /* Estado – éxito */
-  --c-success:        #16a34a;
-  --c-success-bg:     #dcfce7;
-  --c-success-border: #bbf7d0;
+  /*
+    Paleta semántica APTA PARA DALTÓNICOS (Okabe-Ito).
+    El verde/rojo clásico es la PEOR combinación para protan/deuteranopía.
+    Okabe-Ito está validada para las 3 formas de daltonismo. Acá el "positivo"
+    es teal (marca) y el "negativo" es bermellón: teal vs bermellón = máximo
+    contraste perceptible. Igual NUNCA dependemos solo del color: cada estado
+    lleva ícono + texto (WCAG 1.4.1).
+  */
 
-  /* Estado – error */
-  --c-error:        #dc2626;
-  --c-error-bg:     #fef2f2;
-  --c-error-border: #fecaca;
+  /* Positivo / éxito — teal (familia blue-green Okabe-Ito + marca) */
+  --c-success:        #00674c;
+  --c-success-bg:     #d7f4ec;
+  --c-success-border: #97ddc9;
 
-  /* Estado – warning */
-  --c-warning:        #f59e0b;
-  --c-warning-bg:     #fff7ed;
-  --c-warning-border: #fed7aa;
+  /* Negativo / error — bermellón Okabe-Ito (#D55E00 oscurecido para contraste) */
+  --c-error:        #b34700;
+  --c-error-bg:     #fce7da;
+  --c-error-border: #f4c2a3;
+
+  /* Warning / pendiente — naranja Okabe-Ito (#E69F00 oscurecido) */
+  --c-warning:        #8a5a00;
+  --c-warning-bg:     #fdf0d5;
+  --c-warning-border: #f3d795;
+
+  /* Info / reservado — azul Okabe-Ito (#0072B2) */
+  --c-info:        #035e92;
+  --c-info-bg:     #e1effa;
+  --c-info-border: #aad4ef;
+
+  /* Especial / propuesta — púrpura rojizo Okabe-Ito (#CC79A7) */
+  --c-special:        #8f3a6e;
+  --c-special-bg:     #f6e6f0;
+  --c-special-border: #e6b9d6;
 }
 
 /* ====== RESET ====== */

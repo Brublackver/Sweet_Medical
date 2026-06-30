@@ -27,7 +27,7 @@
 .emptyTitle { font-size: 1.125rem; font-weight: 600; color: #334155; }
 .emptyText  { color: #64748b; margin-top: 0.5rem; font-size: 0.875rem; }
 
-.errorBox   { background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 0.75rem; padding: 1.5rem; text-align: center; }
+.errorBox   { background-color: var(--c-error-bg); border: 1px solid var(--c-error-border); color: var(--c-error); border-radius: 0.75rem; padding: 1.5rem; text-align: center; }
 .errorIcon  { font-size: 1.5rem; margin-bottom: 0.5rem; }
 .errorTitle { font-weight: 600; }
 .errorText  { font-size: 0.875rem; margin-top: 0.25rem; }
@@ -222,7 +222,7 @@
 }
 
 .precio       { color: #0f172a; font-weight: 700; font-size: 0.875rem; }
-.precioGratis { color: #16a34a; font-weight: 700; font-size: 0.875rem; }
+.precioGratis { color: var(--c-success); font-weight: 700; font-size: 0.875rem; }
 .precioTachado { font-size: 0.75rem; color: #94a3b8; text-decoration: line-through; }
 
 .agregarBtn {

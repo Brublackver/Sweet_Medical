@@ -9,6 +9,7 @@ import { useRefetchOnFocus }   from '@/hooks/useRefetchOnFocus';
 import TarjetaMiTurno          from '@/components/misturno/TarjetaMiTurno';
 import ListaPaginada           from '@/components/ui/ListaPaginada';
 import EstadoCarga             from '@/components/ui/EstadoCarga';
+import Tabs                    from '@/components/ui/Tabs';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './MisTurnos.module.css';
 
@@ -156,19 +157,12 @@ export default function MisTurnosPage() {
         </p>
       </header>
 
-      <div className={styles.tabs} role="tablist" aria-label="Filtrar turnos">
-        {FILTROS.map(({ key, label }) => (
-          <button
-            key={key}
-            role="tab"
-            aria-selected={filtro === key}
-            onClick={() => setFiltro(key)}
-            className={`${styles.tab} ${filtro === key ? styles.tabActivo : ''}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={FILTROS}
+        value={filtro}
+        onChange={setFiltro}
+        ariaLabel="Filtrar turnos"
+      />
 
       <EstadoCarga
         cargando={cargando}

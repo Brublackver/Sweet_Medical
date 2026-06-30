@@ -5,21 +5,8 @@
 .pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
 .pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
 
-.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-
-.tab {
-  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem;
-  font-weight: 500; border: 1px solid #e2e8f0; background: #fff;
-  color: #475569; cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
-}
-.tab:hover         { border-color: #99f6e4; color: #0f766e; }
-.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
-
-.tabActivo           { background-color: #0f766e; color: #fff; border-color: #0f766e; }
-.tabActivo:hover     { background-color: #115e59; border-color: #115e59; color: #fff; }
-
 .alerta {
-  background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
+  background-color: var(--c-error-bg); border: 1px solid var(--c-error-border); color: var(--c-error);
   border-radius: 0.75rem; padding: 1.5rem; text-align: center; font-size: 0.875rem;
 }
 
@@ -68,7 +55,7 @@
 .tarjetaSecundario  { color: #94a3b8; }
 
 .tarjetaPrecio { flex-shrink: 0; text-align: right; }
-.precioGratis  { color: #16a34a; font-weight: 700; font-size: 0.875rem; }
+.precioGratis  { color: var(--c-success); font-weight: 700; font-size: 0.875rem; }
 .precioMonto   { color: #0f172a; font-weight: 700; font-size: 0.875rem; }
 
 /* Propuesta médico */
@@ -79,21 +66,21 @@
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
 .btnConfirmar {
-  padding: 0.5rem 1rem; background-color: #16a34a; color: #fff;
+  padding: 0.5rem 1rem; background-color: var(--c-primary); color: #fff;
   font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   border: none; cursor: pointer; transition: background-color 0.15s;
 }
-.btnConfirmar:hover:not(:disabled)  { background-color: #15803d; }
-.btnConfirmar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
+.btnConfirmar:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnConfirmar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
 .btnConfirmar:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnRechazar {
-  padding: 0.5rem 1rem; background-color: #fff; border: 1px solid #fca5a5;
-  color: #dc2626; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  padding: 0.5rem 1rem; background-color: #fff; border: 1px solid var(--c-error-border);
+  color: var(--c-error); font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   cursor: pointer; transition: background-color 0.15s;
 }
-.btnRechazar:hover:not(:disabled)  { background-color: #fef2f2; }
-.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
+.btnRechazar:hover:not(:disabled)  { background-color: var(--c-error-bg); }
+.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
 .btnRechazar:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Form cambio fecha */
@@ -138,8 +125,8 @@
 .btnCancelar:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 .errorInline {
-  font-size: 0.75rem; color: #dc2626; background-color: #fef2f2;
-  border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+  font-size: 0.75rem; color: var(--c-error); background-color: var(--c-error-bg);
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; padding: 0.375rem 0.75rem;
 }
 
 @media (min-width: 640px) {

@@ -3,6 +3,7 @@ import { useState, useEffect }  from 'react';
 import { useRouter }            from 'next/navigation';
 import { useMedico }            from '@/context/MedicoContext';
 import ListaPaginada            from '@/components/ui/ListaPaginada';
+import Tabs                     from '@/components/ui/Tabs';
 import Icono                    from '@/components/ui/Icono';
 import { formatearFechaConAnio } from '@/lib/fecha';
 import { getMedico, getTurnosMedico, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
@@ -153,30 +154,15 @@ export default function DisponibilidadPage() {
       </div>
 
       {/* ── Tabs ────────────────────────────────────────────────────────── */}
-      <div className={styles.tabs} role="group" aria-label="Sección de disponibilidad">
-        <button
-          type="button"
-          className={`${styles.tab} ${tab === 'proximas' ? styles.tabActivo : ''}`}
-          onClick={() => setTab('proximas')}
-          aria-pressed={tab === 'proximas'}
-        >
-          Próximas
-          {futuras.length > 0 && (
-            <span className={styles.tabBadge} aria-hidden="true">{futuras.length}</span>
-          )}
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${tab === 'historial' ? styles.tabActivo : ''}`}
-          onClick={() => setTab('historial')}
-          aria-pressed={tab === 'historial'}
-        >
-          Historial de atención
-          {pasadas.length > 0 && (
-            <span className={styles.tabBadge} aria-hidden="true">{pasadas.length}</span>
-          )}
-        </button>
-      </div>
+      <Tabs
+        items={[
+          { key: 'proximas',  label: 'Próximas',              badge: futuras.length },
+          { key: 'historial', label: 'Historial de atención', badge: pasadas.length },
+        ]}
+        value={tab}
+        onChange={setTab}
+        ariaLabel="Sección de disponibilidad"
+      />
 
       {cargando && <p className={styles.cargandoText}>Cargando...</p>}
       {error    && <p role="alert" className={styles.errorInline}>{error}</p>}

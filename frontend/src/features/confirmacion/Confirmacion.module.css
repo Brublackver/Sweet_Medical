@@ -23,7 +23,7 @@
 .itemMedico    { font-size: 0.75rem; color: #64748b; }
 
 .itemPrecio      { text-align: right; flex-shrink: 0; }
-.itemPrecioGratis { color: #16a34a; font-weight: 700; font-size: 0.875rem; }
+.itemPrecioGratis { color: var(--c-success); font-weight: 700; font-size: 0.875rem; }
 .itemPrecioMonto  { color: #0f172a; font-weight: 700; font-size: 0.875rem; }
 
 .totalCard {
@@ -72,7 +72,7 @@
 .successPage { max-width: 42rem; margin: 0 auto; padding: 4rem 1rem; text-align: center; }
 
 .successCard {
-  background: #fff; border-radius: 1rem; border: 1px solid #bbf7d0;
+  background: #fff; border-radius: 1rem; border: 1px solid var(--c-success-border);
   padding: 2.5rem; box-shadow: 0 2px 16px rgba(15, 118, 110, 0.08);
 }
 
@@ -84,11 +84,11 @@
 
 .successItem {
   display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.75rem; background-color: #f0fdf4;
-  border-radius: 0.75rem; border: 1px solid #dcfce7;
+  padding: 0.75rem; background-color: var(--c-success-bg);
+  border-radius: 0.75rem; border: 1px solid var(--c-success-border);
 }
 
-.successCheck     { color: #16a34a; font-size: 1.125rem; }
+.successCheck     { color: var(--c-success); font-size: 1.125rem; }
 .successItemInfo  { flex: 1; min-width: 0; }
 .successItemNombre  { font-size: 0.875rem; font-weight: 500; color: #1e293b; }
 .successItemDetalle { font-size: 0.75rem; color: #64748b; text-transform: capitalize; }
@@ -98,17 +98,17 @@
   text-align: left; margin-bottom: 1.5rem;
 }
 
-.errorListaTitulo { font-size: 0.875rem; font-weight: 600; color: #b91c1c; margin-bottom: 0.25rem; }
+.errorListaTitulo { font-size: 0.875rem; font-weight: 600; color: var(--c-error); margin-bottom: 0.25rem; }
 
 .errorItem {
   padding: 0.625rem 0.875rem;
-  background-color: #fef2f2;
+  background-color: var(--c-error-bg);
   border-radius: 0.5rem;
-  border: 1px solid #fecaca;
+  border: 1px solid var(--c-error-border);
 }
 
 .errorItemNombre { font-size: 0.8125rem; font-weight: 500; color: #1e293b; }
-.errorItemMsg    { font-size: 0.75rem; color: #b91c1c; margin-top: 0.125rem; }
+.errorItemMsg    { font-size: 0.75rem; color: var(--c-error); margin-top: 0.125rem; }
 
 .successAcciones { display: flex; flex-direction: column; gap: 0.75rem; justify-content: center; }
 

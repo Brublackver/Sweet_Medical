@@ -9,16 +9,16 @@
   white-space: nowrap;
 }
 
-/* Cobertura */
-.completa    { background-color: #dcfce7; color: #15803d; border-color: #bbf7d0; }
-.parcial     { background-color: #fef9c3; color: #a16207; border-color: #fef08a; }
-.noCubierta  { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
+/* Cobertura — paleta Okabe-Ito apta para daltónicos */
+.completa    { background-color: var(--c-success-bg); color: var(--c-success); border-color: var(--c-success-border); }
+.parcial     { background-color: var(--c-warning-bg); color: var(--c-warning); border-color: var(--c-warning-border); }
+.noCubierta  { background-color: var(--c-error-bg);   color: var(--c-error);   border-color: var(--c-error-border); }
 
-/* Estado */
-.reservado       { background-color: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
-.realizado       { background-color: #dcfce7; color: #15803d; border-color: #bbf7d0; }
-.cancelado       { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
-.pendienteCambio { background-color: #fef9c3; color: #a16207; border-color: #fef08a; }
-.propuestaMedico { background-color: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+/* Estado — paleta Okabe-Ito apta para daltónicos (azul / verde-az / bermellón / naranja / púrpura) */
+.reservado       { background-color: var(--c-info-bg);    color: var(--c-info);    border-color: var(--c-info-border); }
+.realizado       { background-color: var(--c-success-bg); color: var(--c-success); border-color: var(--c-success-border); }
+.cancelado       { background-color: var(--c-error-bg);   color: var(--c-error);   border-color: var(--c-error-border); }
+.pendienteCambio { background-color: var(--c-warning-bg); color: var(--c-warning); border-color: var(--c-warning-border); }
+.propuestaMedico { background-color: var(--c-special-bg); color: var(--c-special); border-color: var(--c-special-border); }
 
 .default { background-color: #f1f5f9; color: #475569; border-color: #e2e8f0; }

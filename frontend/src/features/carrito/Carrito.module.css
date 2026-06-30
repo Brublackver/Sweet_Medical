@@ -9,7 +9,7 @@
   font-size: 0.875rem; color: #f87171; background: none; border: none;
   cursor: pointer; transition: color 0.15s; margin-top: 0.25rem;
 }
-.limpiarBtn:hover        { color: #dc2626; }
+.limpiarBtn:hover        { color: var(--c-error); }
 .limpiarBtn:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 .emptyState  { text-align: center; padding: 5rem 0; }
@@ -90,17 +90,17 @@
 .itemSecundario  { color: #94a3b8; }
 
 .itemPrecio        { text-align: right; flex-shrink: 0; }
-.itemPrecioGratis  { color: #16a34a; font-weight: 700; }
+.itemPrecioGratis  { color: var(--c-success); font-weight: 700; }
 .itemPrecioMonto   { color: #0f172a; font-weight: 700; }
 .itemPrecioTachado { font-size: 0.75rem; color: #94a3b8; text-decoration: line-through; }
 
 .quitarBtn {
   display: inline-flex; align-items: center; justify-content: center;
   margin-top: 0.5rem; width: 2rem; height: 2rem;
-  color: #dc2626; background: none; border: 1px solid #fecaca; border-radius: 0.4rem;
+  color: var(--c-error); background: none; border: 1px solid var(--c-error-border); border-radius: 0.4rem;
   cursor: pointer; transition: background-color 0.15s, border-color 0.15s;
 }
-.quitarBtn:hover { background-color: #fef2f2; border-color: #dc2626; }
-.quitarBtn:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; }
+.quitarBtn:hover { background-color: var(--c-error-bg); border-color: var(--c-error); }
+.quitarBtn:focus-visible { outline: 2px solid var(--c-error); outline-offset: 2px; }
 
 .capitalize { text-transform: capitalize; }

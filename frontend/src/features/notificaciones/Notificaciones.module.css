@@ -17,22 +17,9 @@
 .pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
 .pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
 
-.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-
-.tab {
-  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem;
-  font-weight: 500; border: 1px solid #e2e8f0; background: #fff;
-  color: #475569; cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
-}
-.tab:hover         { border-color: #99f6e4; color: #0f766e; }
-.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
-
-.tabActivo       { background-color: #0f766e; color: #fff; border-color: #0f766e; }
-.tabActivo:hover { background-color: #115e59; border-color: #115e59; color: #fff; }
-
 .errorMsg {
   margin-bottom: 1rem; padding: 0.75rem 1rem; font-size: 0.875rem;
-  color: #b91c1c; background-color: #fef2f2; border: 1px solid #fecaca;
+  color: var(--c-error); background-color: var(--c-error-bg); border: 1px solid var(--c-error-border);
   border-radius: 0.5rem;
 }
 
@@ -67,8 +54,8 @@
   display: inline-block; margin-top: 0.4rem; padding: 0.15rem 0.55rem;
   font-size: 0.72rem; font-weight: 700; border-radius: 9999px; border: 1px solid transparent;
 }
-.resultadoAceptado  { color: #15803d; background: #dcfce7; border-color: #bbf7d0; }
-.resultadoRechazado { color: #b91c1c; background: #fee2e2; border-color: #fecaca; }
+.resultadoAceptado  { color: var(--c-success); background: var(--c-success-bg); border-color: var(--c-success-border); }
+.resultadoRechazado { color: var(--c-error);   background: var(--c-error-bg);   border-color: var(--c-error-border); }
 
 /* Tilde verde + cruz roja para notificaciones informativas. Ambas marcan leída. */
 .iconAcciones { display: flex; gap: 0.4rem; flex-shrink: 0; }
@@ -81,13 +68,13 @@
   transition: background-color 0.15s, color 0.15s;
 }
 
-.btnCheck { background-color: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
-.btnCheck:hover        { background-color: #bbf7d0; }
-.btnCheck:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
+.btnCheck { background-color: var(--c-success-bg); color: var(--c-success); border-color: var(--c-success-border); }
+.btnCheck:hover        { background-color: #c2ebdd; }
+.btnCheck:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
 
-.btnCruz { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
-.btnCruz:hover        { background-color: #fecaca; }
-.btnCruz:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
+.btnCruz { background-color: var(--c-error-bg); color: var(--c-error); border-color: var(--c-error-border); }
+.btnCruz:hover        { background-color: #f9d6c4; }
+.btnCruz:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
 
 /* Acciones de aceptar/rechazar. */
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
@@ -99,13 +86,13 @@
   transition: background-color 0.15s, opacity 0.15s;
 }
 
-.btnAceptar { background-color: #16a34a; color: #fff; }
-.btnAceptar:hover:not(:disabled)  { background-color: #15803d; }
-.btnAceptar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
+.btnAceptar { background-color: var(--c-primary); color: #fff; }
+.btnAceptar:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnAceptar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
 
-.btnRechazar { background-color: #fff; color: #b91c1c; border-color: #fecaca; }
-.btnRechazar:hover:not(:disabled)  { background-color: #fef2f2; }
-.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
+.btnRechazar { background-color: #fff; color: var(--c-error); border-color: var(--c-error-border); }
+.btnRechazar:hover:not(:disabled)  { background-color: var(--c-error-bg); }
+.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
 
 .btnAceptar:disabled,
 .btnRechazar:disabled { opacity: 0.6; cursor: not-allowed; }
