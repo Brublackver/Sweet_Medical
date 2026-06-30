@@ -17,9 +17,10 @@ export default function DisponibilidadPage() {
   const [guardando, setGuardando]      = useState(false);
   const [errorForm, setErrorForm]      = useState('');
 
-  const [fecha,     setFecha]          = useState('');
-  const [horaDesde, setHoraDesde]      = useState('');
-  const [horaHasta, setHoraHasta]      = useState('');
+  const [fecha,           setFecha]          = useState('');
+  const [horaDesde,       setHoraDesde]      = useState('');
+  const [horaHasta,       setHoraHasta]      = useState('');
+  const [historialAbierto, setHistorialAbierto] = useState(false);
 
   useEffect(() => {
     if (!cargado) return;
@@ -159,23 +160,39 @@ export default function DisponibilidadPage() {
         </ListaPaginada>
       )}
 
-      {/* Historial: disponibilidades cuya fecha ya pasó. Solo lectura — quedan
-          guardadas como registro de lo que el médico ofreció a lo largo del tiempo. */}
+      {/* Historial: disponibilidades cuya fecha ya pasó. Colapsado por defecto. */}
       {!cargando && pasadas.length > 0 && (
-        <>
-          <h2 className={styles.subTitle}>Historial de disponibilidades</h2>
-          <ListaPaginada ariaLabel="Historial de disponibilidades pasadas" porPagina={6}>
-            {pasadas.map((d) => (
-              <div key={d.disponibilidad_id ?? d.id} className={`${styles.dispItem} ${styles.dispItemPasada}`}>
-                <div>
-                  <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
-                  <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
-                </div>
-                <span className={styles.dispBadgePasada}>Finalizada</span>
-              </div>
-            ))}
-          </ListaPaginada>
-        </>
+        <div className={styles.historialSection}>
+          <button
+            onClick={() => setHistorialAbierto((prev) => !prev)}
+            aria-expanded={historialAbierto}
+            className={styles.historialToggle}
+          >
+            <span className={styles.historialToggleLabel}>
+              🗂 Historial de disponibilidades
+            </span>
+            <span className={styles.historialBadge}>{pasadas.length}</span>
+            <span className={styles.historialChevron} aria-hidden="true">
+              {historialAbierto ? '▲' : '▼'}
+            </span>
+          </button>
+
+          {historialAbierto && (
+            <div className={styles.historialLista}>
+              <ListaPaginada ariaLabel="Historial de disponibilidades pasadas" porPagina={6}>
+                {pasadas.map((d) => (
+                  <div key={d.disponibilidad_id ?? d.id} className={`${styles.dispItem} ${styles.dispItemPasada}`}>
+                    <div>
+                      <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
+                      <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
+                    </div>
+                    <span className={styles.dispBadgePasada}>Finalizada</span>
+                  </div>
+                ))}
+              </ListaPaginada>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

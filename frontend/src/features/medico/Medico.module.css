@@ -200,6 +200,30 @@
 .emptyCardIcon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
 .emptyCardText  { color: #64748b; font-size: 0.875rem; }
 
+/* ====== HISTORIAL COLAPSABLE ====== */
+.historialSection { margin-top: 2rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+
+.historialToggle {
+  width: 100%; display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 1.25rem; background: #f8fafc;
+  border: none; cursor: pointer; text-align: left;
+  transition: background-color 0.15s;
+}
+.historialToggle:hover { background-color: #f1f5f9; }
+.historialToggle:focus-visible { outline: 2px solid #0f766e; outline-offset: -2px; }
+
+.historialToggleLabel { flex: 1; font-weight: 600; font-size: 0.9375rem; color: #334155; }
+
+.historialBadge {
+  font-size: 0.75rem; font-weight: 600; color: #64748b;
+  background: #e2e8f0; border-radius: 9999px;
+  padding: 0.125rem 0.5rem; flex-shrink: 0;
+}
+
+.historialChevron { font-size: 0.75rem; color: #94a3b8; flex-shrink: 0; }
+
+.historialLista { padding: 1rem 1.25rem; border-top: 1px solid #e2e8f0; }
+
 @media (min-width: 640px) {
   .page       { padding: 2rem 1.5rem; }
   .tarjetaBody { flex-direction: row; align-items: flex-start; }
