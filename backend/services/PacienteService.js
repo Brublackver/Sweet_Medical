@@ -1,4 +1,5 @@
 import { NotFoundError, ConflictError } from "../errors/AppError.js";
+import { hashPassword } from "../auth/password.js";
 
 export class PacienteService {
     constructor({ pacienteRepository, turnoService } = {}) {
@@ -28,13 +29,25 @@ export class PacienteService {
                 if (existe) return Promise.reject(new ConflictError(
                     `Ya existe un paciente registrado con DNI ${datos.dni}`
                 ));
-                return this.pacienteRepository.crear(datos);
+                // Si no se envía contraseña, se usa el usuario como default
+                // (cuenta inicial). Siempre se guarda hasheada, nunca en plano.
+                return hashPassword(datos.password || datos.usuario)
+                    .then((hash) => this.pacienteRepository.crear({ ...datos, password: hash }));
             });
     }
 
     eliminar(id) {
         return this.obtenerPorId(id)
             .then(() => this.pacienteRepository.eliminar(id));
+    }
+
+    // Reset de contraseña (operación de admin). Verifica que exista, hashea la
+    // nueva clave y la guarda. No devuelve el hash ni la clave en plano.
+    resetearPassword(id, nuevaPassword) {
+        return this.obtenerPorId(id)
+            .then(() => hashPassword(nuevaPassword))
+            .then((hash) => this.pacienteRepository.actualizarPassword(id, hash))
+            .then(() => ({ id }));
     }
 
     // Reserva un turno para el paciente identificado por pacienteId.
@@ -52,11 +65,17 @@ export class PacienteService {
             .then(() => this.turnoService.cancelarTurnoPorPaciente(turnoId, pacienteId, motivo));
     }
 
-    // Retorna todos los turnos del paciente (todos los estados).
-    // Permite consultar el historial completo: reservados, cancelados, realizados.
-    historialTurnos(pacienteId, fechaDesde, fechaHasta) {
+    // Retorna los turnos del paciente.
+    //   proximos = true  → sólo turnos activos de hoy en adelante, ordenados ascendente
+    //                      (el servidor entrega la lista lista para mostrar).
+    //   proximos = false → historial completo (reservados, cancelados, realizados).
+    // El rango fechaDesde/fechaHasta se aplica en ambos casos.
+    historialTurnos(pacienteId, { fechaDesde, fechaHasta, proximos = false } = {}) {
         return this.obtenerPorId(pacienteId)
-            .then(() => this.turnoService.historialPorPaciente(pacienteId))
+            .then(() => proximos
+                ? this.turnoService.proximosTurnosPorPaciente(pacienteId)
+                : this.turnoService.historialPorPaciente(pacienteId)
+            )
             .then((turnos) => {
                 if (!fechaDesde && !fechaHasta) return turnos;
                 return turnos.filter((t) => {

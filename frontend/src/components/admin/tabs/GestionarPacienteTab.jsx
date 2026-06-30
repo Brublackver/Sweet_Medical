@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
-  getPaciente, getAllPacientes, eliminarPaciente,
-  agregarCoberturaEspecialidad, quitarCoberturaEspecialidad,
-  agregarCoberturaPractica, quitarCoberturaPractica,
+  getPaciente, getAllPacientes, eliminarPaciente, resetearPasswordPaciente,
 } from '@/lib/api';
-import { cobValida } from '@/lib/adminUtils';
 import styles from '@/features/admin/AdminPage.module.css';
-
-const COBERTURA_VACIA = { codigo: '', nivel: '' };
 
 export default function GestionarPacienteTab() {
   const [buscarId, setBuscarId]                   = useState('');
   const [paciente, setPaciente]                   = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
-  const [cobEspForm, setCobEspForm]               = useState(COBERTURA_VACIA);
-  const [cobPracForm, setCobPracForm]             = useState(COBERTURA_VACIA);
+  const [nuevaPass, setNuevaPass]                 = useState('');
   const [cargando, setCargando]                   = useState(false);
   const [resultado, setResultado]                 = useState('');
   const [error, setError]                         = useState('');
@@ -66,53 +60,13 @@ export default function GestionarPacienteTab() {
       .finally(() => setCargando(false));
   };
 
-  const handleAgregarCobEsp = (e) => {
-    e.preventDefault();
-    if (!cobValida(cobEspForm) || !paciente) return;
+  const handleResetearPass = () => {
+    if (nuevaPass.trim().length < 4 || !paciente) return;
     setCargando(true);
-    agregarCoberturaEspecialidad(paciente.paciente_id, {
-      codigo: cobEspForm.codigo.trim().toUpperCase(),
-      nivel:  parseInt(cobEspForm.nivel, 10),
-    })
-      .then((data) => {
-        setPaciente(data);
-        setCobEspForm(COBERTURA_VACIA);
-        mostrarExito(`Especialidad ${cobEspForm.codigo.trim().toUpperCase()} agregada.`);
-      })
-      .catch((err) => mostrarError(err, 'Error al agregar cobertura.'))
-      .finally(() => setCargando(false));
-  };
-
-  const handleQuitarCobEsp = (codigo) => {
-    setCargando(true);
-    quitarCoberturaEspecialidad(paciente.paciente_id, codigo)
-      .then((data) => { setPaciente(data); mostrarExito(`Especialidad ${codigo} eliminada.`); })
-      .catch((err) => mostrarError(err, 'Error al quitar cobertura.'))
-      .finally(() => setCargando(false));
-  };
-
-  const handleAgregarCobPrac = (e) => {
-    e.preventDefault();
-    if (!cobValida(cobPracForm) || !paciente) return;
-    setCargando(true);
-    agregarCoberturaPractica(paciente.paciente_id, {
-      codigo: cobPracForm.codigo.trim().toUpperCase(),
-      nivel:  parseInt(cobPracForm.nivel, 10),
-    })
-      .then((data) => {
-        setPaciente(data);
-        setCobPracForm(COBERTURA_VACIA);
-        mostrarExito(`Práctica ${cobPracForm.codigo.trim().toUpperCase()} agregada.`);
-      })
-      .catch((err) => mostrarError(err, 'Error al agregar cobertura.'))
-      .finally(() => setCargando(false));
-  };
-
-  const handleQuitarCobPrac = (codigo) => {
-    setCargando(true);
-    quitarCoberturaPractica(paciente.paciente_id, codigo)
-      .then((data) => { setPaciente(data); mostrarExito(`Práctica ${codigo} eliminada.`); })
-      .catch((err) => mostrarError(err, 'Error al quitar cobertura.'))
+    resetearPasswordPaciente(paciente.paciente_id, nuevaPass)
+      .then(() => mostrarExito(`Contraseña de @${paciente.usuario} actualizada. Clave temporal: "${nuevaPass}" — compartila con el paciente.`))
+      .then(() => setNuevaPass(''))
+      .catch((err) => mostrarError(err, 'Error al resetear la contraseña.'))
       .finally(() => setCargando(false));
   };
 
@@ -150,90 +104,40 @@ export default function GestionarPacienteTab() {
               ID {paciente.paciente_id} · DNI {paciente.dni} · @{paciente.usuario}
             </p>
             <p className={styles.fichaDetalle}>
-              {paciente.obraSocial} — {paciente.plan?.nombre}
+              {paciente.obraSocial} — Plan {paciente.plan?.nombre}
             </p>
           </div>
 
-          {/* Coberturas especialidades */}
+          {/* Cobertura del plan (solo lectura: sale del catálogo de obras sociales) */}
           <div className={styles.seccionEsp}>
-            <h3 className={styles.seccionEspTitulo}>Coberturas de especialidades</h3>
-            {(paciente.plan?.coberturasEspecialidad?.length ?? 0) === 0
-              ? <p className={styles.sinEsp}>Sin coberturas de especialidad.</p>
-              : (
-                <ul className={styles.espLista}>
-                  {paciente.plan.coberturasEspecialidad.map((c) => (
-                    <li key={c.especialidad.codigo} className={styles.espItem}>
-                      <div className={styles.espInfo}>
-                        <span className={styles.espNombre}>{c.especialidad.codigo}</span>
-                        <span className={styles.espDetalle}>{c.nivel}% de cobertura</span>
-                      </div>
-                      <button type="button" disabled={cargando}
-                        onClick={() => handleQuitarCobEsp(c.especialidad.codigo)}
-                        className={styles.espQuitar}>✕</button>
-                    </li>
-                  ))}
-                </ul>
-              )
-            }
-            <form onSubmit={handleAgregarCobEsp} noValidate>
-              <p className={styles.labelSubseccion}>Agregar cobertura</p>
-              <div className={styles.cobFormGrid}>
-                <div className={styles.campo}>
-                  <label className={styles.labelSm}>Cód. especialidad</label>
-                  <input type="text" maxLength={20} value={cobEspForm.codigo} placeholder="Ej: CARD" className={styles.input}
-                    onChange={(e) => setCobEspForm((p) => ({ ...p, codigo: e.target.value }))} />
-                </div>
-                <div className={styles.campo}>
-                  <label className={styles.labelSm}>Nivel (0–100%)</label>
-                  <input type="number" min="0" max="100" value={cobEspForm.nivel} placeholder="80" className={styles.input}
-                    onChange={(e) => setCobEspForm((p) => ({ ...p, nivel: e.target.value }))} />
-                </div>
-              </div>
-              <button type="submit" disabled={cargando || !cobValida(cobEspForm)} className={styles.agregarBtn}>
-                + Agregar cobertura especialidad
-              </button>
-            </form>
+            <h3 className={styles.seccionEspTitulo}>Cobertura</h3>
+            <p className={styles.sinEsp}>
+              Cobertura general: <strong>{paciente.plan?.coberturaGeneral ?? 0}%</strong>
+              {(paciente.plan?.coberturaGeneral ?? 0) === 0 && ' (igual bonifica 10% en prácticas)'}
+            </p>
+            <p className={styles.sinEsp}>
+              La cobertura se define por la obra social y el plan elegidos al crear la cuenta.
+            </p>
           </div>
 
-          {/* Coberturas prácticas */}
+          {/* Reset de contraseña */}
           <div className={styles.seccionEsp}>
-            <h3 className={styles.seccionEspTitulo}>Coberturas de prácticas</h3>
-            {(paciente.plan?.coberturasPractica?.length ?? 0) === 0
-              ? <p className={styles.sinEsp}>Sin coberturas de práctica.</p>
-              : (
-                <ul className={styles.espLista}>
-                  {paciente.plan.coberturasPractica.map((c) => (
-                    <li key={c.practica.codigo} className={styles.espItem}>
-                      <div className={styles.espInfo}>
-                        <span className={styles.espNombre}>{c.practica.codigo}</span>
-                        <span className={styles.espDetalle}>{c.nivel}% de cobertura</span>
-                      </div>
-                      <button type="button" disabled={cargando}
-                        onClick={() => handleQuitarCobPrac(c.practica.codigo)}
-                        className={styles.espQuitar}>✕</button>
-                    </li>
-                  ))}
-                </ul>
-              )
-            }
-            <form onSubmit={handleAgregarCobPrac} noValidate>
-              <p className={styles.labelSubseccion}>Agregar cobertura</p>
-              <div className={styles.cobFormGrid}>
-                <div className={styles.campo}>
-                  <label className={styles.labelSm}>Cód. práctica</label>
-                  <input type="text" maxLength={20} value={cobPracForm.codigo} placeholder="Ej: ECO" className={styles.input}
-                    onChange={(e) => setCobPracForm((p) => ({ ...p, codigo: e.target.value }))} />
-                </div>
-                <div className={styles.campo}>
-                  <label className={styles.labelSm}>Nivel (0–100%)</label>
-                  <input type="number" min="0" max="100" value={cobPracForm.nivel} placeholder="60" className={styles.input}
-                    onChange={(e) => setCobPracForm((p) => ({ ...p, nivel: e.target.value }))} />
-                </div>
+            <h3 className={styles.seccionEspTitulo}>Acceso (usuario y contraseña)</h3>
+            <p className={styles.sinEsp}>
+              Usuario: <strong>@{paciente.usuario}</strong>. La contraseña no se puede ver
+              (está encriptada): asigná una temporal y compartila con el paciente.
+            </p>
+            <div className={styles.cobFormGrid}>
+              <div className={styles.campo}>
+                <label className={styles.labelSm}>Nueva contraseña</label>
+                <input type="text" value={nuevaPass} placeholder="mín. 4 caracteres" className={styles.input}
+                  onChange={(e) => { setNuevaPass(e.target.value); setError(''); }} />
               </div>
-              <button type="submit" disabled={cargando || !cobValida(cobPracForm)} className={styles.agregarBtn}>
-                + Agregar cobertura práctica
-              </button>
-            </form>
+            </div>
+            <button type="button" className={styles.agregarBtn}
+              disabled={cargando || nuevaPass.trim().length < 4} onClick={handleResetearPass}>
+              🔑 Resetear contraseña
+            </button>
           </div>
 
           <div className={styles.zonaEliminar}>

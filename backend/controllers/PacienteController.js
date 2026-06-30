@@ -12,6 +12,7 @@ import {
     validarSolicitarCambioFecha,
     validarReservarTurno,
     validarCobertura,
+    validarResetPassword,
 } from "../validators/pacienteValidator.js";
 
 export class PacienteController {
@@ -42,6 +43,13 @@ export class PacienteController {
             .then(() => res.status(204).send())
             .catch(next);
 
+    // Reset de contraseña — solo admin (la ruta lo protege con requireAdmin).
+    resetearPassword = (req, res, next) =>
+        Promise.all([validarIdNumerico(req.params.id), validarResetPassword(req.body)])
+            .then(([id, body]) => this.pacienteService.resetearPassword(id, body.password))
+            .then(() => res.status(200).json({ status: "success", message: "Contraseña actualizada" }))
+            .catch(next);
+
     // El pacienteId viene del route param para garantizar que el paciente
     // solo pueda reservar turnos bajo su propio id.
     reservarTurno = (req, res, next) =>
@@ -50,10 +58,14 @@ export class PacienteController {
             .then((turno) => res.status(201).json({ status: "success", data: turno }))
             .catch(next);
 
+    // GET /paciente/:id/turnos                  → historial completo
+    // GET /paciente/:id/turnos?proximos=true    → sólo próximos, ordenados desde el backend
     obtenerHistorial = (req, res, next) => {
-        const { fechaDesde, fechaHasta } = req.query;
+        const { fechaDesde, fechaHasta, proximos } = req.query;
         return validarIdNumerico(req.params.id)
-            .then((pacienteId) => this.pacienteService.historialTurnos(pacienteId, fechaDesde, fechaHasta))
+            .then((pacienteId) => this.pacienteService.historialTurnos(pacienteId, {
+                fechaDesde, fechaHasta, proximos: proximos === "true",
+            }))
             .then((turnos) => res.status(200).json({ status: "success", data: turnos }))
             .catch(next);
     };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMedico, getAllMedicos, agregarEspecialidadMedico, eliminarMedico } from '@/lib/api';
+import { getMedico, getAllMedicos, agregarEspecialidadMedico, eliminarMedico, resetearPasswordMedico } from '@/lib/api';
 import { espValida } from '@/lib/adminUtils';
 import styles from '@/features/admin/AdminPage.module.css';
 
@@ -10,6 +10,7 @@ export default function GestionarMedicoTab() {
   const [medico, setMedico]                     = useState(null);
   const [espForm, setEspForm]                   = useState(ESPECIALIDAD_VACIA);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [nuevaPass, setNuevaPass]               = useState('');
   const [cargando, setCargando]                 = useState(false);
   const [resultado, setResultado]               = useState('');
   const [error, setError]                       = useState('');
@@ -63,6 +64,19 @@ export default function GestionarMedicoTab() {
         setError('');
       })
       .catch((err) => mostrarError(err, 'Error al agregar especialidad.'))
+      .finally(() => setCargando(false));
+  };
+
+  const handleResetearPass = () => {
+    if (nuevaPass.trim().length < 4 || !medico) return;
+    setCargando(true);
+    resetearPasswordMedico(medico.medico_id, nuevaPass)
+      .then(() => {
+        setResultado(`Contraseña de @${medico.usuario} actualizada. Clave temporal: "${nuevaPass}" — compartila con el médico.`);
+        setError('');
+        setNuevaPass('');
+      })
+      .catch((err) => mostrarError(err, 'Error al resetear la contraseña.'))
       .finally(() => setCargando(false));
   };
 
@@ -162,6 +176,26 @@ export default function GestionarMedicoTab() {
                 + Agregar especialidad
               </button>
             </form>
+          </div>
+
+          {/* Reset de contraseña */}
+          <div className={styles.seccionEsp}>
+            <h3 className={styles.seccionEspTitulo}>Acceso (usuario y contraseña)</h3>
+            <p className={styles.sinEsp}>
+              Usuario: <strong>@{medico.usuario}</strong>. La contraseña no se puede ver
+              (está encriptada): asigná una temporal y compartila con el médico.
+            </p>
+            <div className={styles.espFormGrid}>
+              <div className={styles.campo}>
+                <label className={styles.labelSm}>Nueva contraseña</label>
+                <input type="text" value={nuevaPass} placeholder="mín. 4 caracteres" className={styles.input}
+                  onChange={(e) => { setNuevaPass(e.target.value); setError(''); }} />
+              </div>
+            </div>
+            <button type="button" className={styles.agregarBtn}
+              disabled={cargando || nuevaPass.trim().length < 4} onClick={handleResetearPass}>
+              🔑 Resetear contraseña
+            </button>
           </div>
 
           <div className={styles.zonaEliminar}>

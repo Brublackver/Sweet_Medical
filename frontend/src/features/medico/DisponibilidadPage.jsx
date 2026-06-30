@@ -2,13 +2,14 @@
 import { useState, useEffect }  from 'react';
 import { useRouter }            from 'next/navigation';
 import { useMedico }            from '@/context/MedicoContext';
-import Carousel                  from '@/components/ui/Carousel';
+import ListaPaginada            from '@/components/ui/ListaPaginada';
+import Icono                    from '@/components/ui/Icono';
 import { formatearFechaConAnio } from '@/lib/fecha';
 import { getMedico, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
 import styles from './Medico.module.css';
 
 export default function DisponibilidadPage() {
-  const { medico }                     = useMedico();
+  const { medico, cargado }            = useMedico();
   const router                         = useRouter();
   const [disponibilidades, setDisponibilidades] = useState([]);
   const [cargando,  setCargando]       = useState(true);
@@ -21,8 +22,8 @@ export default function DisponibilidadPage() {
   const [horaHasta, setHoraHasta]      = useState('');
 
   useEffect(() => {
+    if (!cargado) return;
     if (medico === null) { router.replace('/login'); return; }
-    if (!medico) return;
     // Usamos getMedico porque su campo `disponibilidades` es un array CON
     // disponibilidad_id (igual que devuelve el POST al crear una). El endpoint
     // GET /disponibilidad devuelve un objeto indexado por fecha y sin id, que
@@ -31,9 +32,22 @@ export default function DisponibilidadPage() {
       .then((m) => setDisponibilidades(m.disponibilidades ?? []))
       .catch(() => setError('No pudimos cargar la disponibilidad.'))
       .finally(() => setCargando(false));
-  }, [medico, router]);
+  }, [medico, cargado, router]);
 
-  if (!medico) return null;
+  if (!cargado || !medico) return null;
+
+  // "Hoy" en hora local (YYYY-MM-DD), para comparar con las fechas de las
+  // disponibilidades (también strings YYYY-MM-DD → comparación lexicográfica ok).
+  const d = new Date();
+  const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  // Futuras (de hoy en adelante) → editables. Pasadas → historial de solo lectura.
+  const futuras = disponibilidades
+    .filter((x) => x.fecha >= hoy)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const pasadas = disponibilidades
+    .filter((x) => x.fecha < hoy)
+    .sort((a, b) => b.fecha.localeCompare(a.fecha)); // más reciente primero
 
   const handleAgregar = (e) => {
     e.preventDefault();
@@ -117,34 +131,51 @@ export default function DisponibilidadPage() {
 
       {error && <p role="alert" className={styles.errorInline}>{error}</p>}
 
-      {!cargando && !error && disponibilidades.length === 0 && (
+      {!cargando && !error && futuras.length === 0 && (
         <div className={styles.emptyCard}>
           <p className={styles.emptyCardIcon} aria-hidden="true">🗓</p>
-          <p className={styles.emptyCardText}>No tenés disponibilidad cargada todavía.</p>
+          <p className={styles.emptyCardText}>No tenés disponibilidad futura cargada.</p>
         </div>
       )}
 
-      {!cargando && disponibilidades.length > 0 && (
-        <Carousel ariaLabel="Disponibilidades cargadas">
-          {disponibilidades
-            .slice()
-            .sort((a, b) => a.fecha.localeCompare(b.fecha))
-            .map((d) => (
-              <div key={d.disponibilidad_id ?? d.id} className={styles.dispItem}>
+      {!cargando && futuras.length > 0 && (
+        <ListaPaginada ariaLabel="Disponibilidades futuras" porPagina={6}>
+          {futuras.map((d) => (
+            <div key={d.disponibilidad_id ?? d.id} className={styles.dispItem}>
+              <div>
+                <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
+                <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
+              </div>
+              <button
+                onClick={() => handleEliminar(d.disponibilidad_id ?? d.id)}
+                aria-label={`Eliminar disponibilidad del ${d.fecha}`}
+                title="Eliminar disponibilidad"
+                className={styles.eliminarBtn}
+              >
+                <Icono nombre="papelera" tamano={18} />
+              </button>
+            </div>
+          ))}
+        </ListaPaginada>
+      )}
+
+      {/* Historial: disponibilidades cuya fecha ya pasó. Solo lectura — quedan
+          guardadas como registro de lo que el médico ofreció a lo largo del tiempo. */}
+      {!cargando && pasadas.length > 0 && (
+        <>
+          <h2 className={styles.subTitle}>Historial de disponibilidades</h2>
+          <ListaPaginada ariaLabel="Historial de disponibilidades pasadas" porPagina={6}>
+            {pasadas.map((d) => (
+              <div key={d.disponibilidad_id ?? d.id} className={`${styles.dispItem} ${styles.dispItemPasada}`}>
                 <div>
                   <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
                   <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
                 </div>
-                <button
-                  onClick={() => handleEliminar(d.disponibilidad_id ?? d.id)}
-                  aria-label={`Eliminar disponibilidad del ${d.fecha}`}
-                  className={styles.eliminarBtn}
-                >
-                  Eliminar
-                </button>
+                <span className={styles.dispBadgePasada}>Finalizada</span>
               </div>
             ))}
-        </Carousel>
+          </ListaPaginada>
+        </>
       )}
     </div>
   );

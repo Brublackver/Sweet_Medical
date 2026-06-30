@@ -1,5 +1,7 @@
 import { NotFoundError, ConflictError, BadRequestError } from "../errors/AppError.js";
-import { ESTADOS } from "../domain/Turno.js";
+import { ESTADOS, ESTADOS_ACTIVOS } from "../domain/Turno.js";
+import { USUARIO_TIPOS, TIPOS_NOTIFICACION, RESULTADOS } from "../domain/Notificacion.js";
+import { fechaHoyISO } from "../domain/tiempo.js";
 
 export class TurnoService {
     constructor({ turnoRepository, medicoService, pacienteRepository, notificacionService } = {}) {
@@ -11,6 +13,26 @@ export class TurnoService {
 
     obtenerTodos() {
         return this.turnoRepository.obtenerTodos();
+    }
+
+    // Emite una notificación si hay servicio inyectado. No-op en tests / contextos
+    // sin notificaciones. Devuelve `valor` para encadenar sin romper el flujo.
+    _notificar(usuarioTipo, usuarioId, tipo, mensaje, turnoId, valor) {
+        if (!this.notificacionService) return Promise.resolve(valor);
+        return this.notificacionService
+            .crear(usuarioTipo, usuarioId, tipo, mensaje, turnoId)
+            .then(() => valor);
+    }
+
+    // Deja registrado cómo se resolvió la notificación accionable que el usuario
+    // tenía pendiente para este turno (ACEPTADO / RECHAZADO). Se invoca al confirmar
+    // o rechazar un cambio, así la decisión queda persistida sin importar desde
+    // dónde se haya respondido. No-op si no hay servicio de notificaciones inyectado.
+    _resolverNotificacion(usuarioTipo, usuarioId, turnoId, tipo, resultado, valor) {
+        if (!this.notificacionService) return Promise.resolve(valor);
+        return this.notificacionService
+            .resolverPorTurno(usuarioTipo, usuarioId, turnoId, tipo, resultado)
+            .then(() => valor);
     }
 
     // Reserva un turno validando disponibilidad del médico y sin solapamiento.
@@ -57,13 +79,8 @@ export class TurnoService {
                         dni:        paciente.dni,
                         obraSocial: paciente.obraSocial,
                         plan: planPaciente ? {
-                            nombre:                 planPaciente.nombre,
-                            coberturasEspecialidad: (planPaciente.coberturasEspecialidad || []).map((c) => ({
-                                codigo: c.especialidad?.codigo, nivel: c.nivel,
-                            })),
-                            coberturasPractica: (planPaciente.coberturasPractica || []).map((c) => ({
-                                codigo: c.practica?.codigo, nivel: c.nivel,
-                            })),
+                            nombre:           planPaciente.nombre,
+                            coberturaGeneral: planPaciente.coberturaGeneral,
                         } : null,
                     };
 
@@ -92,7 +109,15 @@ export class TurnoService {
                     ));
 
                 turno.cancelar(motivo);
-                return this.turnoRepository.actualizar(turno);
+                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                    // El paciente canceló → se notifica al médico.
+                    this._notificar(
+                        USUARIO_TIPOS.MEDICO, turno.medicoId,
+                        TIPOS_NOTIFICACION.TURNO_CANCELADO,
+                        `El paciente canceló el turno del ${turno.fecha} ${turno.hora}. Motivo: ${motivo}`,
+                        turno.id, actualizado
+                    )
+                );
             });
     }
 
@@ -110,7 +135,15 @@ export class TurnoService {
                     ));
 
                 turno.cancelar(motivo);
-                return this.turnoRepository.actualizar(turno);
+                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                    // El médico canceló → se notifica al paciente.
+                    this._notificar(
+                        USUARIO_TIPOS.PACIENTE, turno.pacienteId,
+                        TIPOS_NOTIFICACION.TURNO_CANCELADO,
+                        `El médico canceló tu turno del ${turno.fecha} ${turno.hora}. Motivo: ${motivo}`,
+                        turno.id, actualizado
+                    )
+                );
             });
     }
 
@@ -147,8 +180,37 @@ export class TurnoService {
                         "No se puede solicitar cambio de fecha: estado inválido o falta menos de 1 hora"
                     ));
 
-                turno.solicitarCambioFecha(nuevaFecha, nuevaHora);
-                return this.turnoRepository.actualizar(turno);
+                // Validar disponibilidad y solapamiento antes de persistir la solicitud:
+                // no tiene sentido enviarle al médico una petición que no puede confirmar.
+                return this.medicoService
+                    .obtenerPorId(turno.medicoId)
+                    .then((medico) => {
+                        if (!medico.tieneDisponibilidad(nuevaFecha, nuevaHora, turno.duracion))
+                            return Promise.reject(new BadRequestError(
+                                `El médico no tiene disponibilidad el ${nuevaFecha} a las ${nuevaHora}`
+                            ));
+
+                        return this.turnoRepository
+                            .buscarPorMedicoYFecha(turno.medicoId, nuevaFecha)
+                            .then((turnosDeLaFecha) => {
+                                const otros = turnosDeLaFecha.filter(t => t.id !== turnoId);
+                                if (medico.tieneConflictoConTurnos(nuevaHora, turno.duracion, otros))
+                                    return Promise.reject(new ConflictError(
+                                        "El horario solicitado se superpone con otro turno reservado"
+                                    ));
+
+                                const fechaOriginal = `${turno.fecha} ${turno.hora}`;
+                                turno.solicitarCambioFecha(nuevaFecha, nuevaHora);
+                                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                                    this._notificar(
+                                        USUARIO_TIPOS.MEDICO, turno.medicoId,
+                                        TIPOS_NOTIFICACION.SOLICITUD_CAMBIO_FECHA,
+                                        `El paciente solicitó cambiar su turno del ${fechaOriginal} al ${nuevaFecha} ${nuevaHora}`,
+                                        turno.id, actualizado
+                                    )
+                                );
+                            });
+                    });
             });
     }
 
@@ -183,7 +245,21 @@ export class TurnoService {
                                     ));
 
                                 turno.confirmarCambioSolicitado();
-                                return this.turnoRepository.actualizar(turno);
+                                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                                    // Queda registrado que el médico ACEPTÓ la solicitud que tenía pendiente...
+                                    this._resolverNotificacion(
+                                        USUARIO_TIPOS.MEDICO, turno.medicoId, turno.id,
+                                        TIPOS_NOTIFICACION.SOLICITUD_CAMBIO_FECHA, RESULTADOS.ACEPTADO, actualizado
+                                    ).then((valor) =>
+                                        // ...y se le avisa al paciente.
+                                        this._notificar(
+                                            USUARIO_TIPOS.PACIENTE, turno.pacienteId,
+                                            TIPOS_NOTIFICACION.CAMBIO_CONFIRMADO,
+                                            `El médico confirmó tu cambio: tu turno quedó para el ${turno.fecha} ${turno.hora}`,
+                                            turno.id, valor
+                                        )
+                                    )
+                                );
                             });
                     });
             });
@@ -201,7 +277,21 @@ export class TurnoService {
                     return Promise.reject(new BadRequestError("El turno no tiene una solicitud de cambio pendiente"));
 
                 turno.rechazarCambioSolicitado();
-                return this.turnoRepository.actualizar(turno);
+                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                    // Queda registrado que el médico RECHAZÓ la solicitud que tenía pendiente...
+                    this._resolverNotificacion(
+                        USUARIO_TIPOS.MEDICO, turno.medicoId, turno.id,
+                        TIPOS_NOTIFICACION.SOLICITUD_CAMBIO_FECHA, RESULTADOS.RECHAZADO, actualizado
+                    ).then((valor) =>
+                        // ...y se le avisa al paciente.
+                        this._notificar(
+                            USUARIO_TIPOS.PACIENTE, turno.pacienteId,
+                            TIPOS_NOTIFICACION.CAMBIO_RECHAZADO,
+                            `El médico rechazó tu solicitud de cambio: tu turno sigue el ${turno.fecha} ${turno.hora}`,
+                            turno.id, valor
+                        )
+                    )
+                );
             });
     }
 
@@ -219,17 +309,36 @@ export class TurnoService {
                         "No se puede proponer cambio: estado inválido o falta menos de 1 hora"
                     ));
 
-                turno.proponerCambioFecha(nuevaFecha, nuevaHora);
+                // Validar disponibilidad y solapamiento antes de persistir la propuesta:
+                // si el médico propone un horario que no puede cumplir, el paciente no podría confirmarlo.
+                return this.medicoService
+                    .obtenerPorId(medicoId)
+                    .then((medico) => {
+                        if (!medico.tieneDisponibilidad(nuevaFecha, nuevaHora, turno.duracion))
+                            return Promise.reject(new BadRequestError(
+                                `No tenés disponibilidad el ${nuevaFecha} a las ${nuevaHora}`
+                            ));
 
-                return this.turnoRepository.actualizar(turno)
-                    .then((turnoActualizado) => {
-                        if (this.notificacionService)
-                            return this.notificacionService.crear(
-                                turno.pacienteId,
-                                "PROPUESTA_CAMBIO_FECHA",
-                                `El médico propuso cambiar tu turno del ${turno.fecha} ${turno.hora} al ${nuevaFecha} ${nuevaHora}`
-                            ).then(() => turnoActualizado);
-                        return turnoActualizado;
+                        return this.turnoRepository
+                            .buscarPorMedicoYFecha(medicoId, nuevaFecha)
+                            .then((turnosDeLaFecha) => {
+                                const otros = turnosDeLaFecha.filter(t => t.id !== turnoId);
+                                if (medico.tieneConflictoConTurnos(nuevaHora, turno.duracion, otros))
+                                    return Promise.reject(new ConflictError(
+                                        "El horario propuesto se superpone con otro turno reservado"
+                                    ));
+
+                                const fechaOriginal = `${turno.fecha} ${turno.hora}`;
+                                turno.proponerCambioFecha(nuevaFecha, nuevaHora);
+                                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                                    this._notificar(
+                                        USUARIO_TIPOS.PACIENTE, turno.pacienteId,
+                                        TIPOS_NOTIFICACION.PROPUESTA_CAMBIO_FECHA,
+                                        `El médico propuso cambiar tu turno del ${fechaOriginal} al ${nuevaFecha} ${nuevaHora}`,
+                                        turno.id, actualizado
+                                    )
+                                );
+                            });
                     });
             });
     }
@@ -265,7 +374,21 @@ export class TurnoService {
                                     ));
 
                                 turno.confirmarPropuestaMedico();
-                                return this.turnoRepository.actualizar(turno);
+                                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                                    // Queda registrado que el paciente ACEPTÓ la propuesta que tenía pendiente...
+                                    this._resolverNotificacion(
+                                        USUARIO_TIPOS.PACIENTE, turno.pacienteId, turno.id,
+                                        TIPOS_NOTIFICACION.PROPUESTA_CAMBIO_FECHA, RESULTADOS.ACEPTADO, actualizado
+                                    ).then((valor) =>
+                                        // ...y se le avisa al médico.
+                                        this._notificar(
+                                            USUARIO_TIPOS.MEDICO, turno.medicoId,
+                                            TIPOS_NOTIFICACION.CAMBIO_CONFIRMADO,
+                                            `El paciente aceptó tu propuesta: el turno quedó para el ${turno.fecha} ${turno.hora}`,
+                                            turno.id, valor
+                                        )
+                                    )
+                                );
                             });
                     });
             });
@@ -283,8 +406,52 @@ export class TurnoService {
                     return Promise.reject(new BadRequestError("El turno no tiene una propuesta del médico pendiente"));
 
                 turno.rechazarPropuestaMedico();
-                return this.turnoRepository.actualizar(turno);
+                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                    // Queda registrado que el paciente RECHAZÓ la propuesta que tenía pendiente...
+                    this._resolverNotificacion(
+                        USUARIO_TIPOS.PACIENTE, turno.pacienteId, turno.id,
+                        TIPOS_NOTIFICACION.PROPUESTA_CAMBIO_FECHA, RESULTADOS.RECHAZADO, actualizado
+                    ).then((valor) =>
+                        // ...y se le avisa al médico.
+                        this._notificar(
+                            USUARIO_TIPOS.MEDICO, turno.medicoId,
+                            TIPOS_NOTIFICACION.CAMBIO_RECHAZADO,
+                            `El paciente rechazó tu propuesta: el turno sigue el ${turno.fecha} ${turno.hora}`,
+                            turno.id, valor
+                        )
+                    )
+                );
             });
+    }
+
+    // --- Próximos turnos ----------------------------------------------------
+
+    // Ordena ascendente por fecha y luego por hora. Las fechas y horas son
+    // strings ISO ("YYYY-MM-DD" / "HH:MM"), por lo que el orden lexicográfico
+    // coincide con el cronológico — no hace falta parsear a Date.
+    _ordenarPorFechaHora(turnos) {
+        return [...turnos].sort((a, b) =>
+            a.fecha === b.fecha ? a.hora.localeCompare(b.hora) : a.fecha.localeCompare(b.fecha)
+        );
+    }
+
+    // Sólo turnos activos (no cancelados/realizados) de hoy en adelante,
+    // ya ordenados ascendentemente. El procesamiento vive en el servidor:
+    // el cliente recibe la lista lista para mostrar.
+    _filtrarProximos(turnos, hoy) {
+        return this._ordenarPorFechaHora(
+            turnos.filter((t) => ESTADOS_ACTIVOS.includes(t.estado) && t.fecha >= hoy)
+        );
+    }
+
+    proximosTurnosPorPaciente(pacienteId, hoy = fechaHoyISO()) {
+        return this.turnoRepository.buscarPorPaciente(pacienteId)
+            .then((turnos) => this._filtrarProximos(turnos, hoy));
+    }
+
+    proximosTurnosPorMedico(medicoId, hoy = fechaHoyISO()) {
+        return this.turnoRepository.buscarPorMedico(medicoId)
+            .then((turnos) => this._filtrarProximos(turnos, hoy));
     }
 
     // --- Historial y búsquedas ----------------------------------------------

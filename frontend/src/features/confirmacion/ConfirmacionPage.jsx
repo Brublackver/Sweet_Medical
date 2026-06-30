@@ -10,7 +10,7 @@ import { formatearFecha }   from '@/lib/fecha';
 import styles from './Confirmacion.module.css';
 
 export default function ConfirmacionPage() {
-  const { paciente }              = usePaciente();
+  const { paciente, cargado }     = usePaciente();
   const { items, vaciar }         = useCarrito();
   const router                    = useRouter();
   const [confirmado, setConfirmado] = useState(false);
@@ -19,11 +19,12 @@ export default function ConfirmacionPage() {
   const [errores, setErrores]       = useState([]);
 
   useEffect(() => {
+    if (!cargado) return;
     if (paciente === null) { router.replace('/login'); return; }
     if (!confirmado && items.length === 0) router.replace('/solicitudes');
-  }, [paciente, items, confirmado, router]);
+  }, [paciente, cargado, items, confirmado, router]);
 
-  if (!paciente) return null;
+  if (!cargado || !paciente) return null;
 
   const total = items.reduce((sum, item) => sum + (item.montoAbonar ?? 0), 0);
 

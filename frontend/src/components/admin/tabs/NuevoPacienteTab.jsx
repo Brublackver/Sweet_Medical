@@ -1,65 +1,68 @@
-import { useState } from 'react';
-import { crearPaciente } from '@/lib/api';
-import { cobValida } from '@/lib/adminUtils';
-import CoberturaEditor from '../editors/CoberturaEditor';
+import { useState, useEffect } from 'react';
+import { crearPaciente, getAllObrasSociales } from '@/lib/api';
 import styles from '@/features/admin/AdminPage.module.css';
 
-const PACIENTE_VACIO  = { usuario: '', dni: '', nombre: '', obraSocial: '', planNombre: '' };
-const COBERTURA_VACIA = { codigo: '', nivel: '' };
+const PACIENTE_VACIO = { usuario: '', dni: '', nombre: '' };
 
 export default function NuevoPacienteTab() {
-  const [pacienteForm, setPacienteForm]         = useState(PACIENTE_VACIO);
-  const [coberturasEsp, setCoberturasEsp]       = useState([]);
-  const [cobEspForm, setCobEspForm]             = useState(COBERTURA_VACIA);
-  const [coberturasPrac, setCoberturasPrac]     = useState([]);
-  const [cobPracForm, setCobPracForm]           = useState(COBERTURA_VACIA);
-  const [cargando, setCargando]                 = useState(false);
-  const [resultado, setResultado]               = useState(null);
-  const [error, setError]                       = useState('');
+  const [pacienteForm, setPacienteForm]     = useState(PACIENTE_VACIO);
+  const [obrasSociales, setObrasSociales]   = useState([]);
+  const [obraSocialNombre, setObraSocialNombre] = useState('');
+  const [planNombre, setPlanNombre]         = useState('');
+  const [cargando, setCargando]             = useState(false);
+  const [resultado, setResultado]           = useState(null);
+  const [error, setError]                   = useState('');
 
-  const handleAgregarCobEsp = () => {
-    if (!cobValida(cobEspForm)) return;
-    setCoberturasEsp((p) => [...p, { especialidad: { codigo: cobEspForm.codigo.trim().toUpperCase() }, nivel: parseInt(cobEspForm.nivel, 10) }]);
-    setCobEspForm(COBERTURA_VACIA);
-  };
+  // Catálogo de obras sociales (datos maestros). El admin elige de acá:
+  // no inventa la obra social ni la cobertura, las trae del catálogo.
+  useEffect(() => {
+    getAllObrasSociales()
+      .then(setObrasSociales)
+      .catch(() => setError('No se pudo cargar el catálogo de obras sociales.'));
+  }, []);
 
-  const handleAgregarCobPrac = () => {
-    if (!cobValida(cobPracForm)) return;
-    setCoberturasPrac((p) => [...p, { practica: { codigo: cobPracForm.codigo.trim().toUpperCase() }, nivel: parseInt(cobPracForm.nivel, 10) }]);
-    setCobPracForm(COBERTURA_VACIA);
+  // Derivados: la obra social y el plan elegidos salen del catálogo, no de
+  // estados duplicados. Una sola fuente de verdad.
+  const obraSocialSel = obrasSociales.find((o) => o.nombre === obraSocialNombre) || null;
+  const planSel       = obraSocialSel?.planes.find((p) => p.nombre === planNombre) || null;
+
+  const handleObraSocial = (e) => {
+    setObraSocialNombre(e.target.value);
+    setPlanNombre('');           // al cambiar de obra social, el plan anterior ya no aplica
+    setError('');
   };
 
   const handleCrearPaciente = (e) => {
     e.preventDefault();
+    if (!planSel) { setError('Elegí una obra social y un plan.'); return; }
     setError('');
     setResultado(null);
     setCargando(true);
+    // El plan se copia tal cual del catálogo (snapshot): el paciente queda con
+    // la cobertura canónica, y el cálculo de monto del turno no cambia.
     const payload = {
       usuario:    pacienteForm.usuario,
       dni:        pacienteForm.dni,
       nombre:     pacienteForm.nombre,
-      obraSocial: pacienteForm.obraSocial,
+      obraSocial: obraSocialSel.nombre,
       plan: {
-        nombre:                 pacienteForm.planNombre,
-        coberturasEspecialidad: coberturasEsp,
-        coberturasPractica:     coberturasPrac,
+        nombre:           planSel.nombre,
+        coberturaGeneral: planSel.coberturaGeneral,
       },
     };
     crearPaciente(payload)
       .then((data) => {
         setResultado(data);
         setPacienteForm(PACIENTE_VACIO);
-        setCoberturasEsp([]);
-        setCoberturasPrac([]);
-        setCobEspForm(COBERTURA_VACIA);
-        setCobPracForm(COBERTURA_VACIA);
+        setObraSocialNombre('');
+        setPlanNombre('');
       })
       .catch((err) => setError(err.response?.data?.message || err.response?.data?.error || 'Error al crear el paciente.'))
       .finally(() => setCargando(false));
   };
 
   const formCompleto = pacienteForm.usuario.trim() && pacienteForm.dni.trim() &&
-    pacienteForm.nombre.trim() && pacienteForm.obraSocial.trim() && pacienteForm.planNombre.trim();
+    pacienteForm.nombre.trim() && obraSocialSel && planSel;
 
   return (
     <form onSubmit={handleCrearPaciente} noValidate className={styles.form}>
@@ -91,40 +94,47 @@ export default function NuevoPacienteTab() {
           placeholder="Ej: Juan Pérez"
           onChange={(e) => { setPacienteForm((p) => ({ ...p, nombre: e.target.value })); setError(''); }} />
       </div>
+
+      {/* Obra social: se elige del catálogo, no se tipea. */}
       <div className={styles.campo}>
-        <label className={styles.label}>Obra social</label>
-        <input type="text" value={pacienteForm.obraSocial} required className={styles.input}
-          placeholder="Ej: OSDE"
-          onChange={(e) => { setPacienteForm((p) => ({ ...p, obraSocial: e.target.value })); setError(''); }} />
-      </div>
-      <div className={styles.campo}>
-        <label className={styles.label}>Nombre del plan</label>
-        <input type="text" value={pacienteForm.planNombre} required className={styles.input}
-          placeholder="Ej: Plan 210"
-          onChange={(e) => { setPacienteForm((p) => ({ ...p, planNombre: e.target.value })); setError(''); }} />
+        <label htmlFor="select-obra-social" className={styles.label}>Obra social</label>
+        <select id="select-obra-social" value={obraSocialNombre} onChange={handleObraSocial}
+          required className={styles.input}>
+          <option value="">— Elegí una obra social —</option>
+          {obrasSociales.map((o) => (
+            <option key={o.obra_social_id} value={o.nombre}>{o.nombre}</option>
+          ))}
+        </select>
       </div>
 
-      <CoberturaEditor
-        titulo="Coberturas de especialidades"
-        tipo="especialidad"
-        items={coberturasEsp}
-        form={cobEspForm}
-        onFormChange={(c, v) => setCobEspForm((p) => ({ ...p, [c]: v }))}
-        onAgregar={handleAgregarCobEsp}
-        onQuitar={(i) => setCoberturasEsp((p) => p.filter((_, idx) => idx !== i))}
-        valida={cobValida(cobEspForm)}
-      />
+      {/* Plan: depende de la obra social elegida. */}
+      <div className={styles.campo}>
+        <label htmlFor="select-plan" className={styles.label}>Plan</label>
+        <select id="select-plan" value={planNombre} onChange={(e) => { setPlanNombre(e.target.value); setError(''); }}
+          required disabled={!obraSocialSel} className={styles.input}>
+          <option value="">
+            {obraSocialSel ? '— Elegí un plan —' : '— Primero elegí una obra social —'}
+          </option>
+          {obraSocialSel?.planes.map((p) => (
+            <option key={p.nombre} value={p.nombre}>
+              {p.nombre} ({p.coberturaGeneral}% de cobertura)
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <CoberturaEditor
-        titulo="Coberturas de prácticas"
-        tipo="practica"
-        items={coberturasPrac}
-        form={cobPracForm}
-        onFormChange={(c, v) => setCobPracForm((p) => ({ ...p, [c]: v }))}
-        onAgregar={handleAgregarCobPrac}
-        onQuitar={(i) => setCoberturasPrac((p) => p.filter((_, idx) => idx !== i))}
-        valida={cobValida(cobPracForm)}
-      />
+      {/* Cobertura del plan elegido: solo lectura, sale del catálogo. */}
+      {planSel && (
+        <div className={styles.seccionEsp}>
+          <h3 className={styles.seccionEspTitulo}>
+            {obraSocialSel.nombre} · Plan {planSel.nombre}
+          </h3>
+          <p className={styles.sinEsp}>
+            Cobertura general: <strong>{planSel.coberturaGeneral}%</strong>
+            {planSel.coberturaGeneral === 0 && ' (igual bonifica 10% en prácticas)'}
+          </p>
+        </div>
+      )}
 
       <button type="submit" className={styles.submitBtn} disabled={cargando || !formCompleto}>
         {cargando ? 'Creando...' : 'Crear Paciente →'}

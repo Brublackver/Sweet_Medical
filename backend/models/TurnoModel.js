@@ -33,15 +33,9 @@ const snapshotMedicoSchema = new Schema({
     practicas:      [snapshotServicioSchema],
 }, { _id: false });
 
-const snapshotCoberturaSchema = new Schema({
-    codigo: { type: String },
-    nivel:  { type: Number },
-}, { _id: false });
-
 const snapshotPlanSchema = new Schema({
-    nombre:                 { type: String },
-    coberturasEspecialidad: [snapshotCoberturaSchema],
-    coberturasPractica:     [snapshotCoberturaSchema],
+    nombre:           { type: String },
+    coberturaGeneral: { type: Number },
 }, { _id: false });
 
 const snapshotPacienteSchema = new Schema({

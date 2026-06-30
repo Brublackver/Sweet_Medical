@@ -1,0 +1,110 @@
+/* Texto sólo para lectores de pantalla: invisible en pantalla, audible para
+   tecnología asistiva (estado "sin leer", contexto que el color no comunica). */
+.srOnly {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ====== PAGE ====== */
+.page { max-width: 48rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header       { margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+.pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+.tab {
+  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem;
+  font-weight: 500; border: 1px solid #e2e8f0; background: #fff;
+  color: #475569; cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.tab:hover { border-color: #99f6e4; color: #0f766e; }
+.tab:focus { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.25); }
+
+.tabActivo       { background-color: #0f766e; color: #fff; border-color: #0f766e; }
+.tabActivo:hover { background-color: #115e59; border-color: #115e59; color: #fff; }
+
+.errorMsg {
+  margin-bottom: 1rem; padding: 0.75rem 1rem; font-size: 0.875rem;
+  color: #b91c1c; background-color: #fef2f2; border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+}
+
+.emptyState { text-align: center; padding: 4rem 0; }
+.emptyIcon  { font-size: 3rem; margin-bottom: 1rem; }
+.emptyTitle { font-size: 1.125rem; font-weight: 600; color: #334155; }
+.emptyText  { color: #94a3b8; margin-top: 0.5rem; font-size: 0.875rem; }
+
+/* ====== TARJETA NOTIFICACIÓN ====== */
+.notif {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.05);
+}
+.notif:hover { box-shadow: 0 4px 12px rgba(15, 118, 110, 0.08); }
+
+.notifSinLeer { border-color: #99f6e4; background-color: #f0fdfa; }
+
+.notifFila { display: flex; align-items: flex-start; gap: 0.75rem; }
+
+.notifTexto   { flex: 1; min-width: 0; }
+.notifMensaje { font-size: 0.95rem; color: #334155; line-height: 1.45; }
+.notifFecha   {
+  display: block; margin-top: 0.35rem; font-size: 0.75rem;
+  color: #94a3b8; text-transform: capitalize;
+}
+
+/* Tag persistente de cómo se resolvió una notificación accionable. */
+.resultadoTag {
+  display: inline-block; margin-top: 0.4rem; padding: 0.15rem 0.55rem;
+  font-size: 0.72rem; font-weight: 700; border-radius: 9999px; border: 1px solid transparent;
+}
+.resultadoAceptado  { color: #15803d; background: #dcfce7; border-color: #bbf7d0; }
+.resultadoRechazado { color: #b91c1c; background: #fee2e2; border-color: #fecaca; }
+
+/* Tilde verde + cruz roja para notificaciones informativas. Ambas marcan leída. */
+.iconAcciones { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+.btnCheck,
+.btnCruz {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; font-size: 0.95rem; font-weight: 700;
+  border-radius: 9999px; border: 1px solid transparent; cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.btnCheck { background-color: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
+.btnCheck:hover { background-color: #bbf7d0; }
+
+.btnCruz { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
+.btnCruz:hover { background-color: #fecaca; }
+
+/* Acciones de aceptar/rechazar. */
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.btnAceptar,
+.btnRechazar {
+  padding: 0.5rem 1.1rem; font-size: 0.875rem; font-weight: 600;
+  border-radius: 0.5rem; border: 1px solid transparent; cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+.btnAceptar { background-color: #16a34a; color: #fff; }
+.btnAceptar:hover:not(:disabled) { background-color: #15803d; }
+
+.btnRechazar { background-color: #fff; color: #b91c1c; border-color: #fecaca; }
+.btnRechazar:hover:not(:disabled) { background-color: #fef2f2; }
+
+.btnAceptar:disabled,
+.btnRechazar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (min-width: 640px)  { .page { padding: 2rem 1.5rem; } }
+@media (min-width: 1024px) { .page { padding: 2rem 2rem; } }

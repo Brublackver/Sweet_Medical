@@ -1,10 +1,12 @@
 .nav {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid #cdeeee;
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 8px rgba(15, 118, 110, 0.08);
 }
 
 .inner {
@@ -21,10 +23,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #2563eb;
+  color: #0f766e;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.75rem;
   text-decoration: none;
+  letter-spacing: -0.01em;
 }
 
 .links {
@@ -36,7 +39,7 @@
 .userName {
   display: none;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: #64748b;
   max-width: 12.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -52,12 +55,43 @@
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  color: #4b5563;
+  color: #475569;
   transition: color 0.15s, background-color 0.15s;
 }
+.navLink:hover    { color: #0f766e; background-color: #f0fdfa; }
+.navLinkActive    { background-color: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
 
-.navLink:hover    { color: #2563eb; background-color: #eff6ff; }
-.navLinkActive    { background-color: #dbeafe; color: #1d4ed8; }
+.navLinkNotif {
+  position: relative;
+  display: none;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #475569;
+  transition: color 0.15s, background-color 0.15s;
+}
+.navLinkNotif:hover { color: #0f766e; background-color: #f0fdfa; }
+
+.notifBadge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  background-color: #dc2626;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .carritoBtn {
   position: relative;
@@ -66,22 +100,22 @@
   gap: 0.375rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  background-color: #eff6ff;
-  color: #1d4ed8;
+  background-color: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
-
-.carritoBtn:hover { background-color: #dbeafe; }
+.carritoBtn:hover { background-color: #ccfbf1; border-color: #5eead4; }
 .carritoLabel     { display: none; }
 
 .carritoBadge {
   position: absolute;
   top: -0.25rem;
   right: -0.25rem;
-  background-color: #2563eb;
+  background: linear-gradient(135deg, #0f766e, #06b6d4);
   color: #fff;
   font-size: 0.75rem;
   width: 1.25rem;
@@ -95,18 +129,18 @@
 
 .logoutBtn {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #94a3b8;
   background: none;
   border: none;
   cursor: pointer;
   transition: color 0.15s;
 }
-
-.logoutBtn:hover { color: #4b5563; }
+.logoutBtn:hover { color: #475569; }
 
 @media (min-width: 640px) {
   .inner        { padding: 0 1.5rem; }
   .navLink      { display: flex; }
+  .navLinkNotif { display: flex; }
   .userName     { display: block; }
   .links        { gap: 1rem; }
   .carritoLabel { display: inline; }

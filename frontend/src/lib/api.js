@@ -4,6 +4,34 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
 });
 
+const TOKEN_KEY = 'token';
+
+// --- Sesión / token --------------------------------------------------------
+export const guardarToken = (token) => {
+  if (typeof window !== 'undefined') localStorage.setItem(TOKEN_KEY, token);
+};
+export const limpiarToken = () => {
+  if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_KEY);
+};
+
+// Adjunta el Bearer token en cada request si hay sesión activa.
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Login real: el backend valida usuario+contraseña y devuelve { token, tipo, usuario }.
+export const login = (rol, usuario, password) =>
+  api.post('/auth/login', { rol, usuario, password }).then((r) => r.data.data);
+
+// Auto-registro público de paciente. Crea la cuenta y devuelve la sesión ya
+// iniciada { token, tipo, usuario } — mismo shape que login.
+export const registrarPaciente = (datos) =>
+  api.post('/auth/registro', datos).then((r) => r.data.data);
+
 export const getPaciente = (id) =>
   api.get(`/paciente/${id}`).then((r) => r.data.data);
 
@@ -17,11 +45,20 @@ export const getAllPacientes = () =>
 export const getAllSedes = () =>
   api.get('/sede').then((r) => r.data.data);
 
+// Catálogo de obras sociales con sus planes (datos maestros, solo lectura).
+export const getAllObrasSociales = () =>
+  api.get('/obra-social').then((r) => r.data.data);
+
 export const buscarTurnos = (params) =>
   api.get('/turno/buscar', { params }).then((r) => r.data.data);
 
 export const getTurnosPaciente = (pacienteId) =>
   api.get(`/paciente/${pacienteId}/turnos`).then((r) => r.data.data);
+
+// Próximos turnos: el backend los devuelve ya ordenados (ascendente) y sin los
+// que ya pasaron. El cliente recibe la lista lista para mostrar.
+export const getProximosTurnosPaciente = (pacienteId) =>
+  api.get(`/paciente/${pacienteId}/turnos`, { params: { proximos: true } }).then((r) => r.data.data);
 
 export const reservarTurno = (pacienteId, datos) =>
   api.post(`/paciente/${pacienteId}/turno`, datos).then((r) => r.data.data);
@@ -76,6 +113,13 @@ export const agregarEspecialidadMedico = (medicoId, datos) =>
 export const eliminarMedico = (medicoId) =>
   api.delete(`/medico/${medicoId}`);
 
+// Reset de contraseña (solo admin). El backend hashea la nueva clave.
+export const resetearPasswordMedico = (medicoId, password) =>
+  api.patch(`/medico/${medicoId}/password`, { password }).then((r) => r.data);
+
+export const resetearPasswordPaciente = (pacienteId, password) =>
+  api.patch(`/paciente/${pacienteId}/password`, { password }).then((r) => r.data);
+
 export const crearPaciente = (datos) =>
   api.post('/paciente', datos).then((r) => r.data.data);
 
@@ -93,3 +137,25 @@ export const agregarCoberturaPractica = (pacienteId, datos) =>
 
 export const quitarCoberturaPractica = (pacienteId, codigo) =>
   api.delete(`/paciente/${pacienteId}/plan/practicas/${codigo}`).then((r) => r.data.data);
+
+// --- Notificaciones --------------------------------------------------------
+// El recurso está anidado bajo el tipo de usuario: /medico/:id o /paciente/:id.
+const baseNotif = (usuarioTipo) => (usuarioTipo === 'MEDICO' ? 'medico' : 'paciente');
+
+// leidas: true → leídas | false → sin leer | undefined → todas
+export const getNotificaciones = (usuarioTipo, usuarioId, leidas) =>
+  api
+    .get(`/${baseNotif(usuarioTipo)}/${usuarioId}/notificaciones`, {
+      params: leidas === undefined ? {} : { leidas },
+    })
+    .then((r) => r.data.data);
+
+// resultado opcional ("ACEPTADO" | "RECHAZADO") deja registrado cómo se resolvió
+// una notificación accionable. Sin él, solo la marca como leída.
+export const marcarNotificacionLeida = (usuarioTipo, usuarioId, notificacionId, resultado) =>
+  api
+    .patch(`/${baseNotif(usuarioTipo)}/${usuarioId}/notificaciones/${notificacionId}`, {
+      leida: true,
+      ...(resultado ? { resultado } : {}),
+    })
+    .then((r) => r.data.data);

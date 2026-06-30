@@ -20,9 +20,10 @@ const initialState = () => ({
 });
 
 export default function FiltrosBusqueda({ onBuscar, cargando }) {
-  const [filtros, setFiltros] = useState(initialState);
-  const [sedes, setSedes]     = useState([]);
-  const [medicos, setMedicos] = useState([]);
+  const [filtros, setFiltros]       = useState(initialState);
+  const [sedes, setSedes]           = useState([]);
+  const [medicos, setMedicos]       = useState([]);
+  const [minimizado, setMinimizado] = useState(false);
 
   // Poblamos los selectores con datos reales del backend (GetAll).
   // Si falla la carga, los selectores quedan solo con la opción "Todas/Todos".
@@ -46,8 +47,21 @@ export default function FiltrosBusqueda({ onBuscar, cargando }) {
 
   return (
     <form onSubmit={handleSubmit} aria-label="Filtros de búsqueda" className={styles.filtrosForm}>
-      <h2 className={styles.filtrosTitle}>Filtros</h2>
+      <div className={styles.filtrosHeader}>
+        <h2 className={styles.filtrosTitle}>Filtros</h2>
+        <button
+          type="button"
+          className={styles.filtrosToggle}
+          onClick={() => setMinimizado((p) => !p)}
+          aria-expanded={!minimizado}
+          aria-label={minimizado ? 'Expandir filtros' : 'Minimizar filtros'}
+        >
+          <span className={`${styles.filtrosChevron} ${minimizado ? '' : styles.filtrosChevronOpen}`}>›</span>
+        </button>
+      </div>
 
+      <div className={`${styles.filtrosCuerpo} ${minimizado ? styles.filtrosCuerpoCollapsed : ''}`}>
+        <div className={styles.filtrosCuerpoInner}>
       <div className={styles.filtrosFields}>
         <Campo id="especialidad" label="Especialidad" placeholder="Ej: Cardiología"        value={filtros.especialidad} onChange={set('especialidad')} />
         <Campo id="practica"     label="Práctica"     placeholder="Ej: Electrocardiograma" value={filtros.practica}     onChange={set('practica')} />
@@ -105,6 +119,8 @@ export default function FiltrosBusqueda({ onBuscar, cargando }) {
         <button type="button" onClick={handleReset} className={styles.limpiarBtn}>
           Limpiar filtros
         </button>
+      </div>
+        </div>
       </div>
     </form>
   );

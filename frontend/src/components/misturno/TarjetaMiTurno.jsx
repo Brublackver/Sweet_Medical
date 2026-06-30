@@ -16,20 +16,23 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
   const [nuevaFecha,     setNuevaFecha]     = useState('');
   const [nuevaHora,      setNuevaHora]      = useState('');
 
-  const ejecutar = (accion) => {
+  const ejecutar = (accion, notificar = false) => {
     setError('');
     setCargando(true);
     accion()
-      .then(onActualizar)
+      .then((resultado) => {
+        if (notificar) window.dispatchEvent(new CustomEvent('notif-actualizada'));
+        return onActualizar(resultado);
+      })
       .catch((e) => setError(e.response?.data?.message ?? 'Ocurrió un error. Intentá de nuevo.'))
       .finally(() => setCargando(false));
   };
 
   const handleConfirmar = () =>
-    ejecutar(() => confirmarPropuestaMedico(pacienteId, turno.id));
+    ejecutar(() => confirmarPropuestaMedico(pacienteId, turno.id), true);
 
   const handleRechazar = () =>
-    ejecutar(() => rechazarPropuestaMedico(pacienteId, turno.id));
+    ejecutar(() => rechazarPropuestaMedico(pacienteId, turno.id), true);
 
   const handleSolicitarCambio = (e) => {
     e.preventDefault();
@@ -57,9 +60,10 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
             <EstadoBadge estado={turno.estado} />
             {turno.cobertura && <CoberturasBadge cobertura={turno.cobertura} />}
           </div>
-          <p className={styles.tarjetaFechaLarga}>{formatearFechaConAnio(turno.fecha)}</p>
+          <p className={styles.tarjetaFechaLarga}>{formatearFechaConAnio(turno.fecha)} · {turno.hora} hs</p>
           <div className={styles.tarjetaDetalle}>
             <p>👨‍⚕️ Dr/a. {turno.medico.nombre} <span className={styles.tarjetaSecundario}>(Mat. {turno.medico.matricula})</span></p>
+            <p>⏱ Duración: {turno.duracion} min</p>
             {turno.sede && <p>📍 {turno.sede}</p>}
           </div>
         </div>
@@ -67,6 +71,7 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
         <div className={styles.tarjetaPrecio}>
           {turno.montoAbonar === 0 && <p className={styles.precioGratis}>Sin costo</p>}
           {turno.montoAbonar > 0  && <p className={styles.precioMonto}>${turno.montoAbonar.toLocaleString('es-AR')}</p>}
+          {turno.montoAbonar == null && <p className={styles.tarjetaSecundario}>—</p>}
         </div>
       </div>
 

@@ -11,11 +11,11 @@ export class NotificacionRepository {
         ).then((doc) => doc.valor);
     }
 
-    crear(usuarioId, tipo, mensaje) {
+    crear(usuarioTipo, usuarioId, tipo, mensaje, turnoId = null) {
         const ahora = new Date().toISOString();
         return this._siguienteId()
             .then((notificacionId) => new NotificacionModel({
-                notificacionId, usuarioId, tipo, mensaje, fechaCreacion: ahora,
+                notificacionId, usuarioTipo, usuarioId, tipo, mensaje, turnoId, fechaCreacion: ahora,
             }).save());
     }
 
@@ -23,9 +23,10 @@ export class NotificacionRepository {
         return NotificacionModel.findOne({ notificacionId: id });
     }
 
+    // Filtra por destinatario (clave compuesta usuarioTipo + usuarioId).
     // leida = true → solo leídas | leida = false → solo sin leer | undefined → todas
-    obtenerPorUsuario(usuarioId, leida) {
-        const filtro = { usuarioId };
+    obtenerPorUsuario(usuarioTipo, usuarioId, leida) {
+        const filtro = { usuarioTipo, usuarioId };
         if (leida !== undefined) filtro.leida = leida;
         return NotificacionModel.find(filtro);
     }
@@ -33,7 +34,7 @@ export class NotificacionRepository {
     actualizar(notificacion) {
         return NotificacionModel.findOneAndUpdate(
             { notificacionId: notificacion.id },
-            { leida: notificacion.leida },
+            { leida: notificacion.leida, resultado: notificacion.resultado ?? null },
             { new: true }
         );
     }

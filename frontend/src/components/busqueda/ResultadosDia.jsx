@@ -1,27 +1,43 @@
-import TarjetaTurno       from './TarjetaTurno';
-import Carousel           from '@/components/ui/Carousel';
-import { formatearFecha } from '@/lib/fecha';
+import GrupoHora    from './GrupoHora';
+import ListaPaginada from '@/components/ui/ListaPaginada';
 import styles from '@/features/busqueda/Busqueda.module.css';
 
-export default function ResultadosDia({ dia }) {
-  return (
-    <section aria-label={`Turnos del ${dia.fecha}`}>
-      <div className={styles.diaHeader}>
-        <h2 className={styles.diaTitle}>{formatearFecha(dia.fecha)}</h2>
-        <span className={styles.diaBadge}>
-          {dia.turnos.length} {dia.turnos.length === 1 ? 'turno' : 'turnos'}
-        </span>
-      </div>
+function agruparPorHora(turnos) {
+  const grupos = {};
+  for (const turno of turnos) {
+    if (!grupos[turno.hora]) grupos[turno.hora] = [];
+    grupos[turno.hora].push(turno);
+  }
+  return Object.entries(grupos).sort(([a], [b]) => a.localeCompare(b));
+}
 
-      <Carousel ariaLabel={`Turnos disponibles del ${formatearFecha(dia.fecha)}`}>
-        {dia.turnos.map((turno, i) => (
-          <TarjetaTurno
-            key={`${turno.medico.id}-${turno.hora}-${turno.servicio.id}-${i}`}
-            turno={turno}
-            fecha={dia.fecha}
-          />
-        ))}
-      </Carousel>
-    </section>
+export default function ResultadosDia({ dia }) {
+  if (!dia || dia.turnos.length === 0) {
+    return (
+      <div className={styles.emptyDay}>
+        <p className={styles.emptyDayIcon} aria-hidden="true">📅</p>
+        <p className={styles.emptyDayText}>No hay turnos disponibles para este día.</p>
+      </div>
+    );
+  }
+
+  const grupos = agruparPorHora(dia.turnos);
+
+  return (
+    <ListaPaginada
+      ariaLabel="Turnos agrupados por hora"
+      variante="lista"
+      porPagina={4}
+    >
+      {grupos.map(([hora, turnos], i) => (
+        <GrupoHora
+          key={hora}
+          hora={hora}
+          turnos={turnos}
+          fecha={dia.fecha}
+          inicialExpandido={i === 0}
+        />
+      ))}
+    </ListaPaginada>
   );
 }

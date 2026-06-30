@@ -5,9 +5,9 @@ import { solicitarCambioFechaSchema }  from "../schemas/solicitarCambioFechaSche
 import { crearServicioSchema }         from "../schemas/crearServicioSchema.js";
 import { modificarServicioSchema }     from "../schemas/modificarServicioSchema.js";
 import { BadRequestError }             from "../errors/AppError.js";
-import { validarId, validarIdNumerico, formatearErrores } from "./sharedValidator.js";
+import { validarId, validarIdNumerico, validarResetPassword, formatearErrores } from "./sharedValidator.js";
 
-export { validarId, validarIdNumerico };
+export { validarId, validarIdNumerico, validarResetPassword };
 
 export const validarCrearMedico = (data) =>
     crearMedicoSchema.parseAsync(data)

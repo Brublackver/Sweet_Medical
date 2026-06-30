@@ -1,13 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/navigation';
+import Link                     from 'next/link';
+import CampoPassword            from '@/components/ui/CampoPassword';
 import { usePaciente }           from '@/context/PacienteContext';
 import { useMedico }             from '@/context/MedicoContext';
 import { useAdmin }              from '@/context/AdminContext';
-import { getPaciente, getMedico } from '@/lib/api';
+import { login as loginRequest, guardarToken } from '@/lib/api';
 import styles from './Login.module.css';
-
-const ADMIN_PASSWORD = '123456';
 
 export default function LoginPage() {
   const { paciente, login: loginPaciente } = usePaciente();
@@ -15,7 +15,8 @@ export default function LoginPage() {
   const { admin,    login: loginAdmin }    = useAdmin();
   const router                             = useRouter();
   const [rol, setRol]                      = useState('paciente');
-  const [id, setId]                        = useState('');
+  const [usuario, setUsuario]              = useState('');
+  const [password, setPassword]            = useState('');
   const [cargando, setCargando]            = useState(false);
   const [error, setError]                  = useState('');
 
@@ -27,38 +28,34 @@ export default function LoginPage() {
 
   const handleRolChange = (r) => {
     setRol(r);
-    setId('');
+    setUsuario('');
+    setPassword('');
     setError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
-
-    if (rol === 'admin') {
-      if (id !== ADMIN_PASSWORD) {
-        setError('Contraseña incorrecta.');
-        return;
-      }
-      loginAdmin();
-      router.push('/admin');
-      return;
-    }
-
-    const numId = Number(id);
-    if (!Number.isInteger(numId) || numId <= 0) {
-      setError('Ingresá un ID numérico válido.');
-      return;
-    }
     setCargando(true);
-    const entidad = rol === 'paciente' ? 'paciente' : 'médico';
-    const peticion = rol === 'paciente'
-      ? getPaciente(numId).then((data) => { loginPaciente(data); router.push('/buscar'); })
-      : getMedico(numId).then((data)   => { loginMedico(data);   router.push('/medico/turnos'); });
-    peticion
+
+    // El backend valida las credenciales y emite el token de sesión.
+    loginRequest(rol, rol === 'admin' ? '' : usuario, password)
+      .then((sesion) => {
+        guardarToken(sesion.token);
+        if (rol === 'admin') {
+          loginAdmin();
+          router.push('/admin');
+        } else if (rol === 'paciente') {
+          loginPaciente(sesion.usuario);
+          router.push('/buscar');
+        } else {
+          loginMedico(sesion.usuario);
+          router.push('/medico/turnos');
+        }
+      })
       .catch((err) => setError(
-        err.response?.status === 404
-          ? `No encontramos un ${entidad} con ese ID. Verificá el número.`
+        err.response?.status === 401
+          ? (rol === 'admin' ? 'Contraseña incorrecta.' : 'Usuario o contraseña incorrectos.')
           : 'Ocurrió un error al conectar con el servidor. Intentá de nuevo.'
       ))
       .finally(() => setCargando(false));
@@ -107,7 +104,7 @@ export default function LoginPage() {
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>Bienvenido</h2>
               <p className={styles.cardSubtitle}>
-                {rol === 'admin' ? 'Ingresá tu contraseña de administrador' : 'Seleccioná tu rol e ingresá tu ID'}
+                {rol === 'admin' ? 'Ingresá tu contraseña de administrador' : 'Seleccioná tu rol e ingresá tus credenciales'}
               </p>
             </div>
 
@@ -125,19 +122,32 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} noValidate className={styles.form}>
+              {rol !== 'admin' && (
+                <div>
+                  <label htmlFor="usuario" className={styles.label}>Usuario</label>
+                  <input
+                    id="usuario"
+                    type="text"
+                    value={usuario}
+                    onChange={(e) => { setUsuario(e.target.value); setError(''); }}
+                    placeholder="Ej: jperez"
+                    autoFocus
+                    autoComplete="username"
+                    aria-describedby={error ? 'login-error' : undefined}
+                    className={styles.input}
+                  />
+                </div>
+              )}
+
               <div>
-                <label htmlFor="userId" className={styles.label}>
-                  {rol === 'paciente' ? 'ID de Paciente' : rol === 'medico' ? 'ID de Médico' : 'Contraseña'}
-                </label>
-                <input
-                  id="userId"
-                  type={rol === 'admin' ? 'password' : 'number'}
-                  min={rol === 'admin' ? undefined : '1'}
-                  inputMode={rol === 'admin' ? undefined : 'numeric'}
-                  value={id}
-                  onChange={(e) => { setId(e.target.value); setError(''); }}
-                  placeholder={rol === 'admin' ? '••••••' : 'Ej: 1'}
-                  autoFocus
+                <label htmlFor="password" className={styles.label}>Contraseña</label>
+                <CampoPassword
+                  id="password"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                  placeholder="••••••"
+                  autoFocus={rol === 'admin'}
+                  autoComplete="current-password"
                   aria-describedby={error ? 'login-error' : undefined}
                   className={styles.input}
                 />
@@ -152,7 +162,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={cargando || !id.trim()}
+                disabled={cargando || (rol !== 'admin' && !usuario.trim()) || !password.trim()}
                 className={styles.submitBtn}
               >
                 {cargando ? 'Verificando...' : 'Ingresar →'}
@@ -163,7 +173,9 @@ export default function LoginPage() {
           <p className={styles.hint}>
             {rol === 'admin'
               ? 'Acceso restringido para administradores del sistema.'
-              : 'Tu ID te lo brinda la administración del centro médico.'}
+              : rol === 'medico'
+                ? 'Tus credenciales te las brinda la administración del centro médico.'
+                : <>¿No tenés cuenta? <Link href="/registro" className={styles.authLink}>Creá una</Link></>}
           </p>
         </div>
       </div>

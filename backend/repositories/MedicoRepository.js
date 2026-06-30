@@ -26,8 +26,27 @@ export class MedicoRepository {
             .then((doc) => doc ? this._toMedico(doc) : null);
     }
 
+    // Trae la credencial (incluido el hash) para autenticar. No pasa por
+    // _toMedico porque el dominio Medico no modela la contraseña.
+    obtenerCredencialPorUsuario(usuario) {
+        return MedicoModel.findOne({ usuario }).select("+password").lean()
+            .then((doc) => doc
+                ? { id: doc.medicoId, usuario: doc.usuario, password: doc.password }
+                : null
+            );
+    }
+
     eliminar(id) {
         return MedicoModel.deleteOne({ medicoId: id });
+    }
+
+    // Actualiza solo el hash de la contraseña. El hash llega listo desde el service.
+    actualizarPassword(id, hash) {
+        return MedicoModel.findOneAndUpdate(
+            { medicoId: id },
+            { password: hash },
+            { new: true }
+        );
     }
 
     crear(datos) {
@@ -35,6 +54,7 @@ export class MedicoRepository {
             .then((medicoId) => new MedicoModel({
                 medicoId,
                 usuario:   datos.usuario,
+                password:  datos.password, // ya viene hasheada desde el service
                 matricula: datos.matricula,
                 nombre:    datos.nombre,
             }).save())

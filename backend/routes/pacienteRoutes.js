@@ -16,11 +16,17 @@ import { PacienteController } from "../controllers/PacienteController.js";
 import { PacienteService }    from "../services/PacienteService.js";
 import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { turnoService }       from "./turnoRoutes.js";
+import { notificacionController } from "./notificacionRoutes.js";
+import { USUARIO_TIPOS }      from "../domain/Notificacion.js";
+import { requireOwnership, requireAdmin } from "../middleware/authMiddleware.js";
 
 const pacienteRouter          = new Router();
 export const pacienteRepository = new PacienteRepository();
 export const pacienteService = new PacienteService({ pacienteRepository, turnoService });
 const pacienteController = new PacienteController({ pacienteService });
+
+// El paciente solo puede operar sobre su propia cuenta (el :id debe ser el suyo).
+const soloPaciente = requireOwnership(USUARIO_TIPOS.PACIENTE);
 
 pacienteRouter.route("/")
     .get(pacienteController.obtenerTodos)
@@ -30,23 +36,27 @@ pacienteRouter.route("/:id")
     .get(pacienteController.obtenerPaciente)
     .delete(pacienteController.eliminarPaciente);
 
+// Reset de contraseña — solo admin.
+pacienteRouter.route("/:id/password")
+    .patch(requireAdmin, pacienteController.resetearPassword);
+
 pacienteRouter.route("/:id/turno")
-    .post(pacienteController.reservarTurno);
+    .post(soloPaciente, pacienteController.reservarTurno);
 
 pacienteRouter.route("/:id/turnos")
-    .get(pacienteController.obtenerHistorial);
+    .get(soloPaciente, pacienteController.obtenerHistorial);
 
 pacienteRouter.route("/:id/turnos/:turnoId/cancelar")
-    .patch(pacienteController.cancelarTurno);
+    .patch(soloPaciente, pacienteController.cancelarTurno);
 
 pacienteRouter.route("/:id/turnos/:turnoId/solicitar-cambio")
-    .post(pacienteController.solicitarCambioFecha);
+    .post(soloPaciente, pacienteController.solicitarCambioFecha);
 
 pacienteRouter.route("/:id/turnos/:turnoId/confirmar-propuesta")
-    .patch(pacienteController.confirmarPropuestaMedico);
+    .patch(soloPaciente, pacienteController.confirmarPropuestaMedico);
 
 pacienteRouter.route("/:id/turnos/:turnoId/rechazar-propuesta")
-    .patch(pacienteController.rechazarPropuestaMedico);
+    .patch(soloPaciente, pacienteController.rechazarPropuestaMedico);
 
 pacienteRouter.route("/:id/plan/especialidades")
     .post(pacienteController.agregarCoberturaEspecialidad);
@@ -59,5 +69,12 @@ pacienteRouter.route("/:id/plan/practicas")
 
 pacienteRouter.route("/:id/plan/practicas/:codigo")
     .delete(pacienteController.quitarCoberturaPractica);
+
+// Notificaciones — REST: recurso anidado bajo el paciente
+pacienteRouter.route("/:id/notificaciones")
+    .get(soloPaciente, notificacionController.obtenerNotificaciones(USUARIO_TIPOS.PACIENTE));
+
+pacienteRouter.route("/:id/notificaciones/:notificacionId")
+    .patch(soloPaciente, notificacionController.marcarLeida(USUARIO_TIPOS.PACIENTE));
 
 export default pacienteRouter;

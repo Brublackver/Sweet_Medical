@@ -78,27 +78,23 @@ export class BusquedaService {
         ];
     }
 
-    // Calcula cobertura según el plan del paciente.
-    // nivel (0–100) = porcentaje que cubre la obra social.
+    // Calcula la cobertura según el plan del paciente.
+    // El plan define UN porcentaje general (coberturaGeneral, 0–100) que aplica a
+    // todos los servicios. Regla de negocio: un plan con 0% igual bonifica un 10%
+    // en las PRÁCTICAS (no en las especialidades).
     _calcularCobertura(paciente, servicio) {
         const plan = paciente.plan;
         if (!plan) return { cobertura: "NO_CUBIERTA", montoAbonar: servicio.costo };
 
-        const coberturas = servicio.tipo === "especialidad"
-            ? plan.coberturasEspecialidad
-            : plan.coberturasPractica;
+        let nivel = plan.coberturaGeneral ?? 0;
+        if (nivel === 0 && servicio.tipo === "practica") nivel = 10;
 
-        const match = coberturas?.find((c) => {
-            const item = servicio.tipo === "especialidad" ? c.especialidad : c.practica;
-            return item?.codigo === servicio.codigo;
-        });
-
-        if (!match || match.nivel === 0)
+        if (nivel <= 0)
             return { cobertura: "NO_CUBIERTA", montoAbonar: servicio.costo };
-        if (match.nivel >= 100)
+        if (nivel >= 100)
             return { cobertura: "COMPLETA", montoAbonar: 0 };
 
-        const monto = Math.round(servicio.costo * (1 - match.nivel / 100) * 100) / 100;
+        const monto = Math.round(servicio.costo * (1 - nivel / 100) * 100) / 100;
         return { cobertura: "PARCIAL", montoAbonar: monto };
     }
 

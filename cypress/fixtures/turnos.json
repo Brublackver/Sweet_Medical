@@ -1,0 +1,40 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "fecha": "2030-12-15",
+      "turnos": [
+        {
+          "turno_id": 101,
+          "medico_id": 1,
+          "fecha": "2030-12-15",
+          "hora": "09:00",
+          "duracion": 30,
+          "especialidad": "Cardiología",
+          "tipo": "especialidad",
+          "medico": "Dr. García",
+          "matricula": "M12345",
+          "sede": "Sede Central",
+          "direccion": "Av. Corrientes 1234",
+          "precio": 5000,
+          "precioConCobertura": 1000
+        },
+        {
+          "turno_id": 102,
+          "medico_id": 1,
+          "fecha": "2030-12-15",
+          "hora": "09:30",
+          "duracion": 30,
+          "especialidad": "Cardiología",
+          "tipo": "especialidad",
+          "medico": "Dr. García",
+          "matricula": "M12345",
+          "sede": "Sede Central",
+          "direccion": "Av. Corrientes 1234",
+          "precio": 5000,
+          "precioConCobertura": 1000
+        }
+      ]
+    }
+  ]
+}

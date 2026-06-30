@@ -20,11 +20,18 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   const [nuevaFecha,     setNuevaFecha]      = useState('');
   const [nuevaHora,      setNuevaHora]       = useState('');
 
-  const ejecutar = (accion) => {
+  const ejecutar = (accion, notificar = false) => {
     setError('');
     setCargando(true);
     accion()
-      .then((t) => { onActualizar(t); setAccionActiva(null); setMotivo(''); setNuevaFecha(''); setNuevaHora(''); })
+      .then((t) => {
+        if (notificar) window.dispatchEvent(new CustomEvent('notif-actualizada'));
+        onActualizar(t);
+        setAccionActiva(null);
+        setMotivo('');
+        setNuevaFecha('');
+        setNuevaHora('');
+      })
       .catch((e) => setError(e.response?.data?.message ?? 'Ocurrió un error. Intentá de nuevo.'))
       .finally(() => setCargando(false));
   };
@@ -45,10 +52,10 @@ export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   };
 
   const handleConfirmarCambio = () =>
-    ejecutar(() => confirmarCambioPaciente(medicoId, turno.turno_id));
+    ejecutar(() => confirmarCambioPaciente(medicoId, turno.turno_id), true);
 
   const handleRechazarCambio = () =>
-    ejecutar(() => rechazarCambioPaciente(medicoId, turno.turno_id));
+    ejecutar(() => rechazarCambioPaciente(medicoId, turno.turno_id), true);
 
   const paciente  = turno.snapshotPaciente;
   const medico    = turno.snapshotMedico;

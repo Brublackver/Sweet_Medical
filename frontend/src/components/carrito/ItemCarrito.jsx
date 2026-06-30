@@ -1,4 +1,5 @@
 import { CoberturasBadge } from '@/components/ui/Badge';
+import Icono               from '@/components/ui/Icono';
 import { formatearFecha }  from '@/lib/fecha';
 import styles from '@/features/carrito/Carrito.module.css';
 
@@ -43,9 +44,10 @@ export default function ItemCarrito({ item, onQuitar }) {
         <button
           onClick={onQuitar}
           aria-label={`Quitar ${item.servicio.nombre} del carrito`}
+          title="Quitar de la preselección"
           className={styles.quitarBtn}
         >
-          Quitar
+          <Icono nombre="papelera" tamano={18} />
         </button>
       </div>
     </article>

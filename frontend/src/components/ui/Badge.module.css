@@ -15,10 +15,10 @@
 .noCubierta  { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
 
 /* Estado */
-.reservado       { background-color: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+.reservado       { background-color: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
 .realizado       { background-color: #dcfce7; color: #15803d; border-color: #bbf7d0; }
 .cancelado       { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
 .pendienteCambio { background-color: #fef9c3; color: #a16207; border-color: #fef08a; }
 .propuestaMedico { background-color: #ffedd5; color: #c2410c; border-color: #fed7aa; }
 
-.default { background-color: #f3f4f6; color: #4b5563; border-color: #e5e7eb; }
+.default { background-color: #f1f5f9; color: #475569; border-color: #e2e8f0; }

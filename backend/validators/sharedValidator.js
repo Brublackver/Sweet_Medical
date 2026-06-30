@@ -1,5 +1,6 @@
 import mongoose             from "mongoose";
 import { BadRequestError } from "../errors/AppError.js";
+import { resetPasswordSchema } from "../schemas/resetPasswordSchema.js";
 
 // Valida que un parámetro de ruta sea un ObjectId válido de MongoDB.
 export const validarId = (id) => {
@@ -18,5 +19,13 @@ export const validarIdNumerico = (id) => {
 
 // Convierte los errores de Zod a un string legible.
 // Formato: "campo: mensaje, campo2: mensaje2"
+// Zod v4 expone los problemas en `.issues` (`.errors` quedó deprecado/removido).
+// Mantenemos el fallback a `.errors` por compatibilidad con v3.
 export const formatearErrores = (error) =>
-    error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
+    (error.issues ?? error.errors ?? []).map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
+
+// Valida el body de un reset de contraseña ({ password }). Compartido por
+// pacientes y médicos: la regla es la misma para ambos.
+export const validarResetPassword = (data) =>
+    resetPasswordSchema.parseAsync(data)
+        .catch((error) => Promise.reject(new BadRequestError(formatearErrores(error))));

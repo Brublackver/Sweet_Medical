@@ -6,8 +6,17 @@ export const swaggerSpec = {
         description: "API REST para gestión de turnos médicos.",
     },
     servers: [{ url: "http://localhost:3000" }],
+    components: {
+        securitySchemes: {
+            bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+        },
+    },
+    // Por defecto todas las rutas requieren Bearer token; las públicas lo anulan
+    // con `security: []` en su propia definición.
+    security: [{ bearerAuth: [] }],
     tags: [
         { name: "Healthcheck" },
+        { name: "Auth" },
         { name: "Sedes" },
         { name: "Médicos" },
         { name: "Disponibilidad" },
@@ -22,9 +31,41 @@ export const swaggerSpec = {
         // ── Healthcheck ────────────────────────────────────────────────────────
         "/healthcheck": {
             get: {
-                tags:    ["Healthcheck"],
-                summary: "Verifica que el servidor esté activo",
+                tags:     ["Healthcheck"],
+                summary:  "Verifica que el servidor esté activo",
+                security: [],
                 responses: { 200: { description: "OK" } },
+            },
+        },
+
+        // ── Auth ───────────────────────────────────────────────────────────────
+        "/auth/login": {
+            post: {
+                tags:     ["Auth"],
+                security: [],
+                summary: "Iniciar sesión (devuelve un JWT)",
+                description: "Valida usuario+contraseña (o la contraseña de admin) y devuelve un token de sesión. Las demás rutas requieren ese token en el header Authorization: Bearer.",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["rol", "password"],
+                                properties: {
+                                    rol:      { type: "string", enum: ["paciente", "medico", "admin"], example: "paciente" },
+                                    usuario:  { type: "string", example: "jperez", description: "Requerido para paciente/médico" },
+                                    password: { type: "string", example: "jperez" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    200: { description: "Sesión iniciada: { token, tipo, usuario }" },
+                    400: { description: "Datos inválidos" },
+                    401: { description: "Credenciales incorrectas" },
+                },
             },
         },
 
@@ -522,8 +563,10 @@ export const swaggerSpec = {
             get: {
                 tags:    ["Turnos"],
                 summary: "Historial de turnos del paciente",
+                description: "Con proximos=true el backend devuelve sólo los turnos activos de hoy en adelante, ya ordenados de forma ascendente (los pasados quedan ocultos pero siguen persistidos).",
                 parameters: [
                     { name: "id",          in: "path",  required: true,  schema: { type: "integer" } },
+                    { name: "proximos",    in: "query", required: false, schema: { type: "boolean", default: false }, description: "true → sólo próximos, ordenados ascendente desde el backend" },
                     { name: "fechaDesde",  in: "query", required: false, schema: { type: "string" }, example: "2026-05-20" },
                     { name: "fechaHasta",  in: "query", required: false, schema: { type: "string" }, example: "2026-05-25" },
                 ],
@@ -622,27 +665,73 @@ export const swaggerSpec = {
         },
 
         // ── Notificaciones ─────────────────────────────────────────────────────
-        "/notificaciones/{usuarioId}/sin-leer": {
+        // Recurso anidado bajo el tipo de usuario. La clave compuesta
+        // (usuarioTipo, usuarioId) evita colisiones entre médico y paciente.
+        "/medico/{id}/notificaciones": {
             get: {
                 tags:    ["Notificaciones"],
-                summary: "Obtener notificaciones sin leer",
-                parameters: [{ name: "usuarioId", in: "path", required: true, schema: { type: "integer" } }],
-                responses: { 200: { description: "Notificaciones sin leer" } },
+                summary: "Notificaciones del médico",
+                parameters: [
+                    { name: "id",     in: "path",  required: true,  schema: { type: "integer" } },
+                    { name: "leidas", in: "query", required: false, schema: { type: "boolean" }, description: "true → leídas | false → sin leer | ausente → todas" },
+                ],
+                responses: { 200: { description: "Lista de notificaciones del médico" } },
             },
         },
-        "/notificaciones/{usuarioId}/leidas": {
-            get: {
-                tags:    ["Notificaciones"],
-                summary: "Obtener notificaciones leídas",
-                parameters: [{ name: "usuarioId", in: "path", required: true, schema: { type: "integer" } }],
-                responses: { 200: { description: "Notificaciones leídas" } },
-            },
-        },
-        "/notificaciones/{id}/leer": {
+        "/medico/{id}/notificaciones/{notificacionId}": {
             patch: {
                 tags:    ["Notificaciones"],
-                summary: "Marcar notificación como leída",
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                summary: "Marcar notificación del médico como leída",
+                parameters: [
+                    { name: "id",             in: "path", required: true, schema: { type: "integer" } },
+                    { name: "notificacionId", in: "path", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["leida"],
+                                properties: { leida: { type: "boolean", example: true } },
+                            },
+                        },
+                    },
+                },
+                responses: { 200: { description: "Notificación marcada como leída" } },
+            },
+        },
+        "/paciente/{id}/notificaciones": {
+            get: {
+                tags:    ["Notificaciones"],
+                summary: "Notificaciones del paciente",
+                parameters: [
+                    { name: "id",     in: "path",  required: true,  schema: { type: "integer" } },
+                    { name: "leidas", in: "query", required: false, schema: { type: "boolean" }, description: "true → leídas | false → sin leer | ausente → todas" },
+                ],
+                responses: { 200: { description: "Lista de notificaciones del paciente" } },
+            },
+        },
+        "/paciente/{id}/notificaciones/{notificacionId}": {
+            patch: {
+                tags:    ["Notificaciones"],
+                summary: "Marcar notificación del paciente como leída",
+                parameters: [
+                    { name: "id",             in: "path", required: true, schema: { type: "integer" } },
+                    { name: "notificacionId", in: "path", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["leida"],
+                                properties: { leida: { type: "boolean", example: true } },
+                            },
+                        },
+                    },
+                },
                 responses: { 200: { description: "Notificación marcada como leída" } },
             },
         },

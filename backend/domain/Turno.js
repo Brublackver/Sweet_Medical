@@ -6,6 +6,14 @@ export const ESTADOS = Object.freeze({
     REALIZADO:        "realizado",
 });
 
+// Estados en los que un turno sigue "vivo": ni cancelado ni realizado.
+// Son los que cuentan como turnos pendientes/próximos del usuario.
+export const ESTADOS_ACTIVOS = Object.freeze([
+    ESTADOS.RESERVADO,
+    ESTADOS.PENDIENTE_CAMBIO,
+    ESTADOS.PROPUESTA_MEDICO,
+]);
+
 import { horaAMinutos } from "./tiempo.js";
 
 export class Turno {
@@ -41,8 +49,7 @@ export class Turno {
     }
 
     puedeSerCancelado() {
-        return [ESTADOS.RESERVADO, ESTADOS.PENDIENTE_CAMBIO, ESTADOS.PROPUESTA_MEDICO]
-            .includes(this.estado) && this.puedeCancelarse();
+        return ESTADOS_ACTIVOS.includes(this.estado) && this.puedeCancelarse();
     }
 
     cancelar(motivo) {
@@ -59,8 +66,7 @@ export class Turno {
     // El turno puede marcarse como realizado si está en un estado activo
     // y su fecha y hora ya pasaron (el turno ocurrió).
     puedeMarcarseRealizado() {
-        const estadosActivos = [ESTADOS.RESERVADO, ESTADOS.PENDIENTE_CAMBIO, ESTADOS.PROPUESTA_MEDICO];
-        if (!estadosActivos.includes(this.estado)) return false;
+        if (!ESTADOS_ACTIVOS.includes(this.estado)) return false;
         const fechaTurno = new Date(`${this.fecha}T${this.hora}:00`);
         return fechaTurno <= new Date();
     }

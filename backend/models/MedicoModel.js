@@ -33,6 +33,8 @@ const sedeEmbebidaSchema = new Schema({
 const medicoSchema = new Schema({
     medicoId:         { type: Number, required: true, unique: true },
     usuario:          { type: String, required: true, trim: true, maxlength: 30 },
+    // select:false → el hash nunca viaja en las consultas/respuestas normales.
+    password:         { type: String, required: true, select: false },
     matricula:        { type: String, required: true, trim: true, maxlength: 10 },
     nombre:           { type: String, required: true, trim: true, maxlength: 30 },
     especialidades:   [especialidadSchema],

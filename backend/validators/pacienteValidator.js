@@ -4,9 +4,9 @@ import { solicitarCambioFechaSchema } from "../schemas/solicitarCambioFechaSchem
 import { reservarTurnoSchema }        from "../schemas/crearTurnoSchema.js";
 import { coberturaSchema }            from "../schemas/coberturaSchema.js";
 import { BadRequestError }            from "../errors/AppError.js";
-import { validarId, validarIdNumerico, formatearErrores } from "./sharedValidator.js";
+import { validarId, validarIdNumerico, validarResetPassword, formatearErrores } from "./sharedValidator.js";
 
-export { validarId, validarIdNumerico };
+export { validarId, validarIdNumerico, validarResetPassword };
 
 export const validarCrearPaciente = (data) =>
     crearPacienteSchema.parseAsync(data)

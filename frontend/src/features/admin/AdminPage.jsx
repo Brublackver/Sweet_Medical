@@ -16,15 +16,15 @@ const TABS = [
 ];
 
 export default function AdminPage() {
-  const { admin, logout } = useAdmin();
+  const { admin, cargado, logout } = useAdmin();
   const router = useRouter();
   const [seccion, setSeccion] = useState('nuevo-medico');
 
   useEffect(() => {
-    if (!admin) router.replace('/login');
-  }, [admin, router]);
+    if (cargado && !admin) router.replace('/login');
+  }, [admin, cargado, router]);
 
-  if (!admin) return null;
+  if (!cargado || !admin) return null;
 
   return (
     <div className={styles.page}>

@@ -5,19 +5,19 @@ import { useRouter }   from 'next/navigation';
 import { usePaciente } from '@/context/PacienteContext';
 import { useCarrito }  from '@/context/CarritoContext';
 import ItemCarrito     from '@/components/carrito/ItemCarrito';
-import Carousel        from '@/components/ui/Carousel';
+import ListaPaginada   from '@/components/ui/ListaPaginada';
 import styles from './Carrito.module.css';
 
 export default function CarritoPage() {
-  const { paciente }              = usePaciente();
+  const { paciente, cargado }     = usePaciente();
   const { items, quitar, vaciar } = useCarrito();
   const router                    = useRouter();
 
   useEffect(() => {
-    if (paciente === null) router.replace('/login');
-  }, [paciente, router]);
+    if (cargado && paciente === null) router.replace('/login');
+  }, [paciente, cargado, router]);
 
-  if (!paciente) return null;
+  if (!cargado || !paciente) return null;
 
   const total = items.reduce((sum, item) => sum + (item.montoAbonar ?? 0), 0);
 
@@ -56,11 +56,11 @@ export default function CarritoPage() {
         </div>
       ) : (
         <div>
-          <Carousel ariaLabel="Turnos en tu lista de solicitudes">
+          <ListaPaginada ariaLabel="Turnos en tu lista de solicitudes" porPagina={4}>
             {items.map((item) => (
               <ItemCarrito key={item.key} item={item} onQuitar={() => quitar(item.key)} />
             ))}
-          </Carousel>
+          </ListaPaginada>
 
           <div className={styles.resumen}>
             <div className={styles.resumenInner}>

@@ -6,6 +6,7 @@ import { usePaciente } from '@/context/PacienteContext';
 import { useMedico }   from '@/context/MedicoContext';
 import { useAdmin }    from '@/context/AdminContext';
 import { useCarrito }  from '@/context/CarritoContext';
+import { useNotificaciones } from '@/hooks/useNotificaciones';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
@@ -18,6 +19,12 @@ export default function Navbar() {
   const [mounted, setMounted]                = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  // Contador de notificaciones sin leer para el badge del link.
+  // Misma fuente de verdad que la página: el hook useNotificaciones.
+  const usuarioTipo = medico ? 'MEDICO' : paciente ? 'PACIENTE' : null;
+  const usuarioId   = medico?.medico_id ?? paciente?.paciente_id ?? null;
+  const { cantidad } = useNotificaciones(usuarioTipo, usuarioId);
 
   if (pathname === '/login') return null;
   if (pathname === '/admin') return null;
@@ -38,8 +45,24 @@ export default function Navbar() {
     </Link>
   );
 
+  // Link con globo numérico (notificaciones sin leer) arriba a la derecha.
+  const navLinkNotif = (href, label, count) => (
+    <Link
+      href={href}
+      className={`${styles.navLinkNotif} ${pathname === href ? styles.navLinkActive : ''}`}
+      aria-label={count > 0 ? `${label}: ${count} sin leer` : label}
+    >
+      {label}
+      {count > 0 && (
+        <span className={styles.notifBadge} aria-hidden="true">
+          {count > 9 ? '9+' : count}
+        </span>
+      )}
+    </Link>
+  );
+
   return (
-    <nav className={styles.nav}>
+    <nav className={styles.nav} aria-label="Navegación principal">
       <div className={styles.inner}>
         <Link href={medico ? '/medico/turnos' : '/buscar'} className={styles.logo}>
           🏥 <span>Sweet Medical</span>
@@ -53,11 +76,13 @@ export default function Navbar() {
             </span>
           )}
 
-          {mounted && paciente && navLink('/buscar',     '🔍 Buscar')}
-          {mounted && paciente && navLink('/mis-turnos', '📋 Mis turnos')}
+          {mounted && paciente && navLink('/buscar',         '🔍 Buscar')}
+          {mounted && paciente && navLink('/mis-turnos',     '📋 Mis turnos')}
+          {mounted && paciente && navLinkNotif('/notificaciones', '🔔 Notificaciones', cantidad)}
 
           {mounted && medico && navLink('/medico/turnos',         '📋 Mis turnos')}
           {mounted && medico && navLink('/medico/disponibilidad', '🗓 Disponibilidad')}
+          {mounted && medico && navLinkNotif('/medico/notificaciones', '🔔 Notificaciones', cantidad)}
 
           {mounted && paciente && (
             <Link

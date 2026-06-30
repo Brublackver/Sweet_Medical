@@ -6,7 +6,7 @@ export default function ClientShell({ children }) {
   return (
     <Providers>
       <Navbar />
-      {children}
+      <main id="contenido">{children}</main>
     </Providers>
   );
 }
