@@ -13,6 +13,7 @@ export default function GrupoHora({ hora, turnos, fecha, inicialExpandido = fals
         className={`${styles.header} ${expandido ? styles.headerExpandido : ''}`}
         onClick={() => setExpandido((prev) => !prev)}
         aria-expanded={expandido}
+        aria-label={`${expandido ? 'Colapsar' : 'Expandir'} horario ${hora} hs — ${turnos.length} ${turnos.length === 1 ? 'turno' : 'turnos'}`}
       >
         <div className={styles.headerIzq}>
           <span className={styles.hora}>{hora} hs</span>

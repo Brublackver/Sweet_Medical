@@ -83,15 +83,19 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
           </p>
           <div className={styles.acciones}>
             <button
+              type="button"
               onClick={handleConfirmar}
               disabled={cargando}
+              aria-label="Confirmar propuesta de cambio de fecha del médico"
               className={styles.btnConfirmar}
             >
               {cargando ? 'Procesando...' : '✓ Confirmar'}
             </button>
             <button
+              type="button"
               onClick={handleRechazar}
               disabled={cargando}
+              aria-label="Rechazar propuesta de cambio de fecha del médico"
               className={styles.btnRechazar}
             >
               {cargando ? 'Procesando...' : '✕ Rechazar'}

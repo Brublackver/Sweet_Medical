@@ -55,6 +55,7 @@
   transform: translateY(-1px);
 }
 .confirmarBtn:active:not(:disabled) { transform: translateY(0); }
+.confirmarBtn:focus-visible          { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
 .confirmarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .volverLink {
@@ -62,7 +63,8 @@
   color: #475569; font-weight: 500; border-radius: 0.75rem;
   text-decoration: none; transition: background-color 0.15s;
 }
-.volverLink:hover { background-color: #f0fdfa; }
+.volverLink:hover        { background-color: #f0fdfa; }
+.volverLink:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
 
 .spinner { width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
 
@@ -118,14 +120,16 @@
   box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
   transition: box-shadow 0.2s;
 }
-.successPrimaryLink:hover { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.successPrimaryLink:hover        { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.successPrimaryLink:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
 
 .successSecondaryLink {
   padding: 0.75rem 1.5rem; border: 1px solid #cdeeee; color: #475569;
   font-weight: 500; border-radius: 0.75rem; text-decoration: none;
   transition: background-color 0.15s;
 }
-.successSecondaryLink:hover { background-color: #f0fdfa; }
+.successSecondaryLink:hover        { background-color: #f0fdfa; }
+.successSecondaryLink:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
 
 @media (min-width: 640px) {
   .page { padding: 2rem 1.5rem; }

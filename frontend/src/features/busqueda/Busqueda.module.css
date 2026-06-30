@@ -70,7 +70,8 @@
   transition: background 0.15s;
   line-height: 1;
 }
-.filtrosToggle:hover { background: #f0fdfa; }
+.filtrosToggle:hover        { background: #f0fdfa; }
+.filtrosToggle:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
 
 .filtrosChevron {
   font-size: 1.25rem;
@@ -148,7 +149,8 @@
   box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30);
   transform: translateY(-1px);
 }
-.buscarBtn:active:not(:disabled) { transform: translateY(0); }
+.buscarBtn:active:not(:disabled)  { transform: translateY(0); }
+.buscarBtn:focus-visible           { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
 .buscarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .spinner   { width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
@@ -163,7 +165,8 @@
   cursor: pointer;
   transition: color 0.15s;
 }
-.limpiarBtn:hover { color: #64748b; }
+.limpiarBtn:hover        { color: #64748b; }
+.limpiarBtn:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 /* ====== RESULTADOS DIA (legacy — retained) ====== */
 .diaHeader { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }

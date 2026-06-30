@@ -163,6 +163,7 @@ export default function ConfirmacionPage() {
 
       <div className={styles.acciones}>
         <button
+          type="button"
           onClick={handleConfirmar}
           disabled={cargando}
           className={styles.confirmarBtn}

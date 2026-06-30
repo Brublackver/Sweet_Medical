@@ -12,8 +12,8 @@
   font-weight: 500; border: 1px solid #e2e8f0; background: #fff;
   color: #475569; cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
-.tab:hover  { border-color: #99f6e4; color: #0f766e; }
-.tab:focus  { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.25); }
+.tab:hover         { border-color: #99f6e4; color: #0f766e; }
+.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
 
 .tabActivo           { background-color: #0f766e; color: #fff; border-color: #0f766e; }
 .tabActivo:hover     { background-color: #115e59; border-color: #115e59; color: #fff; }
@@ -37,7 +37,8 @@
   transition: box-shadow 0.2s;
   box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
 }
-.buscarLink:hover { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.buscarLink:hover        { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.buscarLink:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
 
 .lista { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -82,7 +83,8 @@
   font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   border: none; cursor: pointer; transition: background-color 0.15s;
 }
-.btnConfirmar:hover:not(:disabled) { background-color: #15803d; }
+.btnConfirmar:hover:not(:disabled)  { background-color: #15803d; }
+.btnConfirmar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
 .btnConfirmar:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnRechazar {
@@ -90,7 +92,8 @@
   color: #dc2626; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   cursor: pointer; transition: background-color 0.15s;
 }
-.btnRechazar:hover:not(:disabled) { background-color: #fef2f2; }
+.btnRechazar:hover:not(:disabled)  { background-color: #fef2f2; }
+.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
 .btnRechazar:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Form cambio fecha */
@@ -100,7 +103,8 @@
   font-size: 0.875rem; color: #0f766e; background: none;
   border: none; cursor: pointer; transition: color 0.15s;
 }
-.linkCambio:hover { color: #115e59; }
+.linkCambio:hover        { color: #115e59; }
+.linkCambio:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 .formCambio        { display: flex; flex-direction: column; gap: 0.75rem; }
 .formCambioTitulo  { font-size: 0.875rem; font-weight: 500; color: #334155; }
@@ -122,14 +126,16 @@
   font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
   border: none; cursor: pointer; transition: background-color 0.15s;
 }
-.btnEnviar:hover:not(:disabled) { background-color: #115e59; }
+.btnEnviar:hover:not(:disabled)  { background-color: #115e59; }
+.btnEnviar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
 .btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnCancelar {
   padding: 0.5rem 1rem; font-size: 0.875rem; color: #64748b;
   background: none; border: none; cursor: pointer; transition: color 0.15s;
 }
-.btnCancelar:hover { color: #334155; }
+.btnCancelar:hover        { color: #334155; }
+.btnCancelar:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 .errorInline {
   font-size: 0.75rem; color: #dc2626; background-color: #fef2f2;

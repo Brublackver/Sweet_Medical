@@ -69,6 +69,22 @@ a { color: inherit; }
 button         { font-family: inherit; }
 input, select, textarea { font-family: inherit; }
 
+/* ====== ACCESSIBILITY ====== */
+/* Fallback focus ring para elementos sin :focus-visible propio */
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Respeta la preferencia de reducción de movimiento del sistema operativo */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ====== ANIMATIONS ====== */
 @keyframes pulse {
   0%, 100% { opacity: 1; }

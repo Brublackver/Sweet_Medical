@@ -9,7 +9,8 @@
   font-size: 0.875rem; color: #f87171; background: none; border: none;
   cursor: pointer; transition: color 0.15s; margin-top: 0.25rem;
 }
-.limpiarBtn:hover { color: #dc2626; }
+.limpiarBtn:hover        { color: #dc2626; }
+.limpiarBtn:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
 
 .emptyState  { text-align: center; padding: 5rem 0; }
 .emptyIcon   { font-size: 3.75rem; margin-bottom: 1rem; }
@@ -25,7 +26,8 @@
   box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
   transition: box-shadow 0.2s;
 }
-.buscarLink:hover { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.buscarLink:hover        { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.buscarLink:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
 
 .lista { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -46,7 +48,8 @@
   color: #0f766e; border: 1px solid #99f6e4; border-radius: 0.75rem;
   text-decoration: none; transition: background-color 0.15s;
 }
-.seguirLink:hover { background-color: #f0fdfa; }
+.seguirLink:hover        { background-color: #f0fdfa; }
+.seguirLink:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
 
 .confirmarLink {
   display: inline-flex; align-items: center; justify-content: center;
@@ -57,7 +60,8 @@
   box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
   transition: box-shadow 0.2s;
 }
-.confirmarLink:hover { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.confirmarLink:hover        { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.confirmarLink:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
 
 @media (min-width: 640px) {
   .page { padding: 2rem 1.5rem; }

@@ -5,50 +5,68 @@ import { useMedico }            from '@/context/MedicoContext';
 import ListaPaginada            from '@/components/ui/ListaPaginada';
 import Icono                    from '@/components/ui/Icono';
 import { formatearFechaConAnio } from '@/lib/fecha';
-import { getMedico, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
+import { getMedico, getTurnosMedico, definirDisponibilidad, eliminarDisponibilidad } from '@/lib/api';
 import styles from './Medico.module.css';
 
-export default function DisponibilidadPage() {
-  const { medico, cargado }            = useMedico();
-  const router                         = useRouter();
-  const [disponibilidades, setDisponibilidades] = useState([]);
-  const [cargando,  setCargando]       = useState(true);
-  const [error,     setError]          = useState('');
-  const [guardando, setGuardando]      = useState(false);
-  const [errorForm, setErrorForm]      = useState('');
+const ESTADO_LABEL = {
+  reservado:        { texto: '● Reservado',        clase: 'estadoReservado' },
+  cancelado:        { texto: '✕ Cancelado',         clase: 'estadoCancelado' },
+  realizado:        { texto: '✓ Realizado',         clase: 'estadoRealizado' },
+  pendiente_cambio: { texto: '⟳ Cambio pendiente',  clase: 'estadoPendienteCambio' },
+  propuesta_medico: { texto: '⟳ Propuesta enviada', clase: 'estadoPropuestaMedico' },
+};
 
-  const [fecha,           setFecha]          = useState('');
-  const [horaDesde,       setHoraDesde]      = useState('');
-  const [horaHasta,       setHoraHasta]      = useState('');
-  const [historialAbierto, setHistorialAbierto] = useState(false);
+export default function DisponibilidadPage() {
+  const { medico, cargado }     = useMedico();
+  const router                  = useRouter();
+  const [tab, setTab]           = useState('proximas');
+
+  const [disponibilidades, setDisponibilidades] = useState([]);
+  const [cargando,  setCargando]  = useState(true);
+  const [error,     setError]     = useState('');
+  const [guardando, setGuardando] = useState(false);
+  const [errorForm, setErrorForm] = useState('');
+
+  const [fecha,     setFecha]     = useState('');
+  const [horaDesde, setHoraDesde] = useState('');
+  const [horaHasta, setHoraHasta] = useState('');
+
+  // Turnos del médico — se cargan solo cuando abre la pestaña Historial
+  const [turnos,          setTurnos]          = useState([]);
+  const [cargandoTurnos,  setCargandoTurnos]  = useState(false);
+  const [turnosCargados,  setTurnosCargados]  = useState(false);
+  const [diasExpandidos,  setDiasExpandidos]  = useState({});
 
   useEffect(() => {
     if (!cargado) return;
     if (medico === null) { router.replace('/login'); return; }
-    // Usamos getMedico porque su campo `disponibilidades` es un array CON
-    // disponibilidad_id (igual que devuelve el POST al crear una). El endpoint
-    // GET /disponibilidad devuelve un objeto indexado por fecha y sin id, que
-    // no sirve para listar ni para eliminar.
     getMedico(medico.medico_id)
       .then((m) => setDisponibilidades(m.disponibilidades ?? []))
       .catch(() => setError('No pudimos cargar la disponibilidad.'))
       .finally(() => setCargando(false));
   }, [medico, cargado, router]);
 
+  useEffect(() => {
+    if (tab !== 'historial' || turnosCargados || !medico) return;
+    setCargandoTurnos(true);
+    getTurnosMedico(medico.medico_id)
+      .then((data) => { setTurnos(data); setTurnosCargados(true); })
+      .catch(() => setTurnos([]))
+      .finally(() => setCargandoTurnos(false));
+  }, [tab, turnosCargados, medico]);
+
   if (!cargado || !medico) return null;
 
-  // "Hoy" en hora local (YYYY-MM-DD), para comparar con las fechas de las
-  // disponibilidades (también strings YYYY-MM-DD → comparación lexicográfica ok).
-  const d = new Date();
+  const d   = new Date();
   const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-  // Futuras (de hoy en adelante) → editables. Pasadas → historial de solo lectura.
   const futuras = disponibilidades
     .filter((x) => x.fecha >= hoy)
     .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
   const pasadas = disponibilidades
     .filter((x) => x.fecha < hoy)
-    .sort((a, b) => b.fecha.localeCompare(a.fecha)); // más reciente primero
+    .sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   const handleAgregar = (e) => {
     e.preventDefault();
@@ -71,6 +89,13 @@ export default function DisponibilidadPage() {
       .catch(() => setError('No se pudo eliminar la disponibilidad.'));
   };
 
+  const toggleDia = (fecha) =>
+    setDiasExpandidos((prev) => ({ ...prev, [fecha]: !prev[fecha] }));
+
+  const turnosDeFecha = (fecha) =>
+    turnos.filter((t) => t.fecha === fecha)
+          .sort((a, b) => a.hora.localeCompare(b.hora));
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -80,6 +105,7 @@ export default function DisponibilidadPage() {
         </p>
       </header>
 
+      {/* ── Formulario de carga ─────────────────────────────────────────── */}
       <div className={styles.card}>
         <h2 className={styles.cardTitle}>Agregar disponibilidad</h2>
         <form onSubmit={handleAgregar}>
@@ -126,73 +152,140 @@ export default function DisponibilidadPage() {
         </form>
       </div>
 
-      <h2 className={styles.subTitle}>Disponibilidad actual</h2>
+      {/* ── Tabs ────────────────────────────────────────────────────────── */}
+      <div className={styles.tabs} role="group" aria-label="Sección de disponibilidad">
+        <button
+          type="button"
+          className={`${styles.tab} ${tab === 'proximas' ? styles.tabActivo : ''}`}
+          onClick={() => setTab('proximas')}
+          aria-pressed={tab === 'proximas'}
+        >
+          Próximas
+          {futuras.length > 0 && (
+            <span className={styles.tabBadge} aria-hidden="true">{futuras.length}</span>
+          )}
+        </button>
+        <button
+          type="button"
+          className={`${styles.tab} ${tab === 'historial' ? styles.tabActivo : ''}`}
+          onClick={() => setTab('historial')}
+          aria-pressed={tab === 'historial'}
+        >
+          Historial de atención
+          {pasadas.length > 0 && (
+            <span className={styles.tabBadge} aria-hidden="true">{pasadas.length}</span>
+          )}
+        </button>
+      </div>
 
       {cargando && <p className={styles.cargandoText}>Cargando...</p>}
+      {error    && <p role="alert" className={styles.errorInline}>{error}</p>}
 
-      {error && <p role="alert" className={styles.errorInline}>{error}</p>}
-
-      {!cargando && !error && futuras.length === 0 && (
-        <div className={styles.emptyCard}>
-          <p className={styles.emptyCardIcon} aria-hidden="true">🗓</p>
-          <p className={styles.emptyCardText}>No tenés disponibilidad futura cargada.</p>
-        </div>
-      )}
-
-      {!cargando && futuras.length > 0 && (
-        <ListaPaginada ariaLabel="Disponibilidades futuras" porPagina={6}>
-          {futuras.map((d) => (
-            <div key={d.disponibilidad_id ?? d.id} className={styles.dispItem}>
-              <div>
-                <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
-                <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
-              </div>
-              <button
-                onClick={() => handleEliminar(d.disponibilidad_id ?? d.id)}
-                aria-label={`Eliminar disponibilidad del ${d.fecha}`}
-                title="Eliminar disponibilidad"
-                className={styles.eliminarBtn}
-              >
-                <Icono nombre="papelera" tamano={18} />
-              </button>
+      {/* ── Pestaña: Próximas ────────────────────────────────────────────── */}
+      {!cargando && tab === 'proximas' && (
+        <>
+          {futuras.length === 0 ? (
+            <div className={styles.emptyCard}>
+              <p className={styles.emptyCardIcon} aria-hidden="true">🗓</p>
+              <p className={styles.emptyCardText}>No tenés disponibilidad futura cargada.</p>
             </div>
-          ))}
-        </ListaPaginada>
+          ) : (
+            <ListaPaginada ariaLabel="Disponibilidades futuras" porPagina={6}>
+              {futuras.map((d) => (
+                <div key={d.disponibilidad_id ?? d.id} className={styles.dispItem}>
+                  <div>
+                    <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
+                    <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
+                  </div>
+                  <button
+                    onClick={() => handleEliminar(d.disponibilidad_id ?? d.id)}
+                    aria-label={`Eliminar disponibilidad del ${d.fecha}`}
+                    title="Eliminar disponibilidad"
+                    className={styles.eliminarBtn}
+                  >
+                    <Icono nombre="papelera" tamano={18} />
+                  </button>
+                </div>
+              ))}
+            </ListaPaginada>
+          )}
+        </>
       )}
 
-      {/* Historial: disponibilidades cuya fecha ya pasó. Colapsado por defecto. */}
-      {!cargando && pasadas.length > 0 && (
-        <div className={styles.historialSection}>
-          <button
-            onClick={() => setHistorialAbierto((prev) => !prev)}
-            aria-expanded={historialAbierto}
-            className={styles.historialToggle}
-          >
-            <span className={styles.historialToggleLabel}>
-              🗂 Historial de disponibilidades
-            </span>
-            <span className={styles.historialBadge}>{pasadas.length}</span>
-            <span className={styles.historialChevron} aria-hidden="true">
-              {historialAbierto ? '▲' : '▼'}
-            </span>
-          </button>
-
-          {historialAbierto && (
+      {/* ── Pestaña: Historial de atención ──────────────────────────────── */}
+      {!cargando && tab === 'historial' && (
+        <>
+          {pasadas.length === 0 ? (
+            <div className={styles.emptyCard}>
+              <p className={styles.emptyCardIcon} aria-hidden="true">📋</p>
+              <p className={styles.emptyCardText}>Todavía no tenés historial de disponibilidades.</p>
+            </div>
+          ) : (
             <div className={styles.historialLista}>
-              <ListaPaginada ariaLabel="Historial de disponibilidades pasadas" porPagina={6}>
-                {pasadas.map((d) => (
-                  <div key={d.disponibilidad_id ?? d.id} className={`${styles.dispItem} ${styles.dispItemPasada}`}>
-                    <div>
-                      <p className={styles.dispFecha}>{formatearFechaConAnio(d.fecha)}</p>
-                      <p className={styles.dispHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
-                    </div>
-                    <span className={styles.dispBadgePasada}>Finalizada</span>
+              {cargandoTurnos && (
+                <p className={styles.cargandoText}>Cargando historial...</p>
+              )}
+              {pasadas.map((d) => {
+                const turnosDia    = turnosCargados ? turnosDeFecha(d.fecha) : [];
+                const expandido    = !!diasExpandidos[d.fecha];
+                return (
+                  <div key={d.disponibilidad_id ?? d.id} className={styles.historialDia}>
+                    <button
+                      className={styles.historialDiaHeader}
+                      onClick={() => toggleDia(d.fecha)}
+                      aria-expanded={expandido}
+                    >
+                      <div className={styles.historialDiaInfo}>
+                        <p className={styles.historialDiaFecha}>{formatearFechaConAnio(d.fecha)}</p>
+                        <p className={styles.historialDiaHoras}>{d.horaDesde} hs — {d.horaHasta} hs</p>
+                      </div>
+                      <div className={styles.historialDiaMeta}>
+                        {turnosCargados && (
+                          <span className={styles.historialDiaBadge}>
+                            {turnosDia.length === 0 ? 'Sin turnos' : `${turnosDia.length} turno${turnosDia.length !== 1 ? 's' : ''}`}
+                          </span>
+                        )}
+                        <span className={styles.historialChevron} aria-hidden="true">
+                          {expandido ? '▲' : '▼'}
+                        </span>
+                      </div>
+                    </button>
+
+                    {expandido && (
+                      <div className={styles.historialDiaTurnos}>
+                        {!turnosCargados && (
+                          <p className={styles.cargandoText}>Cargando turnos...</p>
+                        )}
+                        {turnosCargados && turnosDia.length === 0 && (
+                          <p className={styles.historialSinTurnos}>Sin turnos registrados para este día.</p>
+                        )}
+                        {turnosCargados && turnosDia.map((t) => {
+                          const estado = ESTADO_LABEL[t.estado] ?? { texto: t.estado, clase: 'estadoDesconocido' };
+                          return (
+                            <div key={t.turno_id ?? t.turnoId} className={styles.historialTurnoRow}>
+                              <span className={styles.historialTurnoHora}>{t.hora} hs</span>
+                              <span className={styles.historialTurnoServicio}>
+                                {t.snapshotMedico?.especialidades?.[0]?.nombre
+                                  ?? t.snapshotMedico?.practicas?.[0]?.nombre
+                                  ?? '—'}
+                              </span>
+                              <span className={styles.historialTurnoPaciente}>
+                                {t.snapshotPaciente?.nombre ?? '—'}
+                              </span>
+                              <span className={`${styles.historialTurnoEstado} ${styles[estado.clase] ?? ''}`}>
+                                {estado.texto}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                ))}
-              </ListaPaginada>
+                );
+              })}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

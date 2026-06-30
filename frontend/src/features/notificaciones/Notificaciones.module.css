@@ -24,8 +24,8 @@
   font-weight: 500; border: 1px solid #e2e8f0; background: #fff;
   color: #475569; cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
-.tab:hover { border-color: #99f6e4; color: #0f766e; }
-.tab:focus { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.25); }
+.tab:hover         { border-color: #99f6e4; color: #0f766e; }
+.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
 
 .tabActivo       { background-color: #0f766e; color: #fff; border-color: #0f766e; }
 .tabActivo:hover { background-color: #115e59; border-color: #115e59; color: #fff; }
@@ -82,10 +82,12 @@
 }
 
 .btnCheck { background-color: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
-.btnCheck:hover { background-color: #bbf7d0; }
+.btnCheck:hover        { background-color: #bbf7d0; }
+.btnCheck:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
 
 .btnCruz { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
-.btnCruz:hover { background-color: #fecaca; }
+.btnCruz:hover        { background-color: #fecaca; }
+.btnCruz:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
 
 /* Acciones de aceptar/rechazar. */
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
@@ -98,10 +100,12 @@
 }
 
 .btnAceptar { background-color: #16a34a; color: #fff; }
-.btnAceptar:hover:not(:disabled) { background-color: #15803d; }
+.btnAceptar:hover:not(:disabled)  { background-color: #15803d; }
+.btnAceptar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.45); }
 
 .btnRechazar { background-color: #fff; color: #b91c1c; border-color: #fecaca; }
-.btnRechazar:hover:not(:disabled) { background-color: #fef2f2; }
+.btnRechazar:hover:not(:disabled)  { background-color: #fef2f2; }
+.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35); }
 
 .btnAceptar:disabled,
 .btnRechazar:disabled { opacity: 0.6; cursor: not-allowed; }

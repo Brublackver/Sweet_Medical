@@ -85,7 +85,8 @@
   background: transparent;
 }
 
-.roleBtn:hover { color: #334155; }
+.roleBtn:hover        { color: #334155; }
+.roleBtn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
 
 .roleBtnActive {
   background: #fff;
@@ -152,13 +153,15 @@
   box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30);
   transform: translateY(-1px);
 }
-.submitBtn:active:not(:disabled) { transform: translateY(0); }
+.submitBtn:active:not(:disabled)   { transform: translateY(0); }
+.submitBtn:focus-visible            { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45), 0 4px 12px rgba(15, 118, 110, 0.25); }
 .submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .hint { text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 1.5rem; }
 
 .authLink { color: #0f766e; font-weight: 600; text-decoration: none; }
-.authLink:hover { text-decoration: underline; }
+.authLink:hover        { text-decoration: underline; }
+.authLink:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.125rem; }
 
 @media (min-width: 1024px) {
   .leftPanel    { display: flex; width: 41.666%; }
