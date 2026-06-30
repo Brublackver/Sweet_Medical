@@ -1,14 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link            from 'next/link';
-import { useRouter }   from 'next/navigation';
-import { usePaciente } from '@/context/PacienteContext';
-import { useCarrito }  from '@/context/CarritoContext';
-import { reservarTurno }    from '@/lib/api';
-import { CoberturasBadge }  from '@/components/ui/Badge';
-import { formatearFecha }   from '@/lib/fecha';
+import Link              from 'next/link';
+import { useRouter }     from 'next/navigation';
+import { usePaciente }   from '@/context/PacienteContext';
+import { useCarrito }    from '@/context/CarritoContext';
+import { reservarTurno } from '@/lib/api';
+import ItemConfirmacion    from '@/components/confirmacion/ItemConfirmacion';
+import ConfirmacionExito   from '@/components/confirmacion/ConfirmacionExito';
 import styles from './Confirmacion.module.css';
 
+/*
+  ConfirmacionPage — orquesta la confirmación de las solicitudes del carrito.
+  La revisión de cada turno y la pantalla de éxito viven en componentes
+  dedicados (ItemConfirmacion, ConfirmacionExito).
+*/
 export default function ConfirmacionPage() {
   const { paciente, cargado }     = usePaciente();
   const { items, vaciar }         = useCarrito();
@@ -56,63 +61,7 @@ export default function ConfirmacionPage() {
   };
 
   if (confirmado) {
-    return (
-      <div className={styles.successPage}>
-        <div className={styles.successCard}>
-          <div className={styles.successIcon} aria-hidden="true">
-            {turnosConfirmados.length > 0 ? '✅' : '⚠️'}
-          </div>
-          <h1 className={styles.successTitle}>
-            {turnosConfirmados.length > 0 ? '¡Solicitud enviada!' : 'No se pudo reservar'}
-          </h1>
-          <p className={styles.successText}>
-            {turnosConfirmados.length > 0 && (
-              <>
-                {turnosConfirmados.length === 1 ? '1 turno reservado' : `${turnosConfirmados.length} turnos reservados`} correctamente.
-                Te avisaremos cuando sea confirmado.
-              </>
-            )}
-          </p>
-
-          {turnosConfirmados.length > 0 && (
-            <div className={styles.successLista}>
-              {turnosConfirmados.map((item) => (
-                <div key={item.key} className={styles.successItem}>
-                  <span className={styles.successCheck} aria-hidden="true">✓</span>
-                  <div className={styles.successItemInfo}>
-                    <p className={styles.successItemNombre}>{item.servicio.nombre}</p>
-                    <p className={styles.successItemDetalle}>
-                      {formatearFecha(item.fecha)} — {item.hora} hs · {item.medico.nombre}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {errores.length > 0 && (
-            <div className={styles.errorLista}>
-              <p className={styles.errorListaTitulo}>⚠️ No se pudieron reservar:</p>
-              {errores.map(({ item, msg }) => (
-                <div key={item.key} className={styles.errorItem}>
-                  <p className={styles.errorItemNombre}>{item.servicio.nombre} — {formatearFecha(item.fecha)} {item.hora} hs</p>
-                  <p className={styles.errorItemMsg}>{msg}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className={styles.successAcciones}>
-            <Link href="/mis-turnos" className={styles.successPrimaryLink}>
-              Ver mis turnos
-            </Link>
-            <Link href="/buscar" className={styles.successSecondaryLink}>
-              Buscar más turnos
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    return <ConfirmacionExito turnosConfirmados={turnosConfirmados} errores={errores} />;
   }
 
   return (
@@ -124,30 +73,7 @@ export default function ConfirmacionPage() {
 
       <div className={styles.lista}>
         {items.map((item) => (
-          <article
-            key={item.key}
-            aria-label={`Turno: ${item.servicio.nombre}`}
-            className={styles.item}
-          >
-            <div className={styles.itemHora}>
-              <p className={styles.itemHoraNum}>{item.hora}</p>
-              <p className={styles.itemHoraLabel}>hs</p>
-            </div>
-            <div className={styles.itemInfo}>
-              <div className={styles.itemTituloRow}>
-                <p className={styles.itemNombre}>{item.servicio.nombre}</p>
-                <CoberturasBadge cobertura={item.cobertura} />
-              </div>
-              <p className={styles.itemFecha}>{formatearFecha(item.fecha)}</p>
-              <p className={styles.itemMedico}>{item.medico.nombre} · {item.sedes?.[0]?.nombre}</p>
-            </div>
-            <div className={styles.itemPrecio}>
-              {item.montoAbonar === 0
-                ? <p className={styles.itemPrecioGratis}>Sin costo</p>
-                : <p className={styles.itemPrecioMonto}>${item.montoAbonar.toLocaleString('es-AR')}</p>
-              }
-            </div>
-          </article>
+          <ItemConfirmacion key={item.key} item={item} />
         ))}
       </div>
 

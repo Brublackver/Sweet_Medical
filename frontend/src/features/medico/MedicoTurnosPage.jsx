@@ -8,6 +8,7 @@ import { useRefetchOnFocus }   from '@/hooks/useRefetchOnFocus';
 import TarjetaTurnoMedico      from '@/components/medico/TarjetaTurnoMedico';
 import ListaPaginada           from '@/components/ui/ListaPaginada';
 import EstadoCarga             from '@/components/ui/EstadoCarga';
+import Tabs                    from '@/components/ui/Tabs';
 import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './Medico.module.css';
 
@@ -80,19 +81,12 @@ export default function MedicoTurnosPage() {
         </p>
       </header>
 
-      <div className={styles.tabs} role="tablist">
-        {FILTROS.map(({ key, label }) => (
-          <button
-            key={key}
-            role="tab"
-            aria-selected={filtro === key}
-            onClick={() => setFiltro(key)}
-            className={`${styles.tab} ${filtro === key ? styles.tabActivo : ''}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={FILTROS}
+        value={filtro}
+        onChange={setFiltro}
+        ariaLabel="Filtrar turnos"
+      />
 
       <EstadoCarga
         cargando={cargando}
