@@ -133,10 +133,13 @@ export class MedicoService {
             .then(() => this.turnoService.cancelarTurnoPorMedico(turnoId, medicoId, motivo));
     }
 
+    // Agenda completa del médico: TODOS los estados (reservados, realizados,
+    // cancelados, no realizados y cambios pendientes), ya ordenada ascendente.
+    // El frontend filtra por tab; por eso no se recorta acá — si sólo devolviéramos
+    // "reservado", las pestañas Realizados/Cancelados quedarían siempre vacías.
     obtenerTurnosConfirmados(medicoId) {
         return this.obtenerPorId(medicoId)
-            .then(() => this.turnoService.buscarPorMedico(medicoId))
-            .then((turnos) => turnos.filter((t) => t.estado === "reservado"));
+            .then(() => this.turnoService.buscarPorMedico(medicoId));
     }
 
     // Consulta el historial de turnos de un paciente específico con este médico.

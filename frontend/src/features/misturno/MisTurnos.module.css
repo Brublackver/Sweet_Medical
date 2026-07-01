@@ -65,6 +65,29 @@
 
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
+/* Confirmación de atención (turno pasado) */
+.atencionBox    { background-color: var(--c-info-bg); border: 1px solid var(--c-info-border); border-radius: 0.75rem; padding: 1rem; }
+.atencionTitulo { font-size: 0.875rem; font-weight: 600; color: var(--c-info); margin-bottom: 0.25rem; }
+.atencionTexto  { font-size: 0.8125rem; color: #334155; margin-bottom: 0.75rem; }
+
+.btnSi {
+  padding: 0.5rem 1rem; background-color: var(--c-success); color: #fff;
+  font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: filter 0.15s;
+}
+.btnSi:hover:not(:disabled)  { filter: brightness(1.1); }
+.btnSi:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(0, 103, 76, 0.45); }
+.btnSi:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnNo {
+  padding: 0.5rem 1rem; background-color: var(--c-error); color: #fff;
+  font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: filter 0.15s;
+}
+.btnNo:hover:not(:disabled)  { filter: brightness(1.1); }
+.btnNo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.45); }
+.btnNo:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .btnConfirmar {
   padding: 0.5rem 1rem; background-color: var(--c-primary); color: #fff;
   font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;

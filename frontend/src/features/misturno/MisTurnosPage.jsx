@@ -14,10 +14,11 @@ import { SkeletonDia }         from '@/components/ui/Skeleton';
 import styles from './MisTurnos.module.css';
 
 const FILTROS = [
-  { key: 'todos',     label: 'Todos' },
-  { key: 'proximos',  label: 'Próximos' },
-  { key: 'realizado', label: 'Realizados' },
-  { key: 'cancelado', label: 'Cancelados' },
+  { key: 'todos',        label: 'Todos' },
+  { key: 'proximos',     label: 'Próximos' },
+  { key: 'realizado',    label: 'Realizados' },
+  { key: 'no_realizado', label: 'No realizados' },
+  { key: 'cancelado',    label: 'Cancelados' },
 ];
 
 const inferirServicio = (snapshot, duracion) => {

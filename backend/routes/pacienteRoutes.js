@@ -61,6 +61,13 @@ pacienteRouter.route("/:id/turnos/:turnoId/confirmar-propuesta")
 pacienteRouter.route("/:id/turnos/:turnoId/rechazar-propuesta")
     .patch(soloPaciente, pacienteController.rechazarPropuestaMedico);
 
+// Desenlace del turno una vez pasado: el paciente confirma o niega la atención.
+pacienteRouter.route("/:id/turnos/:turnoId/confirmar-atencion")
+    .patch(soloPaciente, pacienteController.confirmarAtencion);
+
+pacienteRouter.route("/:id/turnos/:turnoId/no-atencion")
+    .patch(soloPaciente, pacienteController.reportarNoAtencion);
+
 // Coberturas del plan — las gestiona el admin.
 pacienteRouter.route("/:id/plan/especialidades")
     .post(requireAdmin, pacienteController.agregarCoberturaEspecialidad);

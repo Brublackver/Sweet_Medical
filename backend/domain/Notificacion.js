@@ -24,6 +24,8 @@ export const TIPOS_NOTIFICACION = Object.freeze({
     PROPUESTA_CAMBIO_FECHA: "PROPUESTA_CAMBIO_FECHA", // médico propone cambio → paciente
     CAMBIO_CONFIRMADO:      "CAMBIO_CONFIRMADO",
     CAMBIO_RECHAZADO:       "CAMBIO_RECHAZADO",
+    TURNO_REALIZADO:        "TURNO_REALIZADO",     // paciente confirmó que fue atendido → médico
+    TURNO_NO_REALIZADO:     "TURNO_NO_REALIZADO",  // paciente reportó que NO fue atendido → médico
 });
 
 // Cómo se resolvió una notificación accionable. Queda guardado de forma permanente.

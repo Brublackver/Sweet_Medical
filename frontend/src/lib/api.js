@@ -75,6 +75,15 @@ export const rechazarPropuestaMedico = (pacienteId, turnoId) =>
 export const solicitarCambioFecha = (pacienteId, turnoId, nuevaFecha, nuevaHora) =>
   api.post(`/paciente/${pacienteId}/turnos/${turnoId}/solicitar-cambio`, { nuevaFecha, nuevaHora }).then((r) => r.data.data);
 
+// Desenlace del turno pasado, respondido por el paciente:
+//   confirmarAtencion  → SÍ fui atendido  → turno REALIZADO
+//   reportarNoAtencion → NO fui atendido  → turno NO_REALIZADO
+export const confirmarAtencion = (pacienteId, turnoId) =>
+  api.patch(`/paciente/${pacienteId}/turnos/${turnoId}/confirmar-atencion`).then((r) => r.data.data);
+
+export const reportarNoAtencion = (pacienteId, turnoId) =>
+  api.patch(`/paciente/${pacienteId}/turnos/${turnoId}/no-atencion`).then((r) => r.data.data);
+
 // --- Médico ----------------------------------------------------------------
 export const getTurnosMedico = (medicoId) =>
   api.get(`/medico/${medicoId}/turnos`).then((r) => r.data.data);

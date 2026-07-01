@@ -18,6 +18,7 @@
 .reservado       { background-color: var(--c-info-bg);    color: var(--c-info);    border-color: var(--c-info-border); }
 .realizado       { background-color: var(--c-success-bg); color: var(--c-success); border-color: var(--c-success-border); }
 .cancelado       { background-color: var(--c-error-bg);   color: var(--c-error);   border-color: var(--c-error-border); }
+.noRealizado     { background-color: #eef1f5;             color: #475569;          border-color: #cbd5e1; }
 .pendienteCambio { background-color: var(--c-warning-bg); color: var(--c-warning); border-color: var(--c-warning-border); }
 .propuestaMedico { background-color: var(--c-special-bg); color: var(--c-special); border-color: var(--c-special-border); }
 

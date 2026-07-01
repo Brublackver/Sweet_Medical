@@ -299,3 +299,65 @@ describe("TurnoService - Notificaciones bidireccionales", () => {
             );
     });
 });
+
+describe("TurnoService - Confirmación de atención por el paciente", () => {
+
+    // Siembra un turno directamente (saltea validación de reserva). Fecha pasada
+    // = turno ya vencido, condición necesaria para confirmar/negar la atención.
+    const sembrarVencido = (repo, { pacienteId = 1, medicoId = 99, fecha = "2020-01-01", hora = "10:00" } = {}) =>
+        repo.crear(medicoId, pacienteId, fecha, hora, 30);
+
+    it("marca REALIZADO cuando el paciente confirma que fue atendido (turno vencido)", () => {
+        const { turnoRepository, turnoService } = crearContexto();
+
+        return sembrarVencido(turnoRepository)
+            .then((turno) => turnoService.confirmarAtencionPorPaciente(turno.id, 1))
+            .then((turno) => expect(turno.estado).toBe(ESTADOS.REALIZADO));
+    });
+
+    it("marca NO_REALIZADO cuando el paciente reporta que NO fue atendido (turno vencido)", () => {
+        const { turnoRepository, turnoService } = crearContexto();
+
+        return sembrarVencido(turnoRepository)
+            .then((turno) => turnoService.marcarNoAtendidoPorPaciente(turno.id, 1))
+            .then((turno) => expect(turno.estado).toBe(ESTADOS.NO_REALIZADO));
+    });
+
+    it("rechaza confirmar la atención si el turno todavía no ocurrió", () => {
+        const { turnoRepository, turnoService } = crearContexto();
+
+        return sembrarVencido(turnoRepository, { fecha: "2030-06-10" })
+            .then((turno) => turnoService.confirmarAtencionPorPaciente(turno.id, 1))
+            .then(() => { throw new Error("Debería haber rechazado"); })
+            .catch((err) => expect(err.message).toMatch(/aún no ocurrió|estado inválido/i));
+    });
+
+    it("rechaza si el turno no pertenece al paciente que responde", () => {
+        const { turnoRepository, turnoService } = crearContexto();
+
+        return sembrarVencido(turnoRepository, { pacienteId: 2 })
+            .then((turno) => turnoService.confirmarAtencionPorPaciente(turno.id, 1))
+            .then(() => { throw new Error("Debería haber rechazado"); })
+            .catch((err) => expect(err.message).toMatch(/no pertenece/i));
+    });
+});
+
+describe("TurnoService - Orden de la agenda del médico", () => {
+
+    const sembrar = (repo, { medicoId = 99, pacienteId = 1, fecha, hora }) =>
+        repo.crear(medicoId, pacienteId, fecha, hora, 30);
+
+    it("devuelve los turnos del médico ordenados ascendente por fecha y hora", () => {
+        const { turnoRepository, turnoService } = crearContexto();
+
+        return Promise.all([
+            sembrar(turnoRepository, { fecha: "2030-06-10", hora: "05:00" }),
+            sembrar(turnoRepository, { fecha: "2030-06-10", hora: "02:45" }),
+            sembrar(turnoRepository, { fecha: "2030-06-10", hora: "04:00" }),
+        ])
+            .then(() => turnoService.buscarPorMedico(99))
+            .then((turnos) =>
+                expect(turnos.map((t) => t.hora)).toEqual(["02:45", "04:00", "05:00"])
+            );
+    });
+});

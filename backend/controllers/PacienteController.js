@@ -110,6 +110,24 @@ export class PacienteController {
             .then((turno) => res.status(200).json({ status: "success", data: turno }))
             .catch(next);
 
+    // El paciente confirma que fue atendido (SÍ) → el turno queda REALIZADO.
+    confirmarAtencion = (req, res, next) =>
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.turnoId)])
+            .then(([pacienteId, turnoId]) =>
+                this.pacienteService.confirmarAtencion(pacienteId, turnoId)
+            )
+            .then((turno) => res.status(200).json({ status: "success", data: turno }))
+            .catch(next);
+
+    // El paciente reporta que NO fue atendido → el turno queda NO_REALIZADO.
+    reportarNoAtencion = (req, res, next) =>
+        Promise.all([validarIdNumerico(req.params.id), validarIdNumerico(req.params.turnoId)])
+            .then(([pacienteId, turnoId]) =>
+                this.pacienteService.reportarNoAtencion(pacienteId, turnoId)
+            )
+            .then((turno) => res.status(200).json({ status: "success", data: turno }))
+            .catch(next);
+
     agregarCoberturaEspecialidad = (req, res, next) =>
         Promise.all([validarIdNumerico(req.params.id), validarCobertura(req.body)])
             .then(([pacienteId, datos]) => this.pacienteService.agregarCoberturaEspecialidad(pacienteId, datos))

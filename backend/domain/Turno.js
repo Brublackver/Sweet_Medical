@@ -4,6 +4,7 @@ export const ESTADOS = Object.freeze({
     PENDIENTE_CAMBIO: "pendiente_cambio",   // paciente solicitó cambio → espera médico
     PROPUESTA_MEDICO: "propuesta_medico",   // médico propuso cambio → espera paciente
     REALIZADO:        "realizado",
+    NO_REALIZADO:     "no_realizado",       // el turno pasó y el paciente reportó que NO fue atendido
 });
 
 // Estados en los que un turno sigue "vivo": ni cancelado ni realizado.
@@ -76,6 +77,26 @@ export class Turno {
             fechaHora: new Date().toISOString(),
             estado:    ESTADOS.REALIZADO,
             motivo:    null,
+        });
+    }
+
+    // --- No realizado (reportado por el PACIENTE) ---------------------------
+
+    // Mismo criterio que "realizado": sólo tiene sentido si el turno estaba activo
+    // y su horario ya pasó. La diferencia es el desenlace: el paciente afirma que
+    // el médico NO lo atendió. No comparte reglas con "cancelado" (que exige motivo
+    // y anticipación mínima): es un desenlace posterior al turno, no una cancelación.
+    puedeMarcarseNoRealizado() {
+        if (!ESTADOS_ACTIVOS.includes(this.estado)) return false;
+        return isAppointmentExpired(this.fecha, this.hora);
+    }
+
+    marcarNoRealizado() {
+        this.estado = ESTADOS.NO_REALIZADO;
+        this.historialEstados.push({
+            fechaHora: new Date().toISOString(),
+            estado:    ESTADOS.NO_REALIZADO,
+            motivo:    "El paciente reportó que no fue atendido",
         });
     }
 

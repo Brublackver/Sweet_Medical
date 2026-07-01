@@ -5,7 +5,7 @@ import { usePaciente }    from '@/context/PacienteContext';
 import { buscarTurnos }   from '@/lib/api';
 import { hoyISO, enNDiasISO, esTurnoReservable } from '@/lib/fecha';
 import FiltrosBusqueda    from '@/components/busqueda/FiltrosBusqueda';
-import CarruselDias       from '@/components/busqueda/CarruselDias';
+import CarruselDias       from '@/components/ui/CarruselDias';
 import ResultadosDia      from '@/components/busqueda/ResultadosDia';
 import EstadoCarga        from '@/components/ui/EstadoCarga';
 import { SkeletonDia }    from '@/components/ui/Skeleton';

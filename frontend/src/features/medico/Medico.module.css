@@ -16,6 +16,13 @@
 
 .lista { display: flex; flex-direction: column; gap: 0.75rem; }
 
+/* Título del día seleccionado en la barra de navegación por días */
+.diaTitulo {
+  font-size: 1rem; font-weight: 600; color: #0f172a;
+  text-transform: capitalize; margin-bottom: 0.75rem;
+}
+.diaConteo { font-weight: 500; color: #64748b; text-transform: none; }
+
 /* ====== TARJETA TURNO MÉDICO ====== */
 .tarjeta {
   background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0;

@@ -176,6 +176,62 @@ export class TurnoService {
             });
     }
 
+    // --- Confirmación de atención por el PACIENTE ---------------------------
+
+    // El paciente, tras pasar el turno, confirma que SÍ fue atendido → REALIZADO.
+    // Reusa la misma transición y guarda que usa el médico (turno activo + vencido),
+    // así el desenlace queda unificado sin importar quién lo confirme.
+    confirmarAtencionPorPaciente(turnoId, pacienteId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.pacienteId !== pacienteId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al paciente"));
+                if (!turno.puedeMarcarseRealizado())
+                    return Promise.reject(new BadRequestError(
+                        "No se puede confirmar la atención: estado inválido o el turno aún no ocurrió"
+                    ));
+
+                turno.marcarRealizado();
+                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                    // El paciente confirmó → se le avisa al médico y el turno aparece como realizado.
+                    this._notificar(
+                        USUARIO_TIPOS.MEDICO, turno.medicoId,
+                        TIPOS_NOTIFICACION.TURNO_REALIZADO,
+                        `El paciente confirmó que fue atendido en el turno del ${turno.fecha} ${turno.hora}`,
+                        turno.id, actualizado
+                    )
+                );
+            });
+    }
+
+    // El paciente, tras pasar el turno, reporta que NO fue atendido → NO_REALIZADO.
+    marcarNoAtendidoPorPaciente(turnoId, pacienteId) {
+        return this.turnoRepository.obtenerPorId(turnoId)
+            .then((turno) => {
+                if (!turno)
+                    return Promise.reject(new NotFoundError("Turno no encontrado"));
+                if (turno.pacienteId !== pacienteId)
+                    return Promise.reject(new BadRequestError("El turno no pertenece al paciente"));
+                if (!turno.puedeMarcarseNoRealizado())
+                    return Promise.reject(new BadRequestError(
+                        "No se puede marcar como no realizado: estado inválido o el turno aún no ocurrió"
+                    ));
+
+                turno.marcarNoRealizado();
+                return this.turnoRepository.actualizar(turno).then((actualizado) =>
+                    // El paciente reportó ausencia del médico → se le avisa al médico.
+                    this._notificar(
+                        USUARIO_TIPOS.MEDICO, turno.medicoId,
+                        TIPOS_NOTIFICACION.TURNO_NO_REALIZADO,
+                        `El paciente reportó que NO fue atendido en el turno del ${turno.fecha} ${turno.hora}`,
+                        turno.id, actualizado
+                    )
+                );
+            });
+    }
+
     // --- Cambios de fecha: flujo del PACIENTE (solicita → médico confirma) --
 
     solicitarCambioFecha(turnoId, pacienteId, nuevaFecha, nuevaHora) {
@@ -466,16 +522,22 @@ export class TurnoService {
 
     // --- Historial y búsquedas ----------------------------------------------
 
+    // El historial completo se entrega ordenado ascendente por fecha/hora, igual
+    // que "Próximos": el cliente sólo filtra por estado, nunca reordena.
     historialPorPaciente(pacienteId) {
-        return this.turnoRepository.buscarPorPaciente(pacienteId);
+        return this.turnoRepository.buscarPorPaciente(pacienteId)
+            .then((turnos) => this._ordenarPorFechaHora(turnos));
     }
 
     historialPorMedicoYPaciente(medicoId, pacienteId) {
         return this.turnoRepository.buscarPorMedicoYPaciente(medicoId, pacienteId);
     }
 
+    // Todos los turnos del médico, ordenados ascendente por fecha/hora. Sin este
+    // orden la agenda llegaba con las horas mezcladas (02:45 → 05:00 → 04:00).
     buscarPorMedico(medicoId) {
-        return this.turnoRepository.buscarPorMedico(medicoId);
+        return this.turnoRepository.buscarPorMedico(medicoId)
+            .then((turnos) => this._ordenarPorFechaHora(turnos));
     }
 
     buscarPorMedicoYFecha(medicoId, fecha) {

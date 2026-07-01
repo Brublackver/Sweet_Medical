@@ -1,13 +1,18 @@
 import { useState }                                   from 'react';
 import { EstadoBadge }                                from '@/components/ui/EstadoBadge';
 import { CoberturasBadge }                            from '@/components/ui/Badge';
-import { formatearFechaConAnio, formatearFechaCorta, formatearFecha } from '@/lib/fecha';
+import { formatearFechaConAnio, formatearFechaCorta, formatearFecha, esTurnoReservable } from '@/lib/fecha';
 import {
   confirmarPropuestaMedico,
   rechazarPropuestaMedico,
   solicitarCambioFecha,
+  confirmarAtencion,
+  reportarNoAtencion,
 } from '@/lib/api';
 import styles from '@/features/misturno/MisTurnos.module.css';
+
+// Un turno "ya pasó" cuando su horario venció, interpretado en hora de Argentina.
+const yaPaso = (fecha, hora) => !esTurnoReservable(fecha, hora);
 
 export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
   const [cargando,       setCargando]       = useState(false);
@@ -41,7 +46,15 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
     setMostrarFormCambio(false);
   };
 
+  const handleFuiAtendido = () =>
+    ejecutar(() => confirmarAtencion(pacienteId, turno.id), true);
+
+  const handleNoFuiAtendido = () =>
+    ejecutar(() => reportarNoAtencion(pacienteId, turno.id), true);
+
   const propuesta = turno.propuestaMedicoFecha;
+  // Turno reservado cuyo horario ya pasó: pedimos al paciente que confirme la atención.
+  const esperaConfirmacion = turno.estado === 'reservado' && yaPaso(turno.fecha, turno.hora);
 
   return (
     <article
@@ -104,7 +117,36 @@ export default function TarjetaMiTurno({ turno, pacienteId, onActualizar }) {
         </div>
       )}
 
-      {turno.estado === 'reservado' && (
+      {esperaConfirmacion && (
+        <div className={styles.atencionBox}>
+          <p className={styles.atencionTitulo}>🩺 ¿Ya fuiste atendido por el médico?</p>
+          <p className={styles.atencionTexto}>
+            El horario de tu turno ya pasó. Confirmanos qué ocurrió para actualizar su estado.
+          </p>
+          <div className={styles.acciones}>
+            <button
+              type="button"
+              onClick={handleFuiAtendido}
+              disabled={cargando}
+              aria-label="Sí, fui atendido por el médico"
+              className={styles.btnSi}
+            >
+              {cargando ? 'Procesando...' : 'SÍ, me atendieron'}
+            </button>
+            <button
+              type="button"
+              onClick={handleNoFuiAtendido}
+              disabled={cargando}
+              aria-label="No, no fui atendido por el médico"
+              className={styles.btnNo}
+            >
+              {cargando ? 'Procesando...' : 'NO, no me atendieron'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {turno.estado === 'reservado' && !esperaConfirmacion && (
         <div className={styles.divisor}>
           {!mostrarFormCambio ? (
             <button

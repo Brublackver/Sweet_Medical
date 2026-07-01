@@ -105,6 +105,18 @@ export class PacienteService {
             .then(() => this.turnoService.rechazarPropuestaMedico(turnoId, pacienteId));
     }
 
+    // Tras pasar el turno, el paciente confirma que fue atendido → REALIZADO.
+    confirmarAtencion(pacienteId, turnoId) {
+        return this.obtenerPorId(pacienteId)
+            .then(() => this.turnoService.confirmarAtencionPorPaciente(turnoId, pacienteId));
+    }
+
+    // Tras pasar el turno, el paciente reporta que NO fue atendido → NO_REALIZADO.
+    reportarNoAtencion(pacienteId, turnoId) {
+        return this.obtenerPorId(pacienteId)
+            .then(() => this.turnoService.marcarNoAtendidoPorPaciente(turnoId, pacienteId));
+    }
+
     // --- Gestión de coberturas del plan ---
 
     agregarCoberturaEspecialidad(pacienteId, datos) {
