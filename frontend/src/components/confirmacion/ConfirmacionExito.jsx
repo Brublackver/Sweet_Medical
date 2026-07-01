@@ -42,7 +42,7 @@ export default function ConfirmacionExito({ turnosConfirmados, errores }) {
         )}
 
         {errores.length > 0 && (
-          <div className={styles.errorLista}>
+          <div className={styles.errorLista} role="alert" aria-live="assertive">
             <p className={styles.errorListaTitulo}>⚠️ No se pudieron reservar:</p>
             {errores.map(({ item, msg }) => (
               <div key={item.key} className={styles.errorItem}>

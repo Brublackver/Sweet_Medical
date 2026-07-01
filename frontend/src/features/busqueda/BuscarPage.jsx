@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter }      from 'next/navigation';
 import { usePaciente }    from '@/context/PacienteContext';
 import { buscarTurnos }   from '@/lib/api';
+import { hoyISO, enNDiasISO, esTurnoReservable } from '@/lib/fecha';
 import FiltrosBusqueda    from '@/components/busqueda/FiltrosBusqueda';
 import CarruselDias       from '@/components/busqueda/CarruselDias';
 import ResultadosDia      from '@/components/busqueda/ResultadosDia';
@@ -10,8 +11,16 @@ import EstadoCarga        from '@/components/ui/EstadoCarga';
 import { SkeletonDia }    from '@/components/ui/Skeleton';
 import styles from './Busqueda.module.css';
 
-const hoy       = () => new Date().toISOString().split('T')[0];
-const en30Dias  = () => { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().split('T')[0]; };
+const hoy      = () => hoyISO();
+const en30Dias = () => enNDiasISO(30);
+
+// Filtro de seguridad: descarta turnos cuyo horario ya venció y días que quedaron
+// sin turnos disponibles. El backend ya no los devuelve, pero si la página quedó
+// abierta este filtro evita mostrar horarios pasados al re-renderizar.
+const descartarVencidos = (dias) =>
+  dias
+    .map((d) => ({ ...d, turnos: d.turnos.filter((t) => esTurnoReservable(d.fecha, t.hora)) }))
+    .filter((d) => d.turnos.length > 0);
 
 export default function BuscarPage() {
   const { paciente, cargado }               = usePaciente();
@@ -41,8 +50,9 @@ export default function BuscarPage() {
 
     buscarTurnos({ ...filtros, pacienteId: paciente.paciente_id })
       .then((data) => {
-        setResultados(data);
-        const primerDia = data.find((d) => d.turnos.length > 0)?.fecha ?? fechaDesde;
+        const vigentes = descartarVencidos(data);
+        setResultados(vigentes);
+        const primerDia = vigentes.find((d) => d.turnos.length > 0)?.fecha ?? fechaDesde;
         setDiaSeleccionado(primerDia);
       })
       .catch(() => setError('No pudimos conectar con el servidor. Verificá que el backend esté corriendo.'))

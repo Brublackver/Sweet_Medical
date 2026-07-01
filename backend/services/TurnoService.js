@@ -1,7 +1,7 @@
 import { NotFoundError, ConflictError, BadRequestError } from "../errors/AppError.js";
 import { ESTADOS, ESTADOS_ACTIVOS } from "../domain/Turno.js";
 import { USUARIO_TIPOS, TIPOS_NOTIFICACION, RESULTADOS } from "../domain/Notificacion.js";
-import { fechaHoyISO } from "../domain/tiempo.js";
+import { fechaHoyISO, isAppointmentBookable } from "../domain/tiempo.js";
 
 export class TurnoService {
     constructor({ turnoRepository, medicoService, pacienteRepository, notificacionService } = {}) {
@@ -47,10 +47,13 @@ export class TurnoService {
             if (!paciente)
                 return Promise.reject(new NotFoundError("Paciente no encontrado"));
 
-            // No se puede reservar un turno en el pasado (ni en este mismo instante).
-            const inicioTurno = new Date(`${datos.fecha}T${datos.hora}:00`);
-            if (Number.isNaN(inicioTurno.getTime()) || inicioTurno <= new Date())
-                return Promise.reject(new BadRequestError("No se puede reservar un turno en el pasado"));
+            // El turno debe ser estrictamente futuro. La fecha/hora se interpreta en
+            // hora de Argentina (ver buildAppointmentDateTime) para no rechazar turnos
+            // válidos por la zona horaria del servidor.
+            if (!isAppointmentBookable(datos.fecha, datos.hora))
+                return Promise.reject(new BadRequestError(
+                    "El turno ya no está disponible porque su horario venció."
+                ));
 
             if (!medico.tieneDisponibilidad(datos.fecha, datos.hora, datos.duracion))
                 return Promise.reject(new BadRequestError(

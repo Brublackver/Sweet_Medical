@@ -1,6 +1,6 @@
 import { useState }                              from 'react';
 import { EstadoBadge }                           from '@/components/ui/EstadoBadge';
-import { formatearFechaConAnio, formatearFechaCorta, formatearFecha } from '@/lib/fecha';
+import { formatearFechaConAnio, formatearFechaCorta, formatearFecha, esTurnoReservable } from '@/lib/fecha';
 import {
   cancelarTurnoMedico,
   marcarRealizado,
@@ -10,7 +10,8 @@ import {
 } from '@/lib/api';
 import styles from '@/features/medico/Medico.module.css';
 
-const yaPaso = (fecha, hora) => new Date(`${fecha}T${hora}:00`) <= new Date();
+// Un turno "ya pasó" cuando su horario venció, interpretado en hora de Argentina.
+const yaPaso = (fecha, hora) => !esTurnoReservable(fecha, hora);
 
 export default function TarjetaTurnoMedico({ turno, medicoId, onActualizar }) {
   const [cargando,       setCargando]        = useState(false);

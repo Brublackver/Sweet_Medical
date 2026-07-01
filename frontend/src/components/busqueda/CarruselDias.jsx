@@ -12,11 +12,12 @@ function parsearFecha(fechaStr) {
 
 function generarRango(desde, hasta) {
   const fechas  = [];
-  const current = new Date(`${desde}T00:00:00`);
-  const end     = new Date(`${hasta}T00:00:00`);
+  // Iteración en UTC para que la lista de días no dependa de la zona horaria.
+  const current = new Date(`${desde}T00:00:00Z`);
+  const end     = new Date(`${hasta}T00:00:00Z`);
   while (current <= end) {
     fechas.push(current.toISOString().split('T')[0]);
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
   return fechas;
 }

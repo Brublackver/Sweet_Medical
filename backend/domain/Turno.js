@@ -14,7 +14,7 @@ export const ESTADOS_ACTIVOS = Object.freeze([
     ESTADOS.PROPUESTA_MEDICO,
 ]);
 
-import { horaAMinutos } from "./tiempo.js";
+import { horaAMinutos, buildAppointmentDateTime, isAppointmentExpired } from "./tiempo.js";
 
 export class Turno {
     constructor(id, medicoId, pacienteId, fecha, hora, duracion, snapshotMedico = null, snapshotPaciente = null) {
@@ -44,7 +44,7 @@ export class Turno {
     // --- Cancelación --------------------------------------------------------
 
     puedeCancelarse() {
-        const fechaTurno = new Date(`${this.fecha}T${this.hora}:00`);
+        const fechaTurno = buildAppointmentDateTime(this.fecha, this.hora);
         return (fechaTurno - new Date()) / (1000 * 60 * 60) >= 1;
     }
 
@@ -67,8 +67,7 @@ export class Turno {
     // y su fecha y hora ya pasaron (el turno ocurrió).
     puedeMarcarseRealizado() {
         if (!ESTADOS_ACTIVOS.includes(this.estado)) return false;
-        const fechaTurno = new Date(`${this.fecha}T${this.hora}:00`);
-        return fechaTurno <= new Date();
+        return isAppointmentExpired(this.fecha, this.hora);
     }
 
     marcarRealizado() {
