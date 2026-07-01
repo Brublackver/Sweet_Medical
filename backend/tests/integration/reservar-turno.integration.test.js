@@ -75,7 +75,7 @@ describe('POST /paciente/:id/turno — Reservar turno (integración de controlad
       .then((p) => {
         paciente = p;
 
-        // ── Endpoint bajo test ───────────────────────────────────────────────
+        // ── Endpoint bajo test ─────────────────────────────────────────────── solicitamos turno
         return request(app)
           .post(`/paciente/${paciente.paciente_id}/turno`)
           .set(pacAuth(paciente.paciente_id))

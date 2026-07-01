@@ -13,11 +13,11 @@ Cypress.Commands.add('loginAdmin', (password = '123456') => {
   cy.get('[aria-label="Tipo de usuario"]').contains('button', 'Admin').click();
   cy.get('input[type="password"]').first().type(password);
   cy.get('button[type="submit"]').click();
-});
+}); 
 
 // cy.stubLoginPaciente() — intercepta la API y simula login exitoso
 Cypress.Commands.add('stubLoginPaciente', () => {
-  cy.intercept('POST', '/auth/login', {
+  cy.intercept('POST','/backend/auth/login', {
     statusCode: 200,
     body: {
       status: 'success',
