@@ -1,0 +1,52 @@
+/* Esquina inferior izquierda. Oculto en mobile — solo "modo computadora". */
+.contenedor {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 22rem;
+}
+
+@media (min-width: 640px) {
+  .contenedor { display: flex; }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid #cdeeee;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 118, 110, 0.18);
+  cursor: pointer;
+  text-align: left;
+  color: #0f172a;
+  /* Entra desde abajo y a los 3.2s se empieza a ir (se remueve del DOM a los 3.5s). */
+  animation: toastIn 0.25s ease, toastOut 0.3s ease 3.2s forwards;
+}
+.toast:hover        { box-shadow: 0 12px 34px rgba(15, 118, 110, 0.24); }
+.toast:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+
+.icono  { font-size: 1.5rem; line-height: 1; }
+.texto  { display: flex; flex-direction: column; min-width: 0; }
+.titulo {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sub    { font-size: 0.75rem; color: #64748b; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(-0.75rem); }
+}

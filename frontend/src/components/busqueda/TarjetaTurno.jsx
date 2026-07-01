@@ -11,25 +11,21 @@ export default function TarjetaTurno({ turno, fecha }) {
 
   return (
     <article
-      aria-label={`Turno: ${turno.servicio.nombre} el ${fecha} a las ${turno.hora}`}
+      aria-label={`Turno: ${turno.servicio.nombre} con ${turno.medico.nombre} a las ${turno.hora}`}
       className={`${styles.tarjeta} ${enCarrito ? styles.tarjetaSeleccionada : ''}`}
     >
       <div className={styles.tarjetaHeader}>
-        <div>
-          <p className={styles.tarjetaHora}>{turno.hora} hs</p>
-          <p className={styles.tarjetaDuracion}>{turno.servicio.duracionTurnoEnMins} min</p>
-        </div>
+        <p className={styles.tarjetaDuracion}>{turno.servicio.duracionTurnoEnMins} min</p>
         <CoberturasBadge cobertura={turno.cobertura} />
       </div>
 
-      <div>
+      <div className={styles.tarjetaInfoServicio}>
         <p className={styles.tarjetaServicio}>{turno.servicio.nombre}</p>
         <p className={styles.tarjetaTipo}>{turno.servicio.tipo}</p>
       </div>
 
-      <div>
+      <div className={styles.tarjetaInfoMedico}>
         <p className={styles.tarjetaMedico}>{turno.medico.nombre}</p>
-        <p className={styles.tarjetaMatricula}>Matr. {turno.medico.matricula}</p>
       </div>
 
       {turno.sedes?.length > 0 && (
@@ -56,6 +52,7 @@ export default function TarjetaTurno({ turno, fecha }) {
         </div>
 
         <button
+          type="button"
           onClick={handleToggle}
           aria-pressed={enCarrito}
           aria-label={enCarrito ? `Quitar ${turno.servicio.nombre} de mis solicitudes` : `Agregar ${turno.servicio.nombre} a mis solicitudes`}

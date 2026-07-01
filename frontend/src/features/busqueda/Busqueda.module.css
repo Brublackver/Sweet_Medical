@@ -1,7 +1,7 @@
 /* ====== PAGE ====== */
-.page { max-width: 80rem; margin: 0 auto; padding: 2rem 1rem; }
+.page { max-width: 80rem; margin: 0 auto; padding: 1rem; }
 
-.header        { margin-bottom: 2rem; }
+.header        { margin-bottom: 1rem; }
 .pageTitle     { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
 .pageSubtitle  { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
 
@@ -54,7 +54,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .filtrosTitle  { font-weight: 600; color: #0f172a; }
@@ -73,15 +73,15 @@
 .filtrosToggle:hover        { background: #f0fdfa; }
 .filtrosToggle:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
 
-.filtrosChevron {
+.filtrosToggleIcon {
   font-size: 1.25rem;
   color: #0f766e;
-  display: inline-block;
-  transform: rotate(90deg);
-  transition: transform 0.25s ease;
+  font-weight: 300;
   line-height: 1;
+  display: inline-block;
+  width: 1rem;
+  text-align: center;
 }
-.filtrosChevronOpen { transform: rotate(-90deg); }
 
 .filtrosCuerpo {
   display: grid;
@@ -95,6 +95,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  padding-top: 0.875rem;
 }
 
 .filtrosFields { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -123,6 +124,38 @@
   box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15);
   background-color: #fff;
 }
+
+/* ====== AUTOCOMPLETADO (especialidad / práctica) ====== */
+.autocompleteWrap { position: relative; }
+
+.sugerencias {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-height: 13.5rem;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #cdeeee;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.14);
+}
+
+.sugerenciaItem {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  color: #334155;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerenciaActiva { background-color: #f0fdfa; color: #0f766e; }
 
 .filtrosBtns { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.25rem; }
 
@@ -206,8 +239,11 @@
 .tarjetaServicio { font-size: 0.875rem; font-weight: 600; color: #0f172a; }
 .tarjetaTipo     { font-size: 0.75rem; color: #94a3b8; text-transform: capitalize; margin-top: 0.125rem; }
 
-.tarjetaMedico    { font-size: 0.875rem; color: #334155; }
-.tarjetaMatricula { font-size: 0.75rem; color: #94a3b8; }
+.tarjetaHoraBloque  { display: flex; flex-direction: column; }
+.tarjetaInfoServicio { }
+.tarjetaInfoMedico   { }
+
+.tarjetaMedico { font-size: 0.875rem; color: #334155; }
 
 .tarjetaSede     { font-size: 0.75rem; color: #64748b; }
 .tarjetaDireccion { color: #94a3b8; }
@@ -252,3 +288,61 @@
 .spinnerPath   { opacity: 0.75; }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ====== TARJETA MÓVIL: grid 2 columnas (info | precio+botón) ====== */
+@media (max-width: 560px) {
+  .tarjeta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 0.75rem;
+    row-gap: 0.15rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.625rem;
+    align-items: center;
+  }
+  .tarjeta:hover { transform: none; box-shadow: 0 1px 4px rgba(15, 118, 110, 0.06); }
+
+  /* Columna izquierda — info apilada; min-width:0 habilita el truncado. */
+  .tarjetaHeader,
+  .tarjetaInfoServicio,
+  .tarjetaInfoMedico,
+  .tarjetaSede { grid-column: 1; min-width: 0; }
+
+  .tarjetaHeader    { align-items: center; }
+  .tarjetaTipo      { display: none; }
+  .tarjetaDireccion { display: none; }
+  .tarjetaDuracion  { margin-top: 0; }
+
+  /* Una sola línea con "…" — así la tarjeta se mantiene angosta y prolija. */
+  .tarjetaServicio,
+  .tarjetaMedico,
+  .tarjetaSede {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tarjetaServicio { font-size: 0.8125rem; }
+  .tarjetaMedico   { font-size: 0.8125rem; color: #475569; }
+  .tarjetaDuracion { font-size: 0.6875rem; }
+  .tarjetaSede     { font-size: 0.6875rem; }
+
+  /* Columna derecha — precio + botón centrados verticalmente */
+  .tarjetaFooter {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    align-self: stretch;
+    flex-shrink: 0;
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+    gap: 0.375rem;
+  }
+
+  .precio, .precioGratis { font-size: 0.8125rem; text-align: right; }
+  .precioTachado         { font-size: 0.6875rem; text-align: right; }
+  .agregarBtn            { padding: 0.3rem 0.625rem; font-size: 0.75rem; white-space: nowrap; }
+}

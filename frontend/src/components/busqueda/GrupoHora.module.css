@@ -81,5 +81,5 @@
 }
 
 @media (max-width: 560px) {
-  .grid { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; gap: 0.375rem; padding: 0.5rem 0.625rem; }
 }

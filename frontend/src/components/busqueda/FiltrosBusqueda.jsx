@@ -1,6 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAllSedes, getAllMedicos } from '@/lib/api';
+import CampoAutocompletado from './CampoAutocompletado';
 import styles from '@/features/busqueda/Busqueda.module.css';
+
+// Junta los nombres únicos de un servicio (especialidades | practicas) de todos
+// los médicos, ordenados alfabéticamente. Es la fuente del autocompletado:
+// no hay endpoint de catálogo, así que se deriva de los médicos ya cargados.
+const nombresUnicos = (medicos, campo) => {
+  const set = new Set();
+  medicos.forEach((m) =>
+    (m[campo] || []).forEach((s) => { if (s?.nombre) set.add(s.nombre); })
+  );
+  return [...set].sort((a, b) => a.localeCompare(b, 'es'));
+};
 
 const hoy = () => new Date().toISOString().split('T')[0];
 const en30Dias = () => {
@@ -35,12 +47,20 @@ export default function FiltrosBusqueda({ onBuscar, cargando }) {
   const set = (campo) => (e) =>
     setFiltros((prev) => ({ ...prev, [campo]: e.target.value }));
 
+  // Igual que `set`, pero recibe el valor directo (lo usa el autocompletado).
+  const setValor = (campo) => (valor) =>
+    setFiltros((prev) => ({ ...prev, [campo]: valor }));
+
+  const especialidades = useMemo(() => nombresUnicos(medicos, 'especialidades'), [medicos]);
+  const practicas      = useMemo(() => nombresUnicos(medicos, 'practicas'),      [medicos]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const params = Object.fromEntries(
       Object.entries(filtros).filter(([, v]) => v !== '')
     );
     onBuscar(params);
+    setMinimizado(true);
   };
 
   const handleReset = () => setFiltros(initialState);
@@ -56,15 +76,29 @@ export default function FiltrosBusqueda({ onBuscar, cargando }) {
           aria-expanded={!minimizado}
           aria-label={minimizado ? 'Expandir filtros' : 'Minimizar filtros'}
         >
-          <span className={`${styles.filtrosChevron} ${minimizado ? '' : styles.filtrosChevronOpen}`}>›</span>
+          <span className={styles.filtrosToggleIcon} aria-hidden="true">{minimizado ? '+' : '−'}</span>
         </button>
       </div>
 
       <div className={`${styles.filtrosCuerpo} ${minimizado ? styles.filtrosCuerpoCollapsed : ''}`}>
         <div className={styles.filtrosCuerpoInner}>
       <div className={styles.filtrosFields}>
-        <Campo id="especialidad" label="Especialidad" placeholder="Ej: Cardiología"        value={filtros.especialidad} onChange={set('especialidad')} />
-        <Campo id="practica"     label="Práctica"     placeholder="Ej: Electrocardiograma" value={filtros.practica}     onChange={set('practica')} />
+        <CampoAutocompletado
+          id="especialidad"
+          label="Especialidad"
+          placeholder="Ej: Cardiología"
+          value={filtros.especialidad}
+          onChange={setValor('especialidad')}
+          opciones={especialidades}
+        />
+        <CampoAutocompletado
+          id="practica"
+          label="Práctica"
+          placeholder="Ej: Electrocardiograma"
+          value={filtros.practica}
+          onChange={setValor('practica')}
+          opciones={practicas}
+        />
         <div className={styles.campo}>
           <label htmlFor="sede" className={styles.campoLabel}>Sede</label>
           <select id="sede" value={filtros.sede} onChange={set('sede')} className={styles.campoSelect}>
@@ -123,14 +157,5 @@ export default function FiltrosBusqueda({ onBuscar, cargando }) {
         </div>
       </div>
     </form>
-  );
-}
-
-function Campo({ id, label, placeholder, value, onChange, type = 'text' }) {
-  return (
-    <div className={styles.campo}>
-      <label htmlFor={id} className={styles.campoLabel}>{label}</label>
-      <input id={id} type={type} value={value} onChange={onChange} placeholder={placeholder} className={styles.campoInput} />
-    </div>
   );
 }

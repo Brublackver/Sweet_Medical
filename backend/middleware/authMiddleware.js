@@ -43,3 +43,18 @@ export const requireAdmin = (req, res, next) => {
         return next(new ForbiddenError("Acceso restringido a administradores"));
     return next();
 };
+
+// Permite al ADMIN operar sobre cualquier recurso, o al propio dueño (del tipo
+// esperado) sobre el suyo. Útil en endpoints que gestiona el admin pero que el
+// propio usuario también puede tocar (p. ej. ver su perfil, sus servicios).
+export const requireAdminOrOwnership = (tipoEsperado) => (req, res, next) => {
+    if (!req.user)
+        return next(new UnauthorizedError("No autenticado"));
+    if (req.user.tipo === "ADMIN")
+        return next();
+    if (req.user.tipo !== tipoEsperado)
+        return next(new ForbiddenError("No tenés permiso para acceder a este recurso"));
+    if (Number(req.params.id) !== Number(req.user.id))
+        return next(new ForbiddenError("Solo podés operar sobre tu propia cuenta"));
+    return next();
+};

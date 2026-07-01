@@ -1,17 +1,13 @@
-'use client';
-import { useState } from 'react';
 import TarjetaTurno from './TarjetaTurno';
 import styles from './GrupoHora.module.css';
 
-export default function GrupoHora({ hora, turnos, fecha, inicialExpandido = false }) {
-  const [expandido, setExpandido] = useState(inicialExpandido);
-
+export default function GrupoHora({ hora, turnos, fecha, expandido, onToggle }) {
   return (
     <div className={styles.grupo}>
       <button
         type="button"
         className={`${styles.header} ${expandido ? styles.headerExpandido : ''}`}
-        onClick={() => setExpandido((prev) => !prev)}
+        onClick={onToggle}
         aria-expanded={expandido}
         aria-label={`${expandido ? 'Colapsar' : 'Expandir'} horario ${hora} hs — ${turnos.length} ${turnos.length === 1 ? 'turno' : 'turnos'}`}
       >

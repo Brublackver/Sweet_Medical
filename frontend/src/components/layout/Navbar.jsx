@@ -17,8 +17,22 @@ export default function Navbar() {
   const router                               = useRouter();
   const pathname                             = usePathname();
   const [mounted, setMounted]                = useState(false);
+  const [menuOpen, setMenuOpen]              = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  // El menú mobile se cierra solo al cambiar de página.
+  useEffect(() => setMenuOpen(false), [pathname]);
+
+  // Cerrar con la tecla Escape para accesibilidad.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
+  const closeMenu = () => setMenuOpen(false);
 
   // Contador de notificaciones sin leer para el badge del link.
   // Misma fuente de verdad que la página: el hook useNotificaciones.
@@ -39,6 +53,7 @@ export default function Navbar() {
   const navLink = (href, label) => (
     <Link
       href={href}
+      onClick={closeMenu}
       className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ''}`}
     >
       {label}
@@ -49,6 +64,7 @@ export default function Navbar() {
   const navLinkNotif = (href, label, count) => (
     <Link
       href={href}
+      onClick={closeMenu}
       className={`${styles.navLinkNotif} ${pathname === href ? styles.navLinkActive : ''}`}
       aria-label={count > 0 ? `${label}: ${count} sin leer` : label}
     >
@@ -64,11 +80,45 @@ export default function Navbar() {
   return (
     <nav className={styles.nav} aria-label="Navegación principal">
       <div className={styles.inner}>
-        <Link href={medico ? '/medico/turnos' : '/buscar'} className={styles.logo}>
+        {/* Botón hamburguesa — solo visible en mobile. Abre el menú desplegable. */}
+        {mounted && (paciente || medico) && (
+          <button
+            type="button"
+            className={styles.hamburger}
+            aria-label={
+              menuOpen
+                ? 'Cerrar menú'
+                : (cantidad > 0 || items.length > 0)
+                  ? 'Abrir menú (tenés avisos sin ver)'
+                  : 'Abrir menú'
+            }
+            aria-expanded={menuOpen}
+            aria-controls="menu-mobile"
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span className={`${styles.hamburgerBox} ${menuOpen ? styles.hamburgerBoxOpen : ''}`}>
+              <span className={styles.hamburgerBar} />
+              <span className={styles.hamburgerBar} />
+              <span className={styles.hamburgerBar} />
+            </span>
+            {/* Con menú cerrado: número si hay notificaciones del backend;
+                si no, punto rojo cuando hay solicitudes pendientes en el carrito. */}
+            {!menuOpen && cantidad > 0 && (
+              <span className={styles.hamburgerBadge} aria-hidden="true">
+                {cantidad > 9 ? '9+' : cantidad}
+              </span>
+            )}
+            {!menuOpen && cantidad === 0 && items.length > 0 && (
+              <span className={styles.hamburgerDot} aria-hidden="true" />
+            )}
+          </button>
+        )}
+
+        <Link href={medico ? '/medico/turnos' : '/buscar'} className={styles.logo} onClick={closeMenu}>
           🏥 <span>Sweet Medical</span>
         </Link>
 
-        <div className={styles.links}>
+        <div id="menu-mobile" className={`${styles.links} ${menuOpen ? styles.linksOpen : ''}`}>
           {mounted && (paciente || medico) && (
             <span className={styles.userName}>
               Hola, <strong>{paciente?.nombre ?? medico?.nombre}</strong>
@@ -87,6 +137,7 @@ export default function Navbar() {
           {mounted && paciente && (
             <Link
               href="/solicitudes"
+              onClick={closeMenu}
               aria-label={`Mis solicitudes: ${items.length} turnos`}
               className={styles.carritoBtn}
             >
@@ -105,6 +156,11 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Fondo oscuro tras el menú mobile — cierra al tocar afuera. */}
+      {menuOpen && (
+        <div className={styles.backdrop} onClick={closeMenu} aria-hidden="true" />
+      )}
     </nav>
   );
 }

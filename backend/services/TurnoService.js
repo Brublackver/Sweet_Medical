@@ -42,8 +42,15 @@ export class TurnoService {
             this.medicoService.obtenerPorId(datos.medicoId),
             this.pacienteRepository.obtenerPorId(datos.pacienteId),
         ]).then(([medico, paciente]) => {
+            if (!medico)
+                return Promise.reject(new NotFoundError("Médico no encontrado"));
             if (!paciente)
                 return Promise.reject(new NotFoundError("Paciente no encontrado"));
+
+            // No se puede reservar un turno en el pasado (ni en este mismo instante).
+            const inicioTurno = new Date(`${datos.fecha}T${datos.hora}:00`);
+            if (Number.isNaN(inicioTurno.getTime()) || inicioTurno <= new Date())
+                return Promise.reject(new BadRequestError("No se puede reservar un turno en el pasado"));
 
             if (!medico.tieneDisponibilidad(datos.fecha, datos.hora, datos.duracion))
                 return Promise.reject(new BadRequestError(

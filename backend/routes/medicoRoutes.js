@@ -6,10 +6,12 @@ import { TurnoRepository }       from "../repositories/TurnoRepository.js";
 import { sedeService }           from "./sedeRoutes.js";
 import { notificacionController } from "./notificacionRoutes.js";
 import { USUARIO_TIPOS }          from "../domain/Notificacion.js";
-import { requireOwnership, requireAdmin } from "../middleware/authMiddleware.js";
+import { requireOwnership, requireAdmin, requireAdminOrOwnership } from "../middleware/authMiddleware.js";
 
 // El médico solo puede operar sobre su propia agenda (el :id debe ser el suyo).
 const soloMedico = requireOwnership(USUARIO_TIPOS.MEDICO);
+// Servicios del médico: los gestiona el admin, o el propio médico sobre lo suyo.
+const adminOMedico = requireAdminOrOwnership(USUARIO_TIPOS.MEDICO);
 
 const medicoRouter = Router();
 
@@ -22,14 +24,14 @@ export const medicoService = new MedicoService({ medicoRepository, sedeService }
 
 const medicoController = new MedicoController({ medicoService });
 
-// CRUD médico
+// CRUD médico — crear y eliminar son operaciones de administración.
 medicoRouter.route("/")
     .get(medicoController.obtenerTodos)
-    .post(medicoController.crearMedico);
+    .post(requireAdmin, medicoController.crearMedico);
 
 medicoRouter.route("/:id")
     .get(medicoController.obtenerMedico)
-    .delete(medicoController.eliminarMedico);
+    .delete(requireAdmin, medicoController.eliminarMedico);
 
 // Reset de contraseña — solo admin.
 medicoRouter.route("/:id/password")
@@ -40,15 +42,15 @@ medicoRouter.route("/:id/password")
 medicoRouter.route("/:id/disponibilidad/slots")
     .get(medicoController.consultarSlotsDisponibles);
 
-// Disponibilidad general
+// Disponibilidad general — escribir la agenda solo el propio médico.
 medicoRouter.route("/:id/disponibilidad")
     .get(medicoController.obtenerDisponibilidad)
-    .post(medicoController.definirDisponibilidad)
-    .put(medicoController.cambiarDisponibilidad);
+    .post(soloMedico, medicoController.definirDisponibilidad)
+    .put(soloMedico, medicoController.cambiarDisponibilidad);
 
 medicoRouter.route("/:id/disponibilidad/:disponibilidadId")
     .get(medicoController.obtenerDisponibilidadPorId)
-    .delete(medicoController.eliminarDisponibilidadPorId);
+    .delete(soloMedico, medicoController.eliminarDisponibilidadPorId);
 
 // Turnos confirmados del médico
 medicoRouter.route("/:id/turnos")
@@ -74,26 +76,26 @@ medicoRouter.route("/:id/turnos/:turnoId/rechazar-cambio")
 medicoRouter.route("/:id/pacientes/:pacienteId/turnos")
     .get(soloMedico, medicoController.historialTurnosDePaciente);
 
-// Gestión de sedes del médico
+// Gestión de sedes del médico — admin o el propio médico.
 medicoRouter.route("/:id/sedes/:sedeId")
-    .post(medicoController.asignarSede)
-    .delete(medicoController.quitarSede);
+    .post(adminOMedico, medicoController.asignarSede)
+    .delete(adminOMedico, medicoController.quitarSede);
 
-// Gestión de especialidades
+// Gestión de especialidades — admin o el propio médico.
 medicoRouter.route("/:id/especialidades")
-    .post(medicoController.agregarEspecialidad);
+    .post(adminOMedico, medicoController.agregarEspecialidad);
 
 medicoRouter.route("/:id/especialidades/:espId")
-    .put(medicoController.modificarEspecialidad)
-    .delete(medicoController.eliminarEspecialidad);
+    .put(adminOMedico, medicoController.modificarEspecialidad)
+    .delete(adminOMedico, medicoController.eliminarEspecialidad);
 
-// Gestión de prácticas
+// Gestión de prácticas — admin o el propio médico.
 medicoRouter.route("/:id/practicas")
-    .post(medicoController.agregarPractica);
+    .post(adminOMedico, medicoController.agregarPractica);
 
 medicoRouter.route("/:id/practicas/:practicaId")
-    .put(medicoController.modificarPractica)
-    .delete(medicoController.eliminarPractica);
+    .put(adminOMedico, medicoController.modificarPractica)
+    .delete(adminOMedico, medicoController.eliminarPractica);
 
 // Notificaciones — REST: recurso anidado bajo el médico
 medicoRouter.route("/:id/notificaciones")

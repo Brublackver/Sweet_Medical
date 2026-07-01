@@ -1,3 +1,5 @@
+'use client';
+import { useState } from 'react';
 import GrupoHora    from './GrupoHora';
 import ListaPaginada from '@/components/ui/ListaPaginada';
 import styles from '@/features/busqueda/Busqueda.module.css';
@@ -12,6 +14,8 @@ function agruparPorHora(turnos) {
 }
 
 export default function ResultadosDia({ dia }) {
+  const [grupoAbierto, setGrupoAbierto] = useState(0);
+
   if (!dia || dia.turnos.length === 0) {
     return (
       <div className={styles.emptyDay}>
@@ -35,7 +39,8 @@ export default function ResultadosDia({ dia }) {
           hora={hora}
           turnos={turnos}
           fecha={dia.fecha}
-          inicialExpandido={i === 0}
+          expandido={grupoAbierto === i}
+          onToggle={() => setGrupoAbierto((prev) => prev === i ? -1 : i)}
         />
       ))}
     </ListaPaginada>

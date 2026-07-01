@@ -81,12 +81,31 @@ describe('GET /paciente/:id', () => {
     expect(res.body.data.paciente_id).toBe(p.paciente_id);
   });
 
-  it('cualquier usuario autenticado puede ver datos de un paciente (GET sin requireOwnership)', async () => {
+  it('un paciente NO puede ver los datos de otro paciente (IDOR bloqueado)', async () => {
     const p = await registrar();
-    // La ruta GET /paciente/:id no tiene requireOwnership — solo exige estar autenticado
+    // Un paciente autenticado con OTRO id intenta leer el perfil ajeno → 403.
     const res = await request(app)
       .get(`/paciente/${p.paciente_id}`)
       .set(pacAuth(p.paciente_id + 99));
+
+    expect(res.status).toBe(403);
+  });
+
+  it('el propio paciente sí puede ver sus datos', async () => {
+    const p = await registrar();
+    const res = await request(app)
+      .get(`/paciente/${p.paciente_id}`)
+      .set(pacAuth(p.paciente_id));
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.nombre).toBe('Juan Test');
+  });
+
+  it('el admin puede ver los datos de cualquier paciente', async () => {
+    const p = await registrar();
+    const res = await request(app)
+      .get(`/paciente/${p.paciente_id}`)
+      .set(adminAuth());
 
     expect(res.status).toBe(200);
     expect(res.body.data.nombre).toBe('Juan Test');

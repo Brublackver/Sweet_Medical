@@ -18,7 +18,7 @@ import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { turnoService }       from "./turnoRoutes.js";
 import { notificacionController } from "./notificacionRoutes.js";
 import { USUARIO_TIPOS }      from "../domain/Notificacion.js";
-import { requireOwnership, requireAdmin } from "../middleware/authMiddleware.js";
+import { requireOwnership, requireAdmin, requireAdminOrOwnership } from "../middleware/authMiddleware.js";
 
 const pacienteRouter          = new Router();
 export const pacienteRepository = new PacienteRepository();
@@ -27,14 +27,17 @@ const pacienteController = new PacienteController({ pacienteService });
 
 // El paciente solo puede operar sobre su propia cuenta (el :id debe ser el suyo).
 const soloPaciente = requireOwnership(USUARIO_TIPOS.PACIENTE);
+// Ver el perfil: el admin o el propio paciente.
+const adminOPaciente = requireAdminOrOwnership(USUARIO_TIPOS.PACIENTE);
 
+// Listar y crear pacientes son operaciones de administración.
 pacienteRouter.route("/")
-    .get(pacienteController.obtenerTodos)
-    .post(pacienteController.crearPaciente);
+    .get(requireAdmin, pacienteController.obtenerTodos)
+    .post(requireAdmin, pacienteController.crearPaciente);
 
 pacienteRouter.route("/:id")
-    .get(pacienteController.obtenerPaciente)
-    .delete(pacienteController.eliminarPaciente);
+    .get(adminOPaciente, pacienteController.obtenerPaciente)
+    .delete(requireAdmin, pacienteController.eliminarPaciente);
 
 // Reset de contraseña — solo admin.
 pacienteRouter.route("/:id/password")
@@ -58,17 +61,18 @@ pacienteRouter.route("/:id/turnos/:turnoId/confirmar-propuesta")
 pacienteRouter.route("/:id/turnos/:turnoId/rechazar-propuesta")
     .patch(soloPaciente, pacienteController.rechazarPropuestaMedico);
 
+// Coberturas del plan — las gestiona el admin.
 pacienteRouter.route("/:id/plan/especialidades")
-    .post(pacienteController.agregarCoberturaEspecialidad);
+    .post(requireAdmin, pacienteController.agregarCoberturaEspecialidad);
 
 pacienteRouter.route("/:id/plan/especialidades/:codigo")
-    .delete(pacienteController.quitarCoberturaEspecialidad);
+    .delete(requireAdmin, pacienteController.quitarCoberturaEspecialidad);
 
 pacienteRouter.route("/:id/plan/practicas")
-    .post(pacienteController.agregarCoberturaPractica);
+    .post(requireAdmin, pacienteController.agregarCoberturaPractica);
 
 pacienteRouter.route("/:id/plan/practicas/:codigo")
-    .delete(pacienteController.quitarCoberturaPractica);
+    .delete(requireAdmin, pacienteController.quitarCoberturaPractica);
 
 // Notificaciones — REST: recurso anidado bajo el paciente
 pacienteRouter.route("/:id/notificaciones")
