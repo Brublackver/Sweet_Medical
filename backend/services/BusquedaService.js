@@ -1,3 +1,5 @@
+import { isAppointmentBookable } from "../domain/tiempo.js";
+
 export class BusquedaService {
     constructor({ medicoService, turnoService, pacienteService } = {}) {
         this.medicoService   = medicoService;
@@ -24,7 +26,13 @@ export class BusquedaService {
                 return fechas.map((fecha) =>
                     this.turnoService.buscarPorMedicoYFecha(medico.id, fecha)
                         .then((turnosDelDia) => {
-                            const slots = medico.calcularSlotsDisponibles(fecha, duracion, turnosDelDia);
+                            // Se excluyen los slots cuyo horario ya venció: un turno de
+                            // hoy a la mañana no debe mostrarse a la tarde. La comparación
+                            // usa hora de Argentina (isAppointmentBookable), consistente con
+                            // la validación del backend al reservar.
+                            const slots = medico
+                                .calcularSlotsDisponibles(fecha, duracion, turnosDelDia)
+                                .filter((hora) => isAppointmentBookable(fecha, hora));
                             const sedes = medico.obtenerSedesConFiltro(filtros.sede);
 
                             return slots.flatMap((hora) =>
@@ -78,38 +86,37 @@ export class BusquedaService {
         ];
     }
 
-    // Calcula cobertura según el plan del paciente.
-    // nivel (0–100) = porcentaje que cubre la obra social.
+    // Calcula la cobertura según el plan del paciente.
+    // El plan define UN porcentaje general (coberturaGeneral, 0–100) que aplica a
+    // todos los servicios. Regla de negocio: un plan con 0% igual bonifica un 10%
+    // en las PRÁCTICAS (no en las especialidades).
     _calcularCobertura(paciente, servicio) {
         const plan = paciente.plan;
         if (!plan) return { cobertura: "NO_CUBIERTA", montoAbonar: servicio.costo };
 
-        const coberturas = servicio.tipo === "especialidad"
-            ? plan.coberturasEspecialidad
-            : plan.coberturasPractica;
+        let nivel = plan.coberturaGeneral ?? 0;
+        if (nivel === 0 && servicio.tipo === "practica") nivel = 10;
 
-        const match = coberturas?.find((c) => {
-            const item = servicio.tipo === "especialidad" ? c.especialidad : c.practica;
-            return item?.codigo === servicio.codigo;
-        });
-
-        if (!match || match.nivel === 0)
+        if (nivel <= 0)
             return { cobertura: "NO_CUBIERTA", montoAbonar: servicio.costo };
-        if (match.nivel >= 100)
+        if (nivel >= 100)
             return { cobertura: "COMPLETA", montoAbonar: 0 };
 
-        const monto = Math.round(servicio.costo * (1 - match.nivel / 100) * 100) / 100;
+        const monto = Math.round(servicio.costo * (1 - nivel / 100) * 100) / 100;
         return { cobertura: "PARCIAL", montoAbonar: monto };
     }
 
     // Genera todas las fechas (YYYY-MM-DD) entre desde y hasta inclusive.
     _rangoFechas(desde, hasta) {
         const fechas  = [];
-        const current = new Date(`${desde}T00:00:00`);
-        const end     = new Date(`${hasta}T00:00:00`);
+        // Se itera en UTC (sufijo Z + setUTCDate) para que el listado de días sea
+        // idéntico sin importar la zona horaria del servidor. Solo se usa la parte
+        // "YYYY-MM-DD", por lo que no hay corrimiento posible de día.
+        const current = new Date(`${desde}T00:00:00Z`);
+        const end     = new Date(`${hasta}T00:00:00Z`);
         while (current <= end) {
             fechas.push(current.toISOString().split("T")[0]);
-            current.setDate(current.getDate() + 1);
+            current.setUTCDate(current.getUTCDate() + 1);
         }
         return fechas;
     }

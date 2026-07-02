@@ -1,0 +1,48 @@
+.card {
+  background: #fff;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.row { display: flex; justify-content: space-between; }
+.bar { background-color: #e8f4f4; border-radius: 0.25rem; height: 1rem; }
+.barShort  { width: 25%; height: 1.25rem; }
+.barRound  { width: 6rem; height: 1.25rem; border-radius: 9999px; }
+.barMedium { width: 66%; }
+.barLong   { width: 50%; }
+.barFull   { width: 75%; }
+
+.footer {
+  border-top: 1px solid #f0fdfa;
+  padding-top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btnSkeleton   { height: 2rem;   width: 6rem; background-color: #e8f4f4; border-radius: 0.5rem; }
+.priceSkeleton { height: 1.25rem; width: 4rem; background-color: #e8f4f4; border-radius: 0.25rem; }
+
+.dia { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.diaTitle {
+  height: 1.5rem;
+  width: 12rem;
+  background-color: #e8f4f4;
+  border-radius: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.diaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px)  { .diaGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1280px) { .diaGrid { grid-template-columns: repeat(3, 1fr); } }

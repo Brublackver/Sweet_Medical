@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "data": {
+    "token": "fake-token-paciente",
+    "tipo": "PACIENTE",
+    "usuario": {
+      "paciente_id": 1,
+      "usuario": "juantest",
+      "nombre": "Juan Test",
+      "dni": "12345678",
+      "obraSocial": "OSDE",
+      "plan": { "nombre": "310", "coberturaGeneral": 80 }
+    }
+  }
+}

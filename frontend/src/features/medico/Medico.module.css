@@ -1,0 +1,273 @@
+/* ====== SHARED PAGE ====== */
+.page { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header       { margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+.pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.alerta {
+  background-color: var(--c-error-bg); border: 1px solid var(--c-error-border); color: var(--c-error);
+  border-radius: 0.75rem; padding: 1.5rem; text-align: center; font-size: 0.875rem;
+}
+
+.emptyState { text-align: center; padding: 5rem 0; }
+.emptyIcon  { font-size: 3rem; margin-bottom: 1rem; }
+.emptyTitle { font-size: 1.125rem; font-weight: 600; color: #334155; }
+
+.lista { display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* Título del día seleccionado en la barra de navegación por días */
+.diaTitulo {
+  font-size: 1rem; font-weight: 600; color: #0f172a;
+  text-transform: capitalize; margin-bottom: 0.75rem;
+}
+.diaConteo { font-weight: 500; color: #64748b; text-transform: none; }
+
+/* ====== TARJETA TURNO MÉDICO ====== */
+.tarjeta {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0;
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.05);
+}
+.tarjeta:hover { box-shadow: 0 4px 16px rgba(15, 118, 110, 0.10); transform: translateY(-1px); }
+
+.tarjetaBody { display: flex; flex-direction: column; gap: 1rem; }
+
+.tarjetaHora  { flex-shrink: 0; text-align: center; }
+.horaNum      { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+.horaFecha    { font-size: 0.75rem; color: #94a3b8; margin-top: 0.125rem; text-transform: capitalize; }
+
+.tarjetaInfo       { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.375rem; }
+.tarjetaBadges     { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.tarjetaNombre     { font-weight: 600; color: #0f172a; }
+.tarjetaFecha      { font-size: 0.875rem; color: #334155; text-transform: capitalize; }
+.tarjetaDetalle    { font-size: 0.875rem; color: #64748b; }
+.tarjetaSecundario { color: #94a3b8; }
+.tarjetaObraSocial { font-size: 0.75rem; color: #94a3b8; }
+
+/* Solicitud cambio paciente */
+.solicitudBox    { background-color: #fefce8; border: 1px solid #fef08a; border-radius: 0.75rem; padding: 1rem; }
+.solicitudTitulo { font-size: 0.875rem; font-weight: 600; color: #a16207; margin-bottom: 0.25rem; }
+.solicitudTexto  { font-size: 0.875rem; color: #ca8a04; margin-bottom: 0.75rem; }
+
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.btnVerde {
+  padding: 0.5rem 1rem; background-color: var(--c-primary); color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnVerde:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnVerde:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
+.btnVerde:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnRojo {
+  padding: 0.5rem 1rem; background: #fff; border: 1px solid var(--c-error-border);
+  color: var(--c-error); font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  cursor: pointer; transition: background-color 0.15s;
+}
+.btnRojo:hover:not(:disabled)  { background-color: var(--c-error-bg); }
+.btnRojo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
+.btnRojo:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.divisor { border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.btnVerdePeq {
+  padding: 0.375rem 0.75rem; background-color: var(--c-primary); color: #fff;
+  font-size: 0.875rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnVerdePeq:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnVerdePeq:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
+.btnVerdePeq:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnAzulPeq {
+  padding: 0.375rem 0.75rem; background-color: #f0fdfa; color: #0f766e;
+  font-size: 0.875rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnAzulPeq:hover        { background-color: #ccfbf1; }
+.btnAzulPeq:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
+
+.btnRojoPeq {
+  padding: 0.375rem 0.75rem; background: #fff; border: 1px solid var(--c-error-border);
+  color: var(--c-error); font-size: 0.875rem; border-radius: 0.5rem;
+  cursor: pointer; transition: background-color 0.15s;
+}
+.btnRojoPeq:hover        { background-color: var(--c-error-bg); }
+.btnRojoPeq:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
+
+/* Forms */
+.form        { border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.formTitulo  { font-size: 0.875rem; font-weight: 500; color: #334155; }
+.formInputs  { display: flex; flex-direction: column; gap: 0.75rem; }
+.formAcciones { display: flex; gap: 0.5rem; }
+
+.campoLabel { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
+
+.input {
+  width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  border-radius: 0.5rem; border: 1px solid #cdeeee; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box;
+  background: #f8fafc;
+}
+.input:focus { border-color: #0f766e; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15); background: #fff; }
+
+.textarea {
+  width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  border-radius: 0.5rem; border: 1px solid #cdeeee; outline: none;
+  resize: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box;
+  background: #f8fafc;
+}
+.textarea:focus { border-color: #0f766e; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15); background: #fff; }
+
+.btnEnviar {
+  padding: 0.5rem 1rem; background-color: #0f766e; color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnEnviar:hover:not(:disabled)  { background-color: #115e59; }
+.btnEnviar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
+.btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnEnviarRojo {
+  padding: 0.5rem 1rem; background-color: #c2410c; color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnEnviarRojo:hover:not(:disabled)  { background-color: #9a3412; }
+.btnEnviarRojo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.45); }
+.btnEnviarRojo:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnVolver {
+  padding: 0.5rem 1rem; font-size: 0.875rem; color: #64748b;
+  background: none; border: none; cursor: pointer; transition: color 0.15s;
+}
+.btnVolver:hover        { color: #334155; }
+.btnVolver:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
+
+.errorInline {
+  font-size: 0.75rem; color: var(--c-error); background-color: var(--c-error-bg);
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+}
+
+/* ====== DISPONIBILIDAD ====== */
+.card { background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 2rem; }
+.cardTitle { font-weight: 600; color: #0f172a; margin-bottom: 1rem; }
+
+.formGrid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+.addBtn {
+  padding: 0.625rem 1.25rem; background-color: #0f766e; color: #fff;
+  font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s; margin-top: 0.25rem;
+}
+.addBtn:hover:not(:disabled)  { background-color: #115e59; }
+.addBtn:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
+.addBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.errorForm {
+  font-size: 0.75rem; color: var(--c-error); background-color: var(--c-error-bg);
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+}
+
+.subTitle     { font-weight: 600; color: #0f172a; margin-bottom: 1rem; }
+.cargandoText { font-size: 0.875rem; color: #94a3b8; }
+
+.dispLista { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.dispItem {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0;
+  padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+
+.dispFecha { font-size: 0.875rem; font-weight: 500; color: #1e293b; text-transform: capitalize; }
+.dispHoras { font-size: 0.75rem; color: #64748b; margin-top: 0.125rem; }
+
+.dispItemPasada { background: #f8fafc; opacity: 0.85; }
+.dispBadgePasada {
+  flex-shrink: 0; font-size: 0.7rem; font-weight: 600; color: #64748b;
+  background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.eliminarBtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; flex-shrink: 0;
+  color: var(--c-error); background: none; border: 1px solid var(--c-error-border); border-radius: 0.4rem;
+  cursor: pointer; transition: background-color 0.15s, border-color 0.15s;
+}
+.eliminarBtn:hover { background-color: var(--c-error-bg); border-color: var(--c-error); }
+.eliminarBtn:focus-visible { outline: 2px solid var(--c-error); outline-offset: 2px; }
+
+.emptyCard      { text-align: center; padding: 3rem; background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+.emptyCardIcon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.emptyCardText  { color: #64748b; font-size: 0.875rem; }
+
+/* ====== HISTORIAL DE ATENCIÓN ====== */
+.historialLista { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.historialDia {
+  border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden;
+  background: #fff;
+}
+
+.historialDiaHeader {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 0.875rem 1.25rem;
+  background: #f8fafc; border: none; cursor: pointer; text-align: left;
+  transition: background-color 0.15s;
+}
+.historialDiaHeader:hover { background: #f1f5f9; }
+.historialDiaHeader:focus-visible { outline: 2px solid #0f766e; outline-offset: -2px; }
+
+.historialDiaInfo   { flex: 1; min-width: 0; }
+.historialDiaFecha  { font-size: 0.875rem; font-weight: 600; color: #1e293b; text-transform: capitalize; }
+.historialDiaHoras  { font-size: 0.75rem; color: #64748b; margin-top: 0.125rem; }
+
+.historialDiaMeta   { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+
+.historialDiaBadge {
+  font-size: 0.7rem; font-weight: 600; color: #475569;
+  background: #e2e8f0; border-radius: 9999px; padding: 0.15rem 0.6rem;
+}
+
+.historialChevron { font-size: 0.7rem; color: #94a3b8; }
+
+.historialDiaTurnos {
+  border-top: 1px solid #f1f5f9;
+  padding: 0.75rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+.historialSinTurnos { font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 0.5rem 0; }
+
+.historialTurnoRow {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 1fr auto;
+  align-items: center; gap: 0.75rem;
+  padding: 0.5rem 0.625rem; border-radius: 0.5rem;
+  background: #f8fafc; font-size: 0.8rem;
+}
+
+.historialTurnoHora     { font-weight: 600; color: #0f172a; white-space: nowrap; }
+.historialTurnoServicio { color: #334155; }
+.historialTurnoPaciente { color: #64748b; }
+.historialTurnoEstado   { font-weight: 500; text-align: right; white-space: nowrap; font-size: 0.75rem; }
+
+/* ====== ESTADO TURNO — Okabe-Ito apta para daltónicos (refuerza el ícono+texto) ====== */
+.estadoReservado       { color: var(--c-info); }
+.estadoCancelado       { color: var(--c-error); }
+.estadoRealizado       { color: var(--c-success); }
+.estadoPendienteCambio { color: var(--c-warning); }
+.estadoPropuestaMedico { color: var(--c-special); }
+.estadoDesconocido     { color: #64748b; }
+
+@media (min-width: 640px) {
+  .page       { padding: 2rem 1.5rem; }
+  .tarjetaBody { flex-direction: row; align-items: flex-start; }
+  .tarjetaHora { text-align: left; width: 7rem; }
+  .formGrid   { grid-template-columns: repeat(3, 1fr); }
+  .formInputs { flex-direction: row; }
+}
+
+@media (min-width: 1024px) { .page { padding: 2rem 2rem; } }

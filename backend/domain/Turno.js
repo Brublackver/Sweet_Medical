@@ -4,9 +4,18 @@ export const ESTADOS = Object.freeze({
     PENDIENTE_CAMBIO: "pendiente_cambio",   // paciente solicitó cambio → espera médico
     PROPUESTA_MEDICO: "propuesta_medico",   // médico propuso cambio → espera paciente
     REALIZADO:        "realizado",
+    NO_REALIZADO:     "no_realizado",       // el turno pasó y el paciente reportó que NO fue atendido
 });
 
-import { horaAMinutos } from "./tiempo.js";
+// Estados en los que un turno sigue "vivo": ni cancelado ni realizado.
+// Son los que cuentan como turnos pendientes/próximos del usuario.
+export const ESTADOS_ACTIVOS = Object.freeze([
+    ESTADOS.RESERVADO,
+    ESTADOS.PENDIENTE_CAMBIO,
+    ESTADOS.PROPUESTA_MEDICO,
+]);
+
+import { horaAMinutos, buildAppointmentDateTime, isAppointmentExpired } from "./tiempo.js";
 
 export class Turno {
     constructor(id, medicoId, pacienteId, fecha, hora, duracion, snapshotMedico = null, snapshotPaciente = null) {
@@ -36,13 +45,12 @@ export class Turno {
     // --- Cancelación --------------------------------------------------------
 
     puedeCancelarse() {
-        const fechaTurno = new Date(`${this.fecha}T${this.hora}:00`);
+        const fechaTurno = buildAppointmentDateTime(this.fecha, this.hora);
         return (fechaTurno - new Date()) / (1000 * 60 * 60) >= 1;
     }
 
     puedeSerCancelado() {
-        return [ESTADOS.RESERVADO, ESTADOS.PENDIENTE_CAMBIO, ESTADOS.PROPUESTA_MEDICO]
-            .includes(this.estado) && this.puedeCancelarse();
+        return ESTADOS_ACTIVOS.includes(this.estado) && this.puedeCancelarse();
     }
 
     cancelar(motivo) {
@@ -59,10 +67,8 @@ export class Turno {
     // El turno puede marcarse como realizado si está en un estado activo
     // y su fecha y hora ya pasaron (el turno ocurrió).
     puedeMarcarseRealizado() {
-        const estadosActivos = [ESTADOS.RESERVADO, ESTADOS.PENDIENTE_CAMBIO, ESTADOS.PROPUESTA_MEDICO];
-        if (!estadosActivos.includes(this.estado)) return false;
-        const fechaTurno = new Date(`${this.fecha}T${this.hora}:00`);
-        return fechaTurno <= new Date();
+        if (!ESTADOS_ACTIVOS.includes(this.estado)) return false;
+        return isAppointmentExpired(this.fecha, this.hora);
     }
 
     marcarRealizado() {
@@ -71,6 +77,26 @@ export class Turno {
             fechaHora: new Date().toISOString(),
             estado:    ESTADOS.REALIZADO,
             motivo:    null,
+        });
+    }
+
+    // --- No realizado (reportado por el PACIENTE) ---------------------------
+
+    // Mismo criterio que "realizado": sólo tiene sentido si el turno estaba activo
+    // y su horario ya pasó. La diferencia es el desenlace: el paciente afirma que
+    // el médico NO lo atendió. No comparte reglas con "cancelado" (que exige motivo
+    // y anticipación mínima): es un desenlace posterior al turno, no una cancelación.
+    puedeMarcarseNoRealizado() {
+        if (!ESTADOS_ACTIVOS.includes(this.estado)) return false;
+        return isAppointmentExpired(this.fecha, this.hora);
+    }
+
+    marcarNoRealizado() {
+        this.estado = ESTADOS.NO_REALIZADO;
+        this.historialEstados.push({
+            fechaHora: new Date().toISOString(),
+            estado:    ESTADOS.NO_REALIZADO,
+            motivo:    "El paciente reportó que no fue atendido",
         });
     }
 

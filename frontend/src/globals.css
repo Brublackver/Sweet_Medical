@@ -1,0 +1,111 @@
+/* ====== DESIGN TOKENS ====== */
+:root {
+  /* Primario médico */
+  --c-primary:        #0f766e;
+  --c-primary-dark:   #115e59;
+  --c-primary-light:  #f0fdfa;
+  --c-primary-ring:   rgba(15, 118, 110, 0.18);
+  --c-primary-border: #99f6e4;
+  --c-accent:         #06b6d4;
+  --c-accent-dark:    #0891b2;
+
+  /* Texto */
+  --c-text:   #0f172a;
+  --c-text-2: #334155;
+  --c-text-3: #64748b;
+  --c-text-4: #94a3b8;
+
+  /* Fondos */
+  --c-bg:      #f4fbfb;
+  --c-bg-alt:  #eaf7f7;
+  --c-card:    #ffffff;
+  --c-subtle:  #f1f5f9;
+
+  /* Bordes */
+  --c-border:       #e2e8f0;
+  --c-border-teal:  #cdeeee;
+  --c-border-light: #e8f4f4;
+
+  /* Sombras */
+  --c-shadow-sm:  rgba(15, 118, 110, 0.08);
+  --c-shadow-md:  rgba(15, 118, 110, 0.12);
+  --c-shadow-dark: rgba(15, 23, 42, 0.08);
+
+  /*
+    Paleta semántica APTA PARA DALTÓNICOS (Okabe-Ito).
+    El verde/rojo clásico es la PEOR combinación para protan/deuteranopía.
+    Okabe-Ito está validada para las 3 formas de daltonismo. Acá el "positivo"
+    es teal (marca) y el "negativo" es bermellón: teal vs bermellón = máximo
+    contraste perceptible. Igual NUNCA dependemos solo del color: cada estado
+    lleva ícono + texto (WCAG 1.4.1).
+  */
+
+  /* Positivo / éxito — teal (familia blue-green Okabe-Ito + marca) */
+  --c-success:        #00674c;
+  --c-success-bg:     #d7f4ec;
+  --c-success-border: #97ddc9;
+
+  /* Negativo / error — bermellón Okabe-Ito (#D55E00 oscurecido para contraste) */
+  --c-error:        #b34700;
+  --c-error-bg:     #fce7da;
+  --c-error-border: #f4c2a3;
+
+  /* Warning / pendiente — naranja Okabe-Ito (#E69F00 oscurecido) */
+  --c-warning:        #8a5a00;
+  --c-warning-bg:     #fdf0d5;
+  --c-warning-border: #f3d795;
+
+  /* Info / reservado — azul Okabe-Ito (#0072B2) */
+  --c-info:        #035e92;
+  --c-info-bg:     #e1effa;
+  --c-info-border: #aad4ef;
+
+  /* Especial / propuesta — púrpura rojizo Okabe-Ito (#CC79A7) */
+  --c-special:        #8f3a6e;
+  --c-special-bg:     #f6e6f0;
+  --c-special-border: #e6b9d6;
+}
+
+/* ====== RESET ====== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ====== BASE ====== */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--c-text);
+  line-height: 1.5;
+
+  /* Gradient base + blobs decorativos con radial-gradient */
+  background:
+    radial-gradient(ellipse 60% 45% at 12% 12%, rgba(6, 182, 212, 0.07) 0%, transparent 100%),
+    radial-gradient(ellipse 55% 45% at 88% 88%, rgba(15, 118, 110, 0.07) 0%, transparent 100%),
+    radial-gradient(ellipse 40% 30% at 75% 20%, rgba(15, 118, 110, 0.04) 0%, transparent 100%),
+    linear-gradient(135deg, #f4fbfb 0%, #eef8ff 50%, #f8fafc 100%);
+  background-attachment: fixed;
+}
+
+a { color: inherit; }
+button         { font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+
+/* ====== ACCESSIBILITY ====== */
+/* Fallback focus ring para elementos sin :focus-visible propio */
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Respeta la preferencia de reducción de movimiento del sistema operativo */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ====== ANIMATIONS ====== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}

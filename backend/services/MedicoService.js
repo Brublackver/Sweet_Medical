@@ -1,4 +1,5 @@
 import { NotFoundError, BadRequestError, ConflictError } from "../errors/AppError.js";
+import { hashPassword } from "../auth/password.js";
 
 export class MedicoService {
     constructor({ medicoRepository, sedeService } = {}) {
@@ -24,7 +25,24 @@ export class MedicoService {
     }
 
     crear(datos) {
-        return this.medicoRepository.crear(datos);
+        // Si no se envía contraseña, se usa el usuario como default (cuenta
+        // inicial). Siempre se guarda hasheada, nunca en plano.
+        return hashPassword(datos.password || datos.usuario)
+            .then((hash) => this.medicoRepository.crear({ ...datos, password: hash }));
+    }
+
+    eliminar(id) {
+        return this.obtenerPorId(id)
+            .then(() => this.medicoRepository.eliminar(id));
+    }
+
+    // Reset de contraseña (operación de admin). Verifica que exista, hashea la
+    // nueva clave y la guarda. No devuelve el hash ni la clave en plano.
+    resetearPassword(id, nuevaPassword) {
+        return this.obtenerPorId(id)
+            .then(() => hashPassword(nuevaPassword))
+            .then((hash) => this.medicoRepository.actualizarPassword(id, hash))
+            .then(() => ({ id }));
     }
 
     // --- Disponibilidad -----------------------------------------------------
@@ -115,10 +133,13 @@ export class MedicoService {
             .then(() => this.turnoService.cancelarTurnoPorMedico(turnoId, medicoId, motivo));
     }
 
+    // Agenda completa del médico: TODOS los estados (reservados, realizados,
+    // cancelados, no realizados y cambios pendientes), ya ordenada ascendente.
+    // El frontend filtra por tab; por eso no se recorta acá — si sólo devolviéramos
+    // "reservado", las pestañas Realizados/Cancelados quedarían siempre vacías.
     obtenerTurnosConfirmados(medicoId) {
         return this.obtenerPorId(medicoId)
-            .then(() => this.turnoService.buscarPorMedico(medicoId))
-            .then((turnos) => turnos.filter((t) => t.estado === "reservado"));
+            .then(() => this.turnoService.buscarPorMedico(medicoId));
     }
 
     // Consulta el historial de turnos de un paciente específico con este médico.

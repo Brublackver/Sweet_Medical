@@ -12,7 +12,7 @@ const crearContexto = () => {
     const turnoRepository    = new FakeTurnoRepository();
     const pacienteRepository = new FakePacienteRepository();
     const medicoService      = new MedicoService({ medicoRepository });
-    const turnoService       = new TurnoService({ turnoRepository, medicoService });
+    const turnoService       = new TurnoService({ turnoRepository, medicoService, pacienteRepository });
     medicoService.setTurnoService(turnoService);
     const pacienteService    = new PacienteService({ pacienteRepository, turnoService });
     return { medicoRepository, pacienteService };

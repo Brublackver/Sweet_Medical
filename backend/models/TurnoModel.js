@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { ESTADOS } from "../domain/Turno.js";
+import { Turno, ESTADOS } from "../domain/Turno.js";
 
 // Registro inmutable de cada transición de estado
 const cambioEstadoSchema = new Schema({
@@ -33,15 +33,9 @@ const snapshotMedicoSchema = new Schema({
     practicas:      [snapshotServicioSchema],
 }, { _id: false });
 
-const snapshotCoberturaSchema = new Schema({
-    codigo: { type: String },
-    nivel:  { type: Number },
-}, { _id: false });
-
 const snapshotPlanSchema = new Schema({
-    nombre:                 { type: String },
-    coberturasEspecialidad: [snapshotCoberturaSchema],
-    coberturasPractica:     [snapshotCoberturaSchema],
+    nombre:           { type: String },
+    coberturaGeneral: { type: Number },
 }, { _id: false });
 
 const snapshotPacienteSchema = new Schema({
@@ -74,7 +68,10 @@ const turnoSchema = new Schema({
 
     snapshotMedico:   { type: snapshotMedicoSchema,   default: null },
     snapshotPaciente: { type: snapshotPacienteSchema, default: null },
-}, { timestamps: true });
+}, { timestamps: true, id: false });
+
+turnoSchema.virtual('id').get(function() { return this.turnoId; });
+turnoSchema.loadClass(Turno);
 
 // Índices para mejorar las búsquedas más frecuentes
 turnoSchema.index({ medicoId: 1, fecha: 1 });

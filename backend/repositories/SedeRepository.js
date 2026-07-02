@@ -1,4 +1,3 @@
-import { Sede }        from "../domain/Sede.js";
 import SedeModel       from "../models/SedeModel.js";
 import ContadorModel   from "../models/ContadorModel.js";
 
@@ -23,17 +22,15 @@ export class SedeRepository {
     }
 
     obtenerTodos() {
-        return SedeModel.find().lean()
-            .then((docs) => docs.map(this._toSede));
+        return SedeModel.find();
     }
 
     obtenerPorId(id) {
-        return SedeModel.findOne({ sedeId: id }).lean()
-            .then((doc) => doc ? this._toSede(doc) : null);
+        return SedeModel.findOne({ sedeId: id });
     }
 
     existeNombre(nombre) {
-        return SedeModel.findOne({ nombre: new RegExp(`^${nombre.trim()}$`, "i") }).lean()
+        return SedeModel.findOne({ nombre: new RegExp(`^${nombre.trim()}$`, "i") })
             .then((doc) => !!doc);
     }
 
@@ -43,11 +40,6 @@ export class SedeRepository {
                 sedeId,
                 nombre:    datos.nombre.trim(),
                 direccion: datos.direccion.trim(),
-            }).save())
-            .then((doc) => this._toSede(doc.toObject()));
-    }
-
-    _toSede(doc) {
-        return new Sede(doc.sedeId, doc.nombre, doc.direccion);
+            }).save());
     }
 }

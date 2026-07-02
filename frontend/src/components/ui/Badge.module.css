@@ -1,0 +1,25 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+/* Cobertura — paleta Okabe-Ito apta para daltónicos */
+.completa    { background-color: var(--c-success-bg); color: var(--c-success); border-color: var(--c-success-border); }
+.parcial     { background-color: var(--c-warning-bg); color: var(--c-warning); border-color: var(--c-warning-border); }
+.noCubierta  { background-color: var(--c-error-bg);   color: var(--c-error);   border-color: var(--c-error-border); }
+
+/* Estado — paleta Okabe-Ito apta para daltónicos (azul / verde-az / bermellón / naranja / púrpura) */
+.reservado       { background-color: var(--c-info-bg);    color: var(--c-info);    border-color: var(--c-info-border); }
+.realizado       { background-color: var(--c-success-bg); color: var(--c-success); border-color: var(--c-success-border); }
+.cancelado       { background-color: var(--c-error-bg);   color: var(--c-error);   border-color: var(--c-error-border); }
+.noRealizado     { background-color: #eef1f5;             color: #475569;          border-color: #cbd5e1; }
+.pendienteCambio { background-color: var(--c-warning-bg); color: var(--c-warning); border-color: var(--c-warning-border); }
+.propuestaMedico { background-color: var(--c-special-bg); color: var(--c-special); border-color: var(--c-special-border); }
+
+.default { background-color: #f1f5f9; color: #475569; border-color: #e2e8f0; }

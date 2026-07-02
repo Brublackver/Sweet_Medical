@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError, ConflictError } from "../errors/AppError.js";
+import { BadRequestError, NotFoundError, ConflictError, UnauthorizedError, ForbiddenError } from "../errors/AppError.js";
 
 export function errorHandler(err, req, res, next) {
   const message = err?.message || "Error interno";
@@ -6,6 +6,10 @@ export function errorHandler(err, req, res, next) {
 
   if (err instanceof BadRequestError)
     return res.status(400).json({ status: "fail", message, timestamp });
+  if (err instanceof UnauthorizedError)
+    return res.status(401).json({ status: "fail", message, timestamp });
+  if (err instanceof ForbiddenError)
+    return res.status(403).json({ status: "fail", message, timestamp });
   if (err instanceof NotFoundError)
     return res.status(404).json({ status: "fail", message, timestamp });
   if (err instanceof ConflictError)

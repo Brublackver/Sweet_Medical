@@ -1,4 +1,3 @@
-import { Notificacion }   from "../domain/Notificacion.js";
 import NotificacionModel  from "../models/NotificacionModel.js";
 import ContadorModel      from "../models/ContadorModel.js";
 
@@ -12,41 +11,31 @@ export class NotificacionRepository {
         ).then((doc) => doc.valor);
     }
 
-    crear(usuarioId, tipo, mensaje) {
+    crear(usuarioTipo, usuarioId, tipo, mensaje, turnoId = null) {
         const ahora = new Date().toISOString();
         return this._siguienteId()
             .then((notificacionId) => new NotificacionModel({
-                notificacionId, usuarioId, tipo, mensaje, fechaCreacion: ahora,
-            }).save())
-            .then((doc) => this._toNotificacion(doc.toObject()));
+                notificacionId, usuarioTipo, usuarioId, tipo, mensaje, turnoId, fechaCreacion: ahora,
+            }).save());
     }
 
     obtenerPorId(id) {
-        return NotificacionModel.findOne({ notificacionId: id }).lean()
-            .then((doc) => doc ? this._toNotificacion(doc) : null);
+        return NotificacionModel.findOne({ notificacionId: id });
     }
 
+    // Filtra por destinatario (clave compuesta usuarioTipo + usuarioId).
     // leida = true → solo leídas | leida = false → solo sin leer | undefined → todas
-    obtenerPorUsuario(usuarioId, leida) {
-        const filtro = { usuarioId };
+    obtenerPorUsuario(usuarioTipo, usuarioId, leida) {
+        const filtro = { usuarioTipo, usuarioId };
         if (leida !== undefined) filtro.leida = leida;
-        return NotificacionModel.find(filtro).lean()
-            .then((docs) => docs.map(this._toNotificacion));
+        return NotificacionModel.find(filtro);
     }
 
     actualizar(notificacion) {
         return NotificacionModel.findOneAndUpdate(
             { notificacionId: notificacion.id },
-            { leida: notificacion.leida },
+            { leida: notificacion.leida, resultado: notificacion.resultado ?? null },
             { new: true }
-        ).lean()
-            .then((doc) => this._toNotificacion(doc));
-    }
-
-    _toNotificacion(doc) {
-        const n = new Notificacion(doc.notificacionId, doc.usuarioId, doc.tipo, doc.mensaje);
-        n.leida         = doc.leida;
-        n.fechaCreacion = doc.fechaCreacion || n.fechaCreacion;
-        return n;
+        );
     }
 }

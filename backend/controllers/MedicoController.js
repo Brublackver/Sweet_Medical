@@ -13,6 +13,7 @@ import {
     validarCambioFecha,
     validarCrearServicio,
     validarModificarServicio,
+    validarResetPassword,
 } from "../validators/medicoValidator.js";
 import { BadRequestError } from "../errors/AppError.js";
 
@@ -34,10 +35,23 @@ export class MedicoController {
             .then((medicos) => res.status(200).json({ status: "success", data: medicos }))
             .catch(next);
 
+    // Reset de contraseña — solo admin (la ruta lo protege con requireAdmin).
+    resetearPassword = (req, res, next) =>
+        Promise.all([validarIdNumerico(req.params.id), validarResetPassword(req.body)])
+            .then(([id, body]) => this.medicoService.resetearPassword(id, body.password))
+            .then(() => res.status(200).json({ status: "success", message: "Contraseña actualizada" }))
+            .catch(next);
+
     crearMedico = (req, res, next) =>
         validarCrearMedico(req.body)
             .then((body) => this.medicoService.crear(body))
             .then((medico) => res.status(201).json({ status: "success", data: medico }))
+            .catch(next);
+
+    eliminarMedico = (req, res, next) =>
+        validarIdNumerico(req.params.id)
+            .then((id) => this.medicoService.eliminar(id))
+            .then(() => res.status(204).send())
             .catch(next);
 
     obtenerDisponibilidad = (req, res, next) => {

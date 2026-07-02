@@ -1,0 +1,163 @@
+/* ====== PAGE ====== */
+.page { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header       { margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+.pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.alerta {
+  background-color: var(--c-error-bg); border: 1px solid var(--c-error-border); color: var(--c-error);
+  border-radius: 0.75rem; padding: 1.5rem; text-align: center; font-size: 0.875rem;
+}
+
+.emptyState { text-align: center; padding: 5rem 0; }
+.emptyIcon  { font-size: 3rem; margin-bottom: 1rem; }
+.emptyTitle { font-size: 1.125rem; font-weight: 600; color: #334155; }
+.emptyText  { color: #94a3b8; margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.875rem; }
+
+.buscarLink {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #0f766e 0%, #06b6d4 100%);
+  color: #fff;
+  font-weight: 600; border-radius: 0.75rem; text-decoration: none;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+}
+.buscarLink:hover        { box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30); }
+.buscarLink:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
+
+.lista { display: flex; flex-direction: column; gap: 0.75rem; }
+
+@media (min-width: 640px)  { .page { padding: 2rem 1.5rem; } }
+@media (min-width: 1024px) { .page { padding: 2rem 2rem; } }
+
+/* ====== TARJETA MI TURNO ====== */
+.tarjeta {
+  background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0;
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.05);
+}
+.tarjeta:hover { box-shadow: 0 4px 16px rgba(15, 118, 110, 0.10); transform: translateY(-1px); }
+
+.tarjetaBody { display: flex; flex-direction: row; align-items: flex-start; gap: 0.75rem; }
+
+.tarjetaHora  { flex-shrink: 0; text-align: left; width: 4.5rem; }
+.horaNum      { font-size: 1.05rem; font-weight: 700; color: #0f172a; white-space: nowrap; }
+.horaFecha    { font-size: 0.7rem; color: #94a3b8; margin-top: 0.125rem; text-transform: capitalize; }
+
+.tarjetaInfo        { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.tarjetaBadges      { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.tarjetaNombre      { font-weight: 600; color: #0f172a; font-size: 0.9375rem; }
+.tarjetaFechaLarga  { font-size: 0.8125rem; color: #334155; text-transform: capitalize; }
+.tarjetaDetalle     { font-size: 0.8125rem; color: #475569; display: flex; flex-direction: column; gap: 0.125rem; }
+.tarjetaSecundario  { color: #94a3b8; }
+
+.tarjetaPrecio { flex-shrink: 0; text-align: right; }
+.precioGratis  { color: var(--c-success); font-weight: 700; font-size: 0.875rem; }
+.precioMonto   { color: #0f172a; font-weight: 700; font-size: 0.875rem; }
+
+/* Propuesta médico */
+.propuestaBox    { background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 0.75rem; padding: 1rem; }
+.propuestaTitulo { font-size: 0.875rem; font-weight: 600; color: #c2410c; margin-bottom: 0.25rem; }
+.propuestaTexto  { font-size: 0.875rem; color: #ea580c; margin-bottom: 0.75rem; }
+
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* Confirmación de atención (turno pasado) */
+.atencionBox    { background-color: var(--c-info-bg); border: 1px solid var(--c-info-border); border-radius: 0.75rem; padding: 1rem; }
+.atencionTitulo { font-size: 0.875rem; font-weight: 600; color: var(--c-info); margin-bottom: 0.25rem; }
+.atencionTexto  { font-size: 0.8125rem; color: #334155; margin-bottom: 0.75rem; }
+
+.btnSi {
+  padding: 0.5rem 1rem; background-color: var(--c-success); color: #fff;
+  font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: filter 0.15s;
+}
+.btnSi:hover:not(:disabled)  { filter: brightness(1.1); }
+.btnSi:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(0, 103, 76, 0.45); }
+.btnSi:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnNo {
+  padding: 0.5rem 1rem; background-color: var(--c-error); color: #fff;
+  font-size: 0.875rem; font-weight: 600; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: filter 0.15s;
+}
+.btnNo:hover:not(:disabled)  { filter: brightness(1.1); }
+.btnNo:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.45); }
+.btnNo:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnConfirmar {
+  padding: 0.5rem 1rem; background-color: var(--c-primary); color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnConfirmar:hover:not(:disabled)  { background-color: var(--c-primary-dark); }
+.btnConfirmar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
+.btnConfirmar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnRechazar {
+  padding: 0.5rem 1rem; background-color: #fff; border: 1px solid var(--c-error-border);
+  color: var(--c-error); font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  cursor: pointer; transition: background-color 0.15s;
+}
+.btnRechazar:hover:not(:disabled)  { background-color: var(--c-error-bg); }
+.btnRechazar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(179, 71, 0, 0.35); }
+.btnRechazar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Form cambio fecha */
+.divisor      { border-top: 1px solid #f1f5f9; padding-top: 0.75rem; }
+
+.linkCambio {
+  font-size: 0.875rem; color: #0f766e; background: none;
+  border: none; cursor: pointer; transition: color 0.15s;
+}
+.linkCambio:hover        { color: #115e59; }
+.linkCambio:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
+
+.formCambio        { display: flex; flex-direction: column; gap: 0.75rem; }
+.formCambioTitulo  { font-size: 0.875rem; font-weight: 500; color: #334155; }
+.formCambioInputs  { display: flex; flex-direction: column; gap: 0.75rem; }
+.formCambioAcciones { display: flex; gap: 0.5rem; }
+
+.campoLabel { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
+
+.input {
+  width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  border-radius: 0.5rem; border: 1px solid #cdeeee; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box;
+  background: #f8fafc;
+}
+.input:focus { border-color: #0f766e; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15); background: #fff; }
+
+.btnEnviar {
+  padding: 0.5rem 1rem; background-color: #0f766e; color: #fff;
+  font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem;
+  border: none; cursor: pointer; transition: background-color 0.15s;
+}
+.btnEnviar:hover:not(:disabled)  { background-color: #115e59; }
+.btnEnviar:focus-visible          { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45); }
+.btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnCancelar {
+  padding: 0.5rem 1rem; font-size: 0.875rem; color: #64748b;
+  background: none; border: none; cursor: pointer; transition: color 0.15s;
+}
+.btnCancelar:hover        { color: #334155; }
+.btnCancelar:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
+
+.errorInline {
+  font-size: 0.75rem; color: var(--c-error); background-color: var(--c-error-bg);
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; padding: 0.375rem 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .tarjetaHora  { width: 6rem; }
+  .horaNum      { font-size: 1.25rem; }
+  .horaFecha    { font-size: 0.75rem; }
+  .tarjetaNombre      { font-size: 1rem; }
+  .tarjetaFechaLarga  { font-size: 0.875rem; }
+  .tarjetaDetalle     { font-size: 0.875rem; }
+  .formCambioInputs { flex-direction: row; }
+}

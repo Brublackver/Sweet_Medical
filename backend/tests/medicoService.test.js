@@ -3,15 +3,19 @@ import { MedicoService }            from "../services/MedicoService.js";
 import { TurnoService }             from "../services/TurnoService.js";
 import { FakeMedicoRepository }     from "./fakes/FakeMedicoRepository.js";
 import { FakeTurnoRepository }      from "./fakes/FakeTurnoRepository.js";
+import { FakePacienteRepository }   from "./fakes/FakePacienteRepository.js";
 import { ESTADOS }                  from "../domain/Turno.js";
 
 const crearContexto = () => {
-    const medicoRepository = new FakeMedicoRepository();
-    const turnoRepository  = new FakeTurnoRepository();
-    const medicoService    = new MedicoService({ medicoRepository });
-    const turnoService     = new TurnoService({ turnoRepository, medicoService });
+    const medicoRepository   = new FakeMedicoRepository();
+    const turnoRepository    = new FakeTurnoRepository();
+    const pacienteRepository = new FakePacienteRepository();
+    // crearTurno valida que el paciente exista — sembramos el paciente id 1.
+    pacienteRepository.crear({ usuario: "p1", dni: "1", nombre: "Paciente Uno" });
+    const medicoService = new MedicoService({ medicoRepository });
+    const turnoService  = new TurnoService({ turnoRepository, medicoService, pacienteRepository });
     medicoService.setTurnoService(turnoService);
-    return { medicoRepository, turnoRepository, medicoService, turnoService };
+    return { medicoRepository, turnoRepository, pacienteRepository, medicoService, turnoService };
 };
 
 const crearMedicoConDisponibilidad = (medicoRepository, config = {}) => {
@@ -75,11 +79,11 @@ describe("MedicoService - Proponer cambio de fecha", () => {
                     medicoId: medico.id, pacienteId: 1,
                     fecha: "2030-07-10", hora: "10:00", duracion: 30,
                 })
-                .then((turno) => medicoService.proponerCambioFecha(medico.id, turno.id, "2030-07-20", "11:00"))
+                .then((turno) => medicoService.proponerCambioFecha(medico.id, turno.id, "2030-07-10", "14:00"))
             )
             .then((turno) => {
                 expect(turno.estado).toBe(ESTADOS.PROPUESTA_MEDICO);
-                expect(turno.propuestaMedicoFecha.nuevaFecha).toBe("2030-07-20");
+                expect(turno.propuestaMedicoFecha.nuevaFecha).toBe("2030-07-10");
                 expect(turno.propuestaMedicoFecha.estado).toBe("pendiente");
             });
     });

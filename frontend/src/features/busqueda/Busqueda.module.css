@@ -1,0 +1,348 @@
+/* ====== PAGE ====== */
+.page { max-width: 80rem; margin: 0 auto; padding: 1rem; }
+
+.header        { margin-bottom: 1rem; }
+.pageTitle     { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+.pageSubtitle  { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
+
+.results    { min-height: 25rem; min-width: 0; }
+.resultsList { display: flex; flex-direction: column; gap: 1rem; }
+
+.resultCount        { font-size: 0.875rem; color: #64748b; margin-bottom: 1rem; }
+.resultCount strong { color: #0f172a; }
+
+.resultCountDia { font-size: 0.875rem; }
+.diaLabel       { text-transform: capitalize; }
+
+.gruposContainer { display: flex; flex-direction: column; gap: 0.625rem; }
+
+.emptyDay     { text-align: center; padding: 3rem 0; }
+.emptyDayIcon { font-size: 2rem; margin-bottom: 0.5rem; }
+.emptyDayText { color: #64748b; font-size: 0.9375rem; }
+
+.emptyState { text-align: center; padding: 5rem 0; }
+.emptyIcon  { font-size: 3rem; margin-bottom: 1rem; }
+.emptyTitle { font-size: 1.125rem; font-weight: 600; color: #334155; }
+.emptyText  { color: #64748b; margin-top: 0.5rem; font-size: 0.875rem; }
+
+.errorBox   { background-color: var(--c-error-bg); border: 1px solid var(--c-error-border); color: var(--c-error); border-radius: 0.75rem; padding: 1.5rem; text-align: center; }
+.errorIcon  { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.errorTitle { font-weight: 600; }
+.errorText  { font-size: 0.875rem; margin-top: 0.25rem; }
+
+@media (min-width: 1024px) {
+  .page   { padding: 2rem 1.5rem; }
+  .layout { grid-template-columns: 300px 1fr; }
+}
+
+@media (min-width: 1280px) { .page { padding: 2rem 2rem; } }
+
+/* ====== FILTROS ====== */
+.filtrosForm {
+  background: #fff;
+  border-radius: 0.875rem;
+  border: 1px solid #cdeeee;
+  padding: 1.25rem;
+  position: sticky;
+  top: 5rem;
+  box-shadow: 0 2px 16px rgba(15, 118, 110, 0.08);
+}
+
+.filtrosHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.filtrosTitle  { font-weight: 600; color: #0f172a; }
+
+.filtrosToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.filtrosToggle:hover        { background: #f0fdfa; }
+.filtrosToggle:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+
+.filtrosToggleIcon {
+  font-size: 1.25rem;
+  color: #0f766e;
+  font-weight: 300;
+  line-height: 1;
+  display: inline-block;
+  width: 1rem;
+  text-align: center;
+}
+
+.filtrosCuerpo {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease;
+}
+.filtrosCuerpoCollapsed { grid-template-rows: 0fr; }
+
+.filtrosCuerpoInner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.875rem;
+}
+
+.filtrosFields { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.campo      { display: flex; flex-direction: column; }
+.campoLabel { display: block; font-size: 0.75rem; font-weight: 500; color: #475569; margin-bottom: 0.25rem; }
+
+.campoInput,
+.campoSelect {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid #cdeeee;
+  outline: none;
+  background-color: #f8fafc;
+  color: #0f172a;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+  box-sizing: border-box;
+}
+
+.campoInput::placeholder { color: #94a3b8; }
+.campoInput:focus,
+.campoSelect:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15);
+  background-color: #fff;
+}
+
+/* ====== AUTOCOMPLETADO (especialidad / práctica) ====== */
+.autocompleteWrap { position: relative; }
+
+.sugerencias {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-height: 13.5rem;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #cdeeee;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.14);
+}
+
+.sugerenciaItem {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  color: #334155;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerenciaActiva { background-color: #f0fdfa; color: #0f766e; }
+
+.filtrosBtns { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.25rem; }
+
+.buscarBtn {
+  width: 100%;
+  padding: 0.625rem;
+  background: linear-gradient(135deg, #0f766e 0%, #06b6d4 100%);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s, background 0.2s;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.buscarBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #115e59 0%, #0891b2 100%);
+  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.30);
+  transform: translateY(-1px);
+}
+.buscarBtn:active:not(:disabled)  { transform: translateY(0); }
+.buscarBtn:focus-visible           { outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.45); }
+.buscarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.spinner   { width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
+
+.limpiarBtn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.limpiarBtn:hover        { color: #64748b; }
+.limpiarBtn:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; border-radius: 0.25rem; }
+
+/* ====== RESULTADOS DIA (legacy — retained) ====== */
+.diaHeader { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.diaTitle  { font-size: 1rem; font-weight: 600; color: #0f172a; text-transform: capitalize; }
+.diaBadge  { font-size: 0.75rem; color: #94a3b8; background-color: #f1f5f9; padding: 0.125rem 0.5rem; border-radius: 9999px; }
+
+/* ====== TARJETA TURNO ====== */
+.tarjeta {
+  background: #fff;
+  border-radius: 0.875rem;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  box-shadow: 0 1px 4px rgba(15, 118, 110, 0.06);
+}
+.tarjeta:hover {
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.12);
+  transform: translateY(-2px);
+  border-color: #cdeeee;
+}
+
+.tarjetaSeleccionada {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.18);
+}
+.tarjetaSeleccionada:hover {
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.22), 0 8px 24px rgba(15, 118, 110, 0.12);
+}
+
+.tarjetaHeader   { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.tarjetaHora     { font-weight: 700; color: #0f172a; font-size: 1.125rem; line-height: 1; }
+.tarjetaDuracion { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+
+.tarjetaServicio { font-size: 0.875rem; font-weight: 600; color: #0f172a; }
+.tarjetaTipo     { font-size: 0.75rem; color: #94a3b8; text-transform: capitalize; margin-top: 0.125rem; }
+
+.tarjetaHoraBloque  { display: flex; flex-direction: column; }
+.tarjetaInfoServicio { }
+.tarjetaInfoMedico   { }
+
+.tarjetaMedico { font-size: 0.875rem; color: #334155; }
+
+.tarjetaSede     { font-size: 0.75rem; color: #64748b; }
+.tarjetaDireccion { color: #94a3b8; }
+
+.tarjetaFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+  margin-top: auto;
+}
+
+.precio       { color: #0f172a; font-weight: 700; font-size: 0.875rem; }
+.precioGratis { color: var(--c-success); font-weight: 700; font-size: 0.875rem; }
+.precioTachado { font-size: 0.75rem; color: #94a3b8; text-decoration: line-through; }
+
+.agregarBtn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.agregarBtn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.35); }
+
+.agregarBtnInactivo { background-color: #f0fdfa; color: #0f766e; }
+.agregarBtnInactivo:hover { background-color: #ccfbf1; color: #115e59; }
+
+.agregarBtnActivo {
+  background: linear-gradient(135deg, #0f766e 0%, #06b6d4 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25);
+}
+.agregarBtnActivo:hover {
+  background: linear-gradient(135deg, #115e59 0%, #0891b2 100%);
+}
+
+.spinnerCircle { opacity: 0.25; }
+.spinnerPath   { opacity: 0.75; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ====== TARJETA MÓVIL: grid 2 columnas (info | precio+botón) ====== */
+@media (max-width: 560px) {
+  .tarjeta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 0.75rem;
+    row-gap: 0.15rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.625rem;
+    align-items: center;
+  }
+  .tarjeta:hover { transform: none; box-shadow: 0 1px 4px rgba(15, 118, 110, 0.06); }
+
+  /* Columna izquierda — info apilada; min-width:0 habilita el truncado. */
+  .tarjetaHeader,
+  .tarjetaInfoServicio,
+  .tarjetaInfoMedico,
+  .tarjetaSede { grid-column: 1; min-width: 0; }
+
+  .tarjetaHeader    { align-items: center; }
+  .tarjetaTipo      { display: none; }
+  .tarjetaDireccion { display: none; }
+  .tarjetaDuracion  { margin-top: 0; }
+
+  /* Una sola línea con "…" — así la tarjeta se mantiene angosta y prolija. */
+  .tarjetaServicio,
+  .tarjetaMedico,
+  .tarjetaSede {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tarjetaServicio { font-size: 0.8125rem; }
+  .tarjetaMedico   { font-size: 0.8125rem; color: #475569; }
+  .tarjetaDuracion { font-size: 0.6875rem; }
+  .tarjetaSede     { font-size: 0.6875rem; }
+
+  /* Columna derecha — precio + botón centrados verticalmente */
+  .tarjetaFooter {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    align-self: stretch;
+    flex-shrink: 0;
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+    gap: 0.375rem;
+  }
+
+  .precio, .precioGratis { font-size: 0.8125rem; text-align: right; }
+  .precioTachado         { font-size: 0.6875rem; text-align: right; }
+  .agregarBtn            { padding: 0.3rem 0.625rem; font-size: 0.75rem; white-space: nowrap; }
+}
