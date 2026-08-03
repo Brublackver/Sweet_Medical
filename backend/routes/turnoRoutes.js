@@ -15,12 +15,15 @@ import { TurnoService }      from "../services/TurnoService.js";
 import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { medicoRepository, turnoRepository, medicoService } from "./medicoRoutes.js";
 import { notificacionService } from "./notificacionRoutes.js";
+import { avisoDisponibilidadService } from "./avisoDisponibilidadRoutes.js";
 import { requireAdmin } from "../middleware/authMiddleware.js";
 
 const turnoRouter = Router();
 const pacienteRepository = new PacienteRepository();
 
-export const turnoService = new TurnoService({ turnoRepository, medicoService, pacienteRepository, notificacionService });
+export const turnoService = new TurnoService({
+    turnoRepository, medicoService, pacienteRepository, notificacionService, avisoDisponibilidadService,
+});
 medicoService.setTurnoService(turnoService);
 
 const turnoController = new TurnoController({ turnoService });

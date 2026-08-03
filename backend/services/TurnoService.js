@@ -4,11 +4,12 @@ import { USUARIO_TIPOS, TIPOS_NOTIFICACION, RESULTADOS } from "../domain/Notific
 import { fechaHoyISO, isAppointmentBookable } from "../domain/tiempo.js";
 
 export class TurnoService {
-    constructor({ turnoRepository, medicoService, pacienteRepository, notificacionService } = {}) {
+    constructor({ turnoRepository, medicoService, pacienteRepository, notificacionService, avisoDisponibilidadService } = {}) {
         this.turnoRepository     = turnoRepository;
         this.medicoService       = medicoService;
         this.pacienteRepository  = pacienteRepository;
         this.notificacionService = notificacionService;
+        this.avisoDisponibilidadService = avisoDisponibilidadService ?? null;
     }
 
     obtenerTodos() {
@@ -22,6 +23,19 @@ export class TurnoService {
         return this.notificacionService
             .crear(usuarioTipo, usuarioId, tipo, mensaje, turnoId)
             .then(() => valor);
+    }
+
+    // Al cancelarse un turno queda un hueco libre en la agenda del médico: se le
+    // avisa a la fila de espera. Es deliberadamente "fire-and-forget" — la
+    // cancelación YA ocurrió y es lo que el usuario pidió, así que un problema
+    // evaluando avisos no puede convertirse en un error de la cancelación.
+    // Devuelve `valor` intacto para no alterar el encadenamiento.
+    _avisarFilaDeEspera(medicoId, fecha, valor) {
+        if (!this.avisoDisponibilidadService) return valor;
+        this.avisoDisponibilidadService
+            .evaluarPorMedicoYFecha(medicoId, fecha)
+            .catch(() => { /* silencioso: la fila de espera nunca rompe el flujo principal */ });
+        return valor;
     }
 
     // Deja registrado cómo se resolvió la notificación accionable que el usuario
@@ -127,6 +141,8 @@ export class TurnoService {
                         `El paciente canceló el turno del ${turno.fecha} ${turno.hora}. Motivo: ${motivo}`,
                         turno.id, actualizado
                     )
+                    // ...y el hueco liberado se ofrece a quien esté en la fila de espera.
+                    .then((valor) => this._avisarFilaDeEspera(turno.medicoId, turno.fecha, valor))
                 );
             });
     }
@@ -153,6 +169,8 @@ export class TurnoService {
                         `El médico canceló tu turno del ${turno.fecha} ${turno.hora}. Motivo: ${motivo}`,
                         turno.id, actualizado
                     )
+                    // ...y el hueco liberado se ofrece a quien esté en la fila de espera.
+                    .then((valor) => this._avisarFilaDeEspera(turno.medicoId, turno.fecha, valor))
                 );
             });
     }

@@ -5,6 +5,7 @@ import { MedicoRepository }      from "../repositories/MedicoRepository.js";
 import { TurnoRepository }       from "../repositories/TurnoRepository.js";
 import { sedeService }           from "./sedeRoutes.js";
 import { notificacionController } from "./notificacionRoutes.js";
+import { avisoDisponibilidadService } from "./avisoDisponibilidadRoutes.js";
 import { USUARIO_TIPOS }          from "../domain/Notificacion.js";
 import { requireOwnership, requireAdmin, requireAdminOrOwnership } from "../middleware/authMiddleware.js";
 
@@ -19,7 +20,7 @@ export const medicoRepository = new MedicoRepository();
 export const turnoRepository  = new TurnoRepository();
 
 // turnoService se inyecta desde turnoRoutes para resolver la dependencia circular
-export const medicoService = new MedicoService({ medicoRepository, sedeService });
+export const medicoService = new MedicoService({ medicoRepository, sedeService, avisoDisponibilidadService });
 // turnoService se inyecta después desde turnoRoutes para romper la dependencia circular.
 
 const medicoController = new MedicoController({ medicoService });

@@ -17,6 +17,7 @@
     "test:e2e": "cypress run",
     "test:e2e:open": "cypress open",
     "seed:passwords": "node backend/scripts/setDefaultPasswords.js",
+    "seed:disponibilidades": "node backend/scripts/seedDisponibilidades.js",
     "format": "prettier --write ."
   },
   "dependencies": {

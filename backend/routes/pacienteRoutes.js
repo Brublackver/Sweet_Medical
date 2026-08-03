@@ -17,6 +17,7 @@ import { PacienteService }    from "../services/PacienteService.js";
 import { PacienteRepository } from "../repositories/PacienteRepository.js";
 import { turnoService }       from "./turnoRoutes.js";
 import { notificacionController } from "./notificacionRoutes.js";
+import { avisoDisponibilidadController } from "./avisoDisponibilidadRoutes.js";
 import { USUARIO_TIPOS }      from "../domain/Notificacion.js";
 import { requireOwnership, requireAdmin, requireAdminOrOwnership } from "../middleware/authMiddleware.js";
 
@@ -87,5 +88,14 @@ pacienteRouter.route("/:id/notificaciones")
 
 pacienteRouter.route("/:id/notificaciones/:notificacionId")
     .patch(soloPaciente, notificacionController.marcarLeida(USUARIO_TIPOS.PACIENTE));
+
+// Fila de espera — avisos de disponibilidad. Recurso anidado bajo el paciente,
+// igual que las notificaciones: cada aviso es de un paciente concreto.
+pacienteRouter.route("/:id/avisos")
+    .get(soloPaciente,  avisoDisponibilidadController.obtenerTodos)
+    .post(soloPaciente, avisoDisponibilidadController.crear);
+
+pacienteRouter.route("/:id/avisos/:avisoId")
+    .delete(soloPaciente, avisoDisponibilidadController.cancelar);
 
 export default pacienteRouter;

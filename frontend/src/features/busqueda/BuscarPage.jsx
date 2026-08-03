@@ -5,6 +5,7 @@ import { usePaciente }    from '@/context/PacienteContext';
 import { buscarTurnos }   from '@/lib/api';
 import { hoyISO, enNDiasISO, esTurnoReservable } from '@/lib/fecha';
 import FiltrosBusqueda    from '@/components/busqueda/FiltrosBusqueda';
+import AvisoDisponibilidad from '@/components/busqueda/AvisoDisponibilidad';
 import CarruselDias       from '@/components/ui/CarruselDias';
 import ResultadosDia      from '@/components/busqueda/ResultadosDia';
 import EstadoCarga        from '@/components/ui/EstadoCarga';
@@ -28,7 +29,10 @@ export default function BuscarPage() {
   const [resultados, setResultados]         = useState(null);   // [{ fecha, turnos[] }]
   const [cargando,   setCargando]           = useState(false);
   const [error,      setError]              = useState('');
-  const [filtrosActivos, setFiltrosActivos] = useState(null);   // { fechaDesde, fechaHasta }
+  // Filtros de la última búsqueda ejecutada. Los usa el carrusel (fechaDesde /
+  // fechaHasta) y también la fila de espera, que necesita la búsqueda COMPLETA
+  // para poder repetirla más adelante.
+  const [filtrosActivos, setFiltrosActivos] = useState(null);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null); // "YYYY-MM-DD"
 
   useEffect(() => {
@@ -45,7 +49,15 @@ export default function BuscarPage() {
     const fechaDesde = filtros.fechaDesde || hoy();
     const fechaHasta = filtros.fechaHasta || en30Dias();
 
-    setFiltrosActivos({ fechaDesde, fechaHasta });
+    // Se guardan TODOS los filtros (no solo las fechas): si la búsqueda no
+    // devuelve nada, son los que se persisten en el aviso de disponibilidad.
+    // La obra social del paciente se adjunta como parte del criterio.
+    setFiltrosActivos({
+      ...filtros,
+      fechaDesde,
+      fechaHasta,
+      obraSocial: paciente.obraSocial ?? null,
+    });
     setDiaSeleccionado(null);
 
     buscarTurnos({ ...filtros, pacienteId: paciente.paciente_id })
@@ -103,6 +115,14 @@ export default function BuscarPage() {
                   No se encontraron turnos con estos filtros.<br />
                   Probá con otras fechas, especialidad o sede.
                 </p>
+
+                {/* Fila de espera: no hay turno hoy, pero puede aparecer mañana. */}
+                {filtrosActivos && (
+                  <AvisoDisponibilidad
+                    pacienteId={paciente.paciente_id}
+                    filtros={filtrosActivos}
+                  />
+                )}
               </div>
             }
           >

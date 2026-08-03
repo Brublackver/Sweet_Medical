@@ -6,6 +6,8 @@ import NuevoMedicoTab       from '@/components/admin/tabs/NuevoMedicoTab';
 import GestionarMedicoTab   from '@/components/admin/tabs/GestionarMedicoTab';
 import NuevoPacienteTab     from '@/components/admin/tabs/NuevoPacienteTab';
 import GestionarPacienteTab from '@/components/admin/tabs/GestionarPacienteTab';
+import ObrasSocialesTab     from '@/components/admin/tabs/ObrasSocialesTab';
+import PersonalTab          from '@/components/admin/tabs/PersonalTab';
 import styles from './AdminPage.module.css';
 
 const TABS = [
@@ -13,6 +15,8 @@ const TABS = [
   { id: 'gestionar-medico',  label: '👨‍⚕️ Gestionar Médico' },
   { id: 'nuevo-paciente',    label: '➕ Nuevo Paciente' },
   { id: 'gestionar-paciente', label: '👤 Gestionar Paciente' },
+  { id: 'obras-sociales',    label: '🏥 Obras Sociales' },
+  { id: 'personal',          label: '🧹 Personal' },
 ];
 
 export default function AdminPage() {
@@ -64,6 +68,8 @@ export default function AdminPage() {
             {seccion === 'gestionar-medico'  && <GestionarMedicoTab />}
             {seccion === 'nuevo-paciente'    && <NuevoPacienteTab />}
             {seccion === 'gestionar-paciente' && <GestionarPacienteTab />}
+            {seccion === 'obras-sociales'    && <ObrasSocialesTab />}
+            {seccion === 'personal'          && <PersonalTab />}
           </div>
         </div>
       </main>
