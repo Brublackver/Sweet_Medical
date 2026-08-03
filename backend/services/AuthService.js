@@ -16,11 +16,24 @@ const TIPO_POR_ROL = { paciente: "PACIENTE", medico: "MEDICO" };
 const CREDENCIALES_INVALIDAS = "Usuario o contraseña incorrectos";
 
 export class AuthService {
-    constructor({ pacienteRepository, medicoRepository, pacienteService, adminPassword } = {}) {
-        this.pacienteRepository = pacienteRepository;
-        this.medicoRepository   = medicoRepository;
-        this.pacienteService    = pacienteService;
-        this.adminPassword      = adminPassword;
+    constructor({ pacienteRepository, medicoRepository, pacienteService, pacienteDemoService, adminPassword } = {}) {
+        this.pacienteRepository  = pacienteRepository;
+        this.medicoRepository    = medicoRepository;
+        this.pacienteService     = pacienteService;
+        this.pacienteDemoService = pacienteDemoService;
+        this.adminPassword       = adminPassword;
+    }
+
+    // Sesión de prueba SIN registro: crea una cuenta temporal con obra social y
+    // plan asignados, y devuelve la sesión iniciada con el MISMO shape que el
+    // login. Para el frontend es un paciente más — por eso no hace falta tocar
+    // el contexto de sesión ni ningún flujo existente.
+    crearSesionDemo() {
+        return this.pacienteDemoService.crear()
+            .then((paciente) => {
+                const token = firmarToken({ tipo: "PACIENTE", id: paciente.pacienteId });
+                return { token, tipo: "PACIENTE", usuario: paciente };
+            });
     }
 
     // Auto-registro público: crea el paciente (con DNI único + hash, vía el

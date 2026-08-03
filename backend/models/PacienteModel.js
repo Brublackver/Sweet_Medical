@@ -18,7 +18,17 @@ const pacienteSchema = new Schema({
     nombre:     { type: String, required: true, trim: true },
     obraSocial: { type: String },
     plan:       { type: planSchema },
+    // Cuenta temporal de prueba, creada sin registro desde /demo.
+    esDemo:     { type: Boolean, default: false },
+    // Instante de vencimiento. Solo lo llevan las cuentas demo.
+    expiraEn:   { type: Date, default: null },
 }, { timestamps: true, id: false });
 pacienteSchema.virtual('id').get(function() { return this.pacienteId; });
 pacienteSchema.loadClass(Paciente);
+
+// Barrido de cuentas demo vencidas. No se usa un índice TTL de Mongo a propósito:
+// el TTL borraría el paciente pero dejaría sus turnos huérfanos ocupando agenda.
+// La limpieza se hace en el service, que borra la cuenta Y sus turnos.
+pacienteSchema.index({ esDemo: 1, expiraEn: 1 });
+
 export default model("Paciente", pacienteSchema);

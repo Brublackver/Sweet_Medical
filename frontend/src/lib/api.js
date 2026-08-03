@@ -32,6 +32,12 @@ export const login = (rol, usuario, password) =>
 export const registrarPaciente = (datos) =>
   api.post('/auth/registro', datos).then((r) => r.data.data);
 
+// Cuenta de prueba sin registro. El backend crea un invitado temporal con obra
+// social y plan asignados, y devuelve { token, tipo, usuario } — el mismo shape
+// que login, así la sesión se maneja igual que la de cualquier paciente.
+export const crearSesionDemo = () =>
+  api.post('/auth/demo').then((r) => r.data.data);
+
 export const getPaciente = (id) =>
   api.get(`/paciente/${id}`).then((r) => r.data.data);
 

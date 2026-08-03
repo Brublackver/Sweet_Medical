@@ -57,6 +57,12 @@ export class AvisoDisponibilidadRepository {
         return AvisoDisponibilidadModel.find({ estado: ESTADOS_AVISO.ACTIVO });
     }
 
+    // Borra los avisos de un paciente. Se usa al barrer cuentas demo vencidas:
+    // un aviso de alguien que ya no existe nunca podría notificarse.
+    eliminarPorPaciente(pacienteId) {
+        return AvisoDisponibilidadModel.deleteMany({ pacienteId });
+    }
+
     actualizar(aviso) {
         return AvisoDisponibilidadModel.findOneAndUpdate(
             { avisoId: aviso.id },

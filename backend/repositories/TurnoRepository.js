@@ -50,6 +50,13 @@ export class TurnoRepository {
         return TurnoModel.find({ medicoId, pacienteId });
     }
 
+    // Borra todos los turnos de un paciente. Se usa al barrer cuentas demo
+    // vencidas: si no, los turnos quedarían huérfanos ocupando agenda para
+    // siempre. Los turnos de pacientes REALES nunca se borran — se cancelan.
+    eliminarPorPaciente(pacienteId) {
+        return TurnoModel.deleteMany({ pacienteId });
+    }
+
     crear(medicoId, pacienteId, fecha, hora, duracion, snapshotMedico, snapshotPaciente) {
         const ahora = new Date().toISOString();
         return this._siguienteId()

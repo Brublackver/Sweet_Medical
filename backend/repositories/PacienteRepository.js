@@ -89,6 +89,25 @@ export class PacienteRepository {
                 nombre:     datos.nombre,
                 obraSocial: datos.obraSocial,
                 plan:       datos.plan,
+                esDemo:     datos.esDemo   === true,
+                expiraEn:   datos.expiraEn ?? null,
             }).save());
+    }
+
+    // --- Cuentas demo -------------------------------------------------------
+
+    // Número incremental para armar identificadores únicos de invitado
+    // (usuario y DNI). Contador propio, separado del de pacientes.
+    siguienteNumeroDemo() {
+        return ContadorModel.findOneAndUpdate(
+            { nombre: "pacienteDemo" },
+            { $inc: { valor: 1 } },
+            { new: true, upsert: true }
+        ).then((doc) => doc.valor);
+    }
+
+    // Cuentas demo cuyo plazo ya venció. Son las que hay que barrer.
+    obtenerDemosExpirados(ahora = new Date()) {
+        return PacienteModel.find({ esDemo: true, expiraEn: { $lte: ahora } });
     }
 }

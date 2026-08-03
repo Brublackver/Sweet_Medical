@@ -19,4 +19,11 @@ export class AuthController {
             .then((datos) => this.authService.registrarPaciente(datos))
             .then((data) => res.status(201).json({ status: "success", data }))
             .catch(next);
+
+    // POST /auth/demo — cuenta de prueba PÚBLICA, sin body ni credenciales.
+    // Devuelve la sesión ya iniciada, igual que /login y /registro.
+    sesionDemo = (req, res, next) =>
+        this.authService.crearSesionDemo()
+            .then((data) => res.status(201).json({ status: "success", data }))
+            .catch(next);
 }

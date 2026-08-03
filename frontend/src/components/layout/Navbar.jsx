@@ -122,7 +122,11 @@ export default function Navbar() {
           {mounted && (paciente || medico) && (
             <span className={styles.userName}>
               Hola, <strong>{paciente?.nombre ?? medico?.nombre}</strong>
-              <span> {medico ? '(Médico)' : '(Paciente)'}</span>
+              {/* Las cuentas de prueba se marcan: el invitado tiene que saber
+                  que lo que reserve se va a borrar solo. */}
+              {paciente?.es_demo
+                ? <span className={styles.demoTag} title="Cuenta temporal de prueba">cuenta de prueba</span>
+                : <span> {medico ? '(Médico)' : '(Paciente)'}</span>}
             </span>
           )}
 
