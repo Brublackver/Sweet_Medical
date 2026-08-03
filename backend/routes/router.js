@@ -6,6 +6,7 @@ import pacienteRouter    from "./pacienteRoutes.js";
 import sedeRouter        from "./sedeRoutes.js";
 import obraSocialRouter  from "./obraSocialRoutes.js";
 import busquedaRouter    from "./busquedaRoutes.js";
+import personalRouter    from "./personalRoutes.js";
 import healthcheckRouter from "./healthCheck.js";
 import authRouter        from "./authRoutes.js";
 import { requireAuth }   from "../middleware/authMiddleware.js";
@@ -26,5 +27,7 @@ router.use("/turno",    requireAuth, turnoRouter);
 router.use("/paciente", requireAuth, pacienteRouter);
 router.use("/sede",     requireAuth, sedeRouter);
 router.use("/turno",    requireAuth, busquedaRouter);
+// Personal no médico (administración / limpieza) — módulo propio, solo admin.
+router.use("/personal", requireAuth, personalRouter);
 
 export default router;

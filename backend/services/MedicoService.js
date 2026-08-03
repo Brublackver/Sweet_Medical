@@ -2,14 +2,25 @@ import { NotFoundError, BadRequestError, ConflictError } from "../errors/AppErro
 import { hashPassword } from "../auth/password.js";
 
 export class MedicoService {
-    constructor({ medicoRepository, sedeService } = {}) {
+    constructor({ medicoRepository, sedeService, avisoDisponibilidadService } = {}) {
         this.medicoRepository = medicoRepository;
         this.sedeService      = sedeService;
         this.turnoService     = null;
+        this.avisoDisponibilidadService = avisoDisponibilidadService ?? null;
     }
 
     setTurnoService(turnoService) {
         this.turnoService = turnoService;
+    }
+
+    // Abrir o ampliar disponibilidad crea slots nuevos: se le avisa a la fila de
+    // espera. Fire-and-forget — la agenda ya se guardó y no puede fallar por esto.
+    _avisarFilaDeEspera(medicoId, fecha, valor) {
+        if (!this.avisoDisponibilidadService || !fecha) return valor;
+        this.avisoDisponibilidadService
+            .evaluarPorMedicoYFecha(medicoId, fecha)
+            .catch(() => { /* silencioso: la fila de espera nunca rompe el flujo principal */ });
+        return valor;
     }
 
     obtenerPorId(id) {
@@ -94,7 +105,9 @@ export class MedicoService {
             .then((medico) => {
                 medico.definirDisponibilidad(body);
                 return this.medicoRepository.actualizar(medico);
-            });
+            })
+            // Hay agenda nueva en esa fecha → puede haber gente esperándola.
+            .then((actualizado) => this._avisarFilaDeEspera(id, body.fecha, actualizado));
     }
 
     cambiarDisponibilidad(id, body) {
@@ -104,7 +117,9 @@ export class MedicoService {
                 if (!cambiado)
                     return Promise.reject(new BadRequestError(`No existe disponibilidad para la fecha ${body.fecha}`));
                 return this.medicoRepository.actualizar(medico);
-            });
+            })
+            // El cambio de horario puede haber abierto slots que antes no existían.
+            .then((actualizado) => this._avisarFilaDeEspera(id, body.fecha, actualizado));
     }
 
     obtenerDisponibilidadPorId(medicoId, disponibilidadId) {

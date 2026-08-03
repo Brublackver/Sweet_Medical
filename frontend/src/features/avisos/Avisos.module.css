@@ -1,0 +1,80 @@
+/* ====== PAGE ====== */
+/* Mismo esqueleto que Notificaciones: son dos vistas hermanas (avisos y
+   novedades) y deben sentirse parte de la misma familia. */
+.page { max-width: 48rem; margin: 0 auto; padding: 2rem 1rem; }
+
+.header       { margin-bottom: 2rem; }
+.pageTitle    { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+.pageSubtitle { color: #64748b; margin-top: 0.25rem; font-size: 0.875rem; }
+
+.errorMsg {
+  margin-bottom: 1rem; padding: 0.75rem 1rem; font-size: 0.875rem;
+  color: var(--c-error); background-color: var(--c-error-bg); border: 1px solid var(--c-error-border);
+  border-radius: 0.5rem;
+}
+
+.emptyState { text-align: center; padding: 4rem 0; }
+.emptyIcon  { font-size: 3rem; margin-bottom: 1rem; }
+.emptyTitle { font-size: 1.125rem; font-weight: 600; color: #334155; }
+.emptyText  { color: #94a3b8; margin-top: 0.5rem; font-size: 0.875rem; }
+
+.emptyLink {
+  display: inline-block; margin-top: 1.25rem;
+  padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600;
+  color: #fff; background: var(--c-primary);
+  border-radius: 0.5rem; text-decoration: none;
+}
+.emptyLink:hover         { background: var(--c-primary-dark); }
+.emptyLink:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+
+/* ====== TARJETA DE AVISO ====== */
+.aviso {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.05);
+}
+.aviso:hover { box-shadow: 0 4px 12px rgba(15, 118, 110, 0.08); }
+
+.avisoFila  { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.avisoTexto { min-width: 0; }
+
+.avisoDescripcion { font-size: 0.9375rem; font-weight: 600; color: var(--c-text); }
+.avisoRango       { font-size: 0.8125rem; color: var(--c-text-3); margin-top: 0.375rem; }
+.avisoFecha       { font-size: 0.75rem; color: var(--c-text-4); margin-top: 0.25rem; }
+
+/* Estado: SIEMPRE con texto, nunca sólo color (WCAG 1.4.1), igual que el
+   resto de los badges del sistema. */
+.estadoTag {
+  flex-shrink: 0;
+  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 0.25rem 0.5rem; border-radius: 0.375rem;
+  white-space: nowrap;
+}
+
+.estadoActivo     { color: var(--c-info);    background: var(--c-info-bg);    border: 1px solid var(--c-info-border); }
+.estadoNotificado { color: var(--c-success); background: var(--c-success-bg); border: 1px solid var(--c-success-border); }
+.estadoCancelado  { color: var(--c-text-3);  background: var(--c-subtle);     border: 1px solid var(--c-border); }
+
+/* ====== ACCIONES ====== */
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.btnBuscar {
+  padding: 0.4375rem 0.875rem; font-size: 0.8125rem; font-weight: 600;
+  color: #fff; background: var(--c-primary);
+  border: none; border-radius: 0.5rem; text-decoration: none; cursor: pointer;
+}
+.btnBuscar:hover         { background: var(--c-primary-dark); }
+.btnBuscar:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+
+.btnCancelar {
+  padding: 0.4375rem 0.875rem; font-size: 0.8125rem; font-weight: 600;
+  color: var(--c-error); background: #fff;
+  border: 1px solid var(--c-error-border); border-radius: 0.5rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.btnCancelar:hover:not(:disabled) { background: var(--c-error-bg); }
+.btnCancelar:disabled             { opacity: 0.6; cursor: not-allowed; }
+.btnCancelar:focus-visible        { outline: 2px solid var(--c-error); outline-offset: 2px; }

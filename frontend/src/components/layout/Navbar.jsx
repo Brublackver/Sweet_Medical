@@ -128,6 +128,7 @@ export default function Navbar() {
 
           {mounted && paciente && navLink('/buscar',         '🔍 Buscar')}
           {mounted && paciente && navLink('/mis-turnos',     '📋 Mis turnos')}
+          {mounted && paciente && navLink('/avisos',         '⏳ Avisos')}
           {mounted && paciente && navLinkNotif('/notificaciones', '🔔 Notificaciones', cantidad)}
 
           {mounted && medico && navLink('/medico/turnos',         '📋 Mis turnos')}

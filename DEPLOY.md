@@ -50,6 +50,33 @@ Ambos servicios están desplegados en Railway como dos servicios separados dentr
 
 ---
 
+## Datos iniciales (obligatorio en un entorno nuevo)
+
+Los catálogos de **sedes** y **obras sociales** se siembran solos en cada arranque
+del backend. El **plantel médico y su agenda**, no: sin eso la búsqueda no
+devuelve nada y la app parece rota.
+
+Con `MONGODB_URI` apuntando a la base del entorno nuevo:
+
+```bash
+npm run seed:disponibilidades      # plantel + 7 meses de agenda
+MESES=12 npm run seed:disponibilidades   # horizonte a medida
+```
+
+Crea los médicos que falten (contraseña inicial = su usuario), les completa
+especialidades, prácticas y sedes, y les carga agenda de lunes a sábado según el
+patrón semanal de cada uno.
+
+Es **idempotente**: se puede correr las veces que haga falta. No duplica médicos
+(los busca por `usuario`), no pisa servicios existentes y saltea las fechas que ya
+tienen agenda cargada.
+
+> **Reejecutar cada tantos meses.** La agenda es un horizonte móvil desde el día
+> que se corre el seed. Cuando se acerque el final del horizonte, volver a correrlo
+> para extenderlo — solo agrega las fechas nuevas.
+
+---
+
 ## Nueva release
 
 Railway redespliega automáticamente con cada push a la rama `Entrega-3-v2`.

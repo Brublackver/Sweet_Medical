@@ -45,9 +45,10 @@ export const getAllPacientes = () =>
 export const getAllSedes = () =>
   api.get('/sede').then((r) => r.data.data);
 
-// Catálogo de obras sociales con sus planes (datos maestros, solo lectura).
-export const getAllObrasSociales = () =>
-  api.get('/obra-social').then((r) => r.data.data);
+// Catálogo de obras sociales con sus planes, estado y suscripción.
+// filtros opcionales: { activa: true|false, vigente: true|false }
+export const getAllObrasSociales = (filtros) =>
+  api.get('/obra-social', { params: filtros }).then((r) => r.data.data);
 
 export const buscarTurnos = (params) =>
   api.get('/turno/buscar', { params }).then((r) => r.data.data);
@@ -168,3 +169,58 @@ export const marcarNotificacionLeida = (usuarioTipo, usuarioId, notificacionId, 
       ...(resultado ? { resultado } : {}),
     })
     .then((r) => r.data.data);
+
+// --- Fila de espera (avisos de disponibilidad) -----------------------------
+// El aviso guarda los filtros de una búsqueda que no dio resultados. Cuando
+// aparece un turno que coincide, el backend genera una notificación.
+
+// estado opcional: 'ACTIVO' | 'NOTIFICADO' | 'CANCELADO'
+export const getAvisosDisponibilidad = (pacienteId, estado) =>
+  api
+    .get(`/paciente/${pacienteId}/avisos`, { params: estado ? { estado } : {} })
+    .then((r) => r.data.data);
+
+export const crearAvisoDisponibilidad = (pacienteId, filtros) =>
+  api.post(`/paciente/${pacienteId}/avisos`, filtros).then((r) => r.data.data);
+
+export const cancelarAvisoDisponibilidad = (pacienteId, avisoId) =>
+  api.delete(`/paciente/${pacienteId}/avisos/${avisoId}`).then((r) => r.data.data);
+
+// --- Obras sociales: suscripciones (admin) ---------------------------------
+export const getObraSocial = (id) =>
+  api.get(`/obra-social/${id}`).then((r) => r.data.data);
+
+export const crearObraSocial = (datos) =>
+  api.post('/obra-social', datos).then((r) => r.data.data);
+
+export const getEstadoSuscripcion = (id) =>
+  api.get(`/obra-social/${id}/suscripcion`).then((r) => r.data.data);
+
+export const registrarSuscripcion = (id, datos) =>
+  api.put(`/obra-social/${id}/suscripcion`, datos).then((r) => r.data.data);
+
+export const cambiarEstadoSuscripcion = (id, activa) =>
+  api.patch(`/obra-social/${id}/suscripcion/estado`, { activa }).then((r) => r.data.data);
+
+export const cambiarEstadoObraSocial = (id, activa) =>
+  api.patch(`/obra-social/${id}/estado`, { activa }).then((r) => r.data.data);
+
+// --- Personal no médico: administración y limpieza (admin) -----------------
+// filtros opcionales: { tipo: 'ADMINISTRACION'|'LIMPIEZA', activo: true|false }
+export const getAllPersonal = (filtros) =>
+  api.get('/personal', { params: filtros }).then((r) => r.data.data);
+
+export const getTiposPersonal = () =>
+  api.get('/personal/tipos').then((r) => r.data.data);
+
+export const crearPersonal = (datos) =>
+  api.post('/personal', datos).then((r) => r.data.data);
+
+export const actualizarPersonal = (id, datos) =>
+  api.put(`/personal/${id}`, datos).then((r) => r.data.data);
+
+export const cambiarEstadoPersonal = (id, activo) =>
+  api.patch(`/personal/${id}/estado`, { activo }).then((r) => r.data.data);
+
+export const eliminarPersonal = (id) =>
+  api.delete(`/personal/${id}`).then((r) => r.data);
