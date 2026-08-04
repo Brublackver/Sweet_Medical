@@ -80,7 +80,13 @@ export default function LoginPage() {
           loginPaciente(sesion.usuario);
           router.push('/buscar');
         })
-        .catch(() => setError('No pudimos crear la cuenta de prueba. Intentá de nuevo.'))
+        // Se distingue "el servidor respondió mal" de "no llegamos al servidor":
+        // son problemas distintos y un mensaje único los tapa a los dos.
+        .catch((err) => setError(
+          err.response
+            ? `No pudimos crear la cuenta de prueba (el servidor respondió ${err.response.status}). Intentá de nuevo.`
+            : 'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.'
+        ))
         .finally(() => setCargando(false));
       return;
     }
@@ -103,7 +109,9 @@ export default function LoginPage() {
       .catch((err) => setError(
         err.response?.status === 401
           ? (rol === 'admin' ? 'Contraseña incorrecta.' : 'Usuario o contraseña incorrectos.')
-          : 'Ocurrió un error al conectar con el servidor. Intentá de nuevo.'
+          : err.response
+            ? `Ocurrió un error en el servidor (${err.response.status}). Intentá de nuevo.`
+            : 'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.'
       ))
       .finally(() => setCargando(false));
   };
