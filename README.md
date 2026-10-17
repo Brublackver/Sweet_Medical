@@ -1,26 +1,57 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Hp1cF9Q4)
+# 🏥 Sweet Medical
 
-# 2026 1C - TP BACKEND. Entrega-1.
+Plataforma web de gestión de turnos médicos. Trabajo práctico grupal de Desarrollo de Software (UTN FRBA), actualmente desplegado en producción.
 
-[Enunciado](https://docs.google.com/document/d/1U5EYxgEFmlcIr6KldAwtHsrHBdGdVMfGUFunTRVTvwI/edit?usp=sharing)
+## ¿Qué problema resuelve?
 
-## Endpoints
+Un turno no es solo una fila en una base de datos: es una persona que quiere saber cuánto le cubre su obra social antes de reservar, o que necesita enterarse si se libera un lugar. Las decisiones técnicas del proyecto salieron de ahí.
 
-- localhost:3000/healthcheck (GET)
-- localhost:3000/medico/1/disponibilidad (CRUD)
+## Funcionalidades
 
-GIT FLOW
-Ramas:
+**Pacientes**
+- Búsqueda de turnos filtrando por especialidad, sede y obra social.
+- Descuento del plan aplicado en tiempo real.
+- Fila de espera: si no hay disponibilidad, el paciente se anota y recibe un aviso cuando se libera un horario.
 
-main — código base inicial del proyecto Carpeta backend
+**Médicos**
+- Gestión de su agenda y disponibilidad horaria.
+- Gestión de solicitudes de turnos.
 
-Entrega-1 — primera versión con las funcionalidades básicas (CRUD médicos, disponibilidad, turnos)
+**Administración**
+- Panel para gestionar el plantel médico y las obras sociales.
 
-Entrega-1-v2 — evolución de Entrega-1, donde se agregaron mejoras, más funcionalidades y los tests unitarios
-El flujo fue:
+## Arquitectura
 
-main ← Entrega-1 ← Entrega-1-v2
-Arrancamos desde main
-Creamos Entrega-1 para desarrollar el MVP
+- **Backend por capas:** dominio, servicios, repositorios y controladores.
+- **API REST** con Express, documentada en Swagger ([ruta de la documentación]).
+- **Validación** de datos de entrada con Zod.
+- **Autenticación JWT con roles** (paciente, médico y administrador), con middlewares que verifican permisos y pertenencia en cada endpoint protegido.
+- **Frontend desacoplado** en Next.js y React, con foco en accesibilidad: etiquetas ARIA, navegación por teclado, contrastes verificados, diseño responsive y un linter de accesibilidad automático.
+- **Base de datos:** MongoDB (MongoDB Atlas en producción).
+- **Contenedores:** Docker y Docker Compose. Frontend y backend se despliegan como servicios independientes en Render.
 
-Creamos Entrega-1-v2 para agregar funcionalidades faltantes y los 2 tests unitarios
+## Stack
+
+MongoDB · Express · React · Node.js · Next.js · Docker · Zod · JWT · Swagger · Cypress
+
+## Estructura del repositorio
+
+```
+backend/      API (dominio, servicios, repositorios, controladores)
+frontend/     Aplicación Next.js / React
+cypress/      Tests end-to-end
+DEPLOY.md     Guía de despliegue
+Req-No-Funcionales.md   Requerimientos no funcionales
+gitFlow.md    Flujo de ramas utilizado
+```
+
+## Equipo
+
+- Maia De Blasis
+- David Saghatelyan
+- Boris Dvoretsky
+- Bruno Verdún: 
+
+## Aprendizajes
+
+La parte difícil no fue el código, sino entender a quién le estábamos programando, discutir las decisiones en equipo, ceder cuando correspondía y sostener una postura cuando teníamos razón.
