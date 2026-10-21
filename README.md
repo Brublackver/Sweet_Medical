@@ -2,6 +2,8 @@
 
 Plataforma web de gestión de turnos médicos. Trabajo práctico grupal de Desarrollo de Software (UTN FRBA), actualmente desplegado en producción.
 
+Link al prototipo: https://sweet-medical-front.onrender.com/
+
 ## ¿Qué problema resuelve?
 
 Un turno no es solo una fila en una base de datos: es una persona que quiere saber cuánto le cubre su obra social antes de reservar, o que necesita enterarse si se libera un lugar. Las decisiones técnicas del proyecto salieron de ahí.
